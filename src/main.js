@@ -401,6 +401,93 @@ function plazaLightReflections(){
   patch.rotation.x=-Math.PI/2;patch.position.set(x,.079,z);world.add(patch)
  }
 }
+// V2.6: geometry-aware architectural finishing, inspired by the approved tower reference.
+// Unlike a front-facing picture, these textures wrap around the real 3D geometry.
+function towerCladdingTexture(){
+ const c=document.createElement('canvas');c.width=512;c.height=1024;
+ const q=c.getContext('2d');q.fillStyle='#0c1020';q.fillRect(0,0,512,1024);
+ let seed=9371;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ for(let x=0;x<512;x+=64){
+  const grad=q.createLinearGradient(x,0,x+64,0);
+  grad.addColorStop(0,'#070911');grad.addColorStop(.22,'#1e263e');
+  grad.addColorStop(.54,x%128?'#11172a':'#242d47');grad.addColorStop(.86,'#090e1d');
+  grad.addColorStop(1,'#040712');q.fillStyle=grad;q.fillRect(x,0,64,1024);
+  q.fillStyle='rgba(138,154,203,.29)';q.fillRect(x+4,0,1.5,1024);
+  q.fillStyle='rgba(8,9,16,.85)';q.fillRect(x+58,0,5,1024);
+  q.fillStyle=(x/64)%3?'rgba(112,160,248,.45)':'rgba(183,105,255,.55)';
+  q.fillRect(x+48,0,2.3,1024);
+ }
+ for(let y=30;y<1024;y+=84){
+   for(let x=9;x<512;x+=64){
+     q.fillStyle='rgba(91,106,143,.23)';q.fillRect(x,y,40,2);
+     q.fillStyle='rgba(0,0,0,.3)';q.fillRect(x,y+4,40,1);
+     q.fillStyle='rgba(115,158,254,.09)';q.fillRect(x+8,y+9,24,2);
+   }
+ }
+ for(let i=0;i<650;i++){
+  const x=rnd()*512,y=rnd()*1024;
+  q.fillStyle='rgba(150,171,229,.035)';q.fillRect(x,y,1+rnd()*2,1+rnd()*16);
+ }
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+ t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+ return t;
+}
+function towerFinishing(){
+ const finish=towerCladdingTexture();
+ const clad=new THREE.MeshStandardMaterial({map:finish,color:0x9295b1,metalness:.72,
+   roughness:.22,emissive:0x15102a,emissiveIntensity:.23});
+ const edgeMetal=new THREE.MeshStandardMaterial({color:0x555b78,metalness:.83,roughness:.18,
+   emissive:0x191332,emissiveIntensity:.22});
+ const recess=new THREE.MeshStandardMaterial({color:0x101424,metalness:.78,roughness:.24});
+ const violetGlow=new THREE.MeshBasicMaterial({color:0xb58dff});
+ const iceGlow=new THREE.MeshBasicMaterial({color:0x98caff});
+ // Ribs follow the original fin locations on both faces; no new outside massing.
+ for(const side of [-1,1]){
+  for(let j=0;j<7;j++){
+    const x=side*(8+j*5.0),h=156-j*14.5,z=17-j*1.4,w=j<3?3.5:2.9;
+    const front=z+2.8;
+    // Black-glass architectural panels, framed with shallow metallic bevel geometry.
+    panel([x,h/2+5,front+.12],[w*.77,h*.87,.16],clad);
+    panel([x,h/2+5,front+.22],[w*.49,h*.83,.035],recess);
+    for(const offset of [-1,1]){
+      panel([x+offset*w*.405,h/2+5,front+.26],[.15,h*.87,.12],edgeMetal);
+    }
+    panel([x+side*w*.29,h/2+5,front+.37],[.09,h*.82,.055],j%3===0?iceGlow:violetGlow);
+    // Turn both ends into a proper 3D building: lateral and rear surface detailing.
+    const outerX=x+side*(w/2+.12);
+    panel([outerX,h*.48+5,z],[.16,h*.85,4.9],clad);
+    panel([outerX+side*.11,h*.50+5,z-1.5],[.075,h*.78,.13],j%2?iceGlow:violetGlow);
+    panel([x,h*.48+5,z-2.88],[w*.7,h*.81,.15],clad);
+    panel([x,h*.50+5,z-3.01],[.08,h*.77,.09],j%2?violetGlow:iceGlow);
+    for(let k=1;k<4;k++){
+      const yy=6+k*(h*.76)/4;
+      panel([x,yy,front+.4],[w*.66,.10,.05],edgeMetal);
+    }
+  }
+  // Existing entrance shoulders become polished stacked wall elements.
+  for(let j=0;j<4;j++){
+    const x=side*(13.5+j*5.2);
+    panel([x,11.5,31.75-j*.72],[3.1,21,.22],j%2?clad:edgeMetal);
+    panel([x+side*1.55,11.4,31.93-j*.72],[.085,20.3,.10],j%2?iceGlow:violetGlow);
+  }
+ }
+ // Tall central spine has nested bevels and high-value blue-white/violet lights.
+ for(const side of [-1,1]){
+    panel([side*5.1,131,8.65],[3.3,54,.30],clad);
+    panel([side*6.55,131,8.85],[.16,53,.14],edgeMetal);
+    panel([side*6.28,130,9.00],[.095,49,.08],side>0?iceGlow:violetGlow);
+ }
+ // Horizontal sign trim plus realistic light-emitting architectural canopy.
+ panel([0,110.2,25.74],[29,.24,.20],edgeMetal);
+ panel([0,109.97,25.87],[28.1,.065,.10],violetGlow);
+ panel([0,71.2,25.76],[28,.18,.15],edgeMetal);
+ // These point lights illuminate surfaces; they do not change player controls.
+ for(const [x,y,z,col] of [[-19,85,39,0x9270ff],[19,85,39,0x8abfff],
+                          [0,127,28,0xa48aff],[-11,15,40,0xe4c7ff],[11,15,40,0xabcfff]]){
+  const light=new THREE.PointLight(col,19,72,2);light.position.set(x,y,z);world.add(light);
+ }
+}
+
 function towerV16(){
  const metal=new THREE.MeshStandardMaterial({color:0x49566b,metalness:.7,roughness:.18,emissive:0x292141,emissiveIntensity:.32});
  const ink=new THREE.MeshStandardMaterial({color:0x22263a,metalness:.67,roughness:.21,emissive:0x160f2b,emissiveIntensity:.33});
@@ -536,6 +623,7 @@ function continuousPlaza(){
    for(const z of [18,78,138])panel([side*108,.03,z],[4,.14,16],M.blue);
  }
  towerV16();
+ towerFinishing();
  plazaLightReflections();
  // Distant surrounding spires to sell the wider floating mega-structure cityscape.
  for(const side of [-1,1]){
