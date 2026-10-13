@@ -126,17 +126,57 @@ function hexcoreFloorLogo(x,z,s=6.6){
  torus([x,.082,z],s*.78,.07,M.violet,[-Math.PI/2,0,0]);
  torus([x,.084,z],s*.48,.05,M.blue,[-Math.PI/2,0,0]);
 }
-function slidingEntranceDoor(x,z,travelTo,label){
+function automaticEntrance(x,z){
  const g=new THREE.Group();g.position.set(x,0,z);world.add(g);
- panel([0,5.2,0],[12,10.4,.65],M.glass,g);
- panel([0,10.55,0],[12.4,.18,.9],M.violet,g);
- panel([-6.1,5.2,0],[.18,10.4,.9],M.blue,g); panel([6.1,5.2,0],[.18,10.4,.9],M.violet,g);
- const left=panel([-1.55,3.6,.06],[3.05,7.2,.16],M.glass,g);
- const right=panel([1.55,3.6,.06],[3.05,7.2,.16],M.glass,g);
- sign(label,[x,12.25,z+.32],8.2,.78);
- animatedDoors.push({left,right,group:g,travel:1.95,open:0,center:new THREE.Vector3(x,1.8,z),enterCb:travelTo});
- interact(label,[x,1.7,z+1.4],travelTo,4.5);
+ panel([-7.8,4.9,0],[3.5,9.8,.9],M.dark,g);
+ panel([7.8,4.9,0],[3.5,9.8,.9],M.dark,g);
+ panel([0,9.3,0],[12.3,.3,.9],M.violet,g);
+ panel([-6.1,4.5,0],[.22,8.9,.65],M.blue,g);
+ panel([6.1,4.5,0],[.22,8.9,.65],M.violet,g);
+ const left=panel([-2.75,3.65,.06],[5.5,7.3,.12],M.glass,g);
+ const right=panel([2.75,3.65,.06],[5.5,7.3,.12],M.glass,g);
+ animatedDoors.push({left,right,travel:5.6,open:0,center:new THREE.Vector3(x,1.8,z),rest:2.75});
 }
+function continuousPlaza(){
+ // Exterior and lobby share a world, coordinate system and camera; no scene-switching.
+ box([0,-.35,94],[185,.65,135],M.floor);
+ for(let x of [-80,-60,-40,-20,20,40,60,80]){
+   trim([x,.015,96],[.065,.03,125],Math.abs(x)%40?M.blue:M.violet);
+ }
+ for(let z=48;z<159;z+=16)trim([0,.02,z],[174,.03,.07],M.violet);
+ // Portal-free entrance apron, with a full-size architectural façade behind the player.
+ for(let side of [-1,1]){
+  panel([side*25,6,35],[22,12,1.7],M.dark);
+  panel([side*25,10.6,35],[22,.16,1.8],M.blue);
+  for(let j=0;j<5;j++){
+    const x=side*(14+j*4.7);
+    panel([x,18,35],[1.35,36,1.4],M.dark);
+    panel([x,18,35.85],[.09,35,.07],j%2?M.blue:M.violet);
+  }
+  for(let i=0;i<6;i++){
+   const z=54+i*19;
+   panel([side*37,.36,z],[10,.7,8],M.dark);
+   tree(side*39,z,1.35);
+   panel([side*37,.75,z+4],[9,.075,.12],M.violet);
+  }
+  for(let j=0;j<5;j++){
+   const z=58+j*24;
+   panel([side*(65+j%2*6),17+j*3,z],[10,34+j*6,11],M.dark);
+   panel([side*(65+j%2*6),17+j*3,z+5.6],[.13,30+j*6,.12],M.blue);
+  }
+ }
+ sign('HEXCORE GAMING',[0,18,36.4],20,2);
+ automaticEntrance(0,35);
+ // Celestial atmosphere: purely decorative, shared with the lobby scene.
+ const pmat=new THREE.MeshBasicMaterial({color:0x37265d,depthWrite:false});
+ sphere([-180,155,200],56,pmat);
+ sphere([175,143,210],24,new THREE.MeshBasicMaterial({color:0x342e64,depthWrite:false}));
+ const starGeom=new THREE.BufferGeometry(),v=[];
+ for(let i=0;i<110;i++){const a=i*2.399,radius=130+(i*31)%220;v.push(Math.cos(a)*radius,100+(i*47)%165,100+Math.sin(a)*radius)}
+ starGeom.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+ world.add(new THREE.Points(starGeom,new THREE.PointsMaterial({color:0xb0bcff,size:1.1,sizeAttenuation:false})));
+}
+
 function spire(x,z,height,width=5,parent=world){
  panel([x,height*.43,z],[width,height*.86,width],M.dark,parent);
  panel([x,height*.89,z],[width*.63,height*.18,width*.63],M.wall,parent);
@@ -400,7 +440,7 @@ function lobby(){
  for(let side of [-1,1]){box([side*29,20,-25],[.35,35,4],M.dark);trim([side*29,20,-22.9],[.07,34,.08],M.violet);box([side*22,7,-24],[.6,12,.8],M.dark)}
  // All department information belongs on its respective floor, never the lobby.
  floorPortalNexus(true);
- slidingEntranceDoor(0,33,'outside','PLAZA EXIT');
+ continuousPlaza();
  for(let x of [-25,25]){let lamp=new THREE.PointLight(0x8f65ff,34,24,2);lamp.position.set(x,7,-8);world.add(lamp)}
  for(let x of [-18,18]){let uplight=new THREE.PointLight(0xaebfff,10,12,2);uplight.position.set(x,.8,18);world.add(uplight)}
  lobbyAccents();atriumUpgrade();v2LobbyArchitecture();lobbyV9Dressing();v10LobbyFinish();
@@ -413,10 +453,11 @@ function openReception(){
 function floorRoom(data){box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let i=0;i<7;i++){let x=-28+i*9;trim([x,.012,0],[.045,.025,67],i%2?M.blue:M.violet)}for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openDepartmentEmployee(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
-function exterior(){scene.fog.density=.0034;box([0,-.4,0],[180,.8,180],M.floor);for(let i=-4;i<=4;i++){trim([i*20,.03,0],[.05,.03,170],i%2?M.violet:M.blue);trim([0,.03,i*20],[170,.03,.05],M.violet)}let tower=new THREE.Group();world.add(tower);box([0,44,-55],[42,88,36],M.dark,tower);for(let side of [-1,1])for(let k=0;k<4;k++){box([side*(12+k*3),49+k*5,-55],[2,90-k*10,39],M.wall,tower);box([side*(12+k*3),49+k*5,-35.3],[.18,78-k*10,.1],k%2?M.blue:M.violet,tower)}for(let k=-3;k<=3;k++){box([k*5,52,-35.65],[2.5,100-Math.abs(k)*10,.5],M.dark,tower);box([k*5,48,-35.36],[.12,86-Math.abs(k)*10,.09],k%2?M.blue:M.violet,tower)}box([0,6,-35],[19,12,.5],M.glass,tower);box([0,12.1,-34.5],[22,.18,1],M.violet,tower);for(let x of [-11,11])box([x,6,-34.4],[.18,12,.5],M.blue,tower);sign('HEXCORE GAMING',[0,24,-34.9],30,4);for(let i=0;i<8;i++){let angle=i*Math.PI/4;let r=70;let x=Math.cos(angle)*r,z=Math.sin(angle)*r-25;box([x,17,z],[9,34,11],M.dark);trim([x,17,z+5.58],[.11,32,.11],M.violet)}for(let p of [[-43,-4],[43,-4],[-35,32],[35,32]])tree(p[0],p[1],2);for(let side of [-1,1]){box([side*27,1.5,13],[25,3,13],M.dark);trim([side*27,3.05,19.6],[25,.07,.1],M.blue)}hologram(0,14,-48);slidingEntranceDoor(0,-27,()=>travel('lobby'),'ENTER TOWER');sign('HEXCORE TOWER',[0,8,-34.45],17,1.5);let skySphere=sphere([-220,160,-340],65,new THREE.MeshBasicMaterial({color:0x403273}));skySphere.material.depthWrite=false;let moon=sphere([170,160,-450],29,new THREE.MeshBasicMaterial({color:0x28285c}));moon.material.depthWrite=false;const starG=new THREE.BufferGeometry();const arr=[];for(let i=0;i<180;i++){let a=i*2.399,rr=210+(i*37)%290;arr.push(Math.cos(a)*rr,90+(i*71)%245,Math.sin(a)*rr-200)}starG.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));world.add(new THREE.Points(starG,new THREE.PointsMaterial({color:0xadb2ff,size:1.8,sizeAttenuation:false})));exteriorAccents();towerUpgrade();v2TowerApproach();}
+function exterior(){lobby()} // Legacy alias: same continuous lobby/plaza scene; no exterior teleport geometry.
+
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];scene.fog.density=.0031}
 let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,1.8,21),active=false,nearest=null,quality='low';
-function travel(id){closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();pos.set(0,1.8,30);yaw=0}else if(id==='lobby'){lobby();pos.set(0,1.8,21);yaw=0}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,1.8,21);yaw=0}pitch=0;camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();}
+function travel(id){closePortalSelector();floor=id;resetWorld();if(id==='outside'){floor='lobby';lobby();pos.set(0,1.8,48);yaw=0}else if(id==='lobby'){lobby();pos.set(0,1.8,21);yaw=0}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,1.8,21);yaw=0}pitch=0;camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();}
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -521,14 +562,15 @@ function resizeRenderer(){let dpr=quality==='low'?Math.min(devicePixelRatio,1):q
 let prev=performance.now(),movePad={x:0,y:0},lookPad={x:0,y:0},running=false,mobile=matchMedia('(pointer:coarse)').matches;
 function initPad(id,target){let el=$(id),nub=el.querySelector('.nub'),activeId=null;function update(e){let b=el.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;let dx=(e.clientX-cx)/(b.width/2-22),dy=(e.clientY-cy)/(b.height/2-22);let len=Math.max(1,Math.hypot(dx,dy));target.x=dx/len;target.y=dy/len;nub.style.transform=`translate(${target.x*33}px,${target.y*33}px)`}el.onpointerdown=e=>{activeId=e.pointerId;el.setPointerCapture(activeId);update(e)};el.onpointermove=e=>{if(activeId===e.pointerId)update(e)};const end=e=>{if(activeId!==e.pointerId)return;activeId=null;target.x=target.y=0;nub.style.transform='translate(0,0)'};el.onpointerup=end;el.onpointercancel=end}initPad('movePad',movePad);initPad('lookPad',lookPad);$('interactTouch').onclick=()=>{if(!portalSelection)nearest?.cb()};$('runTouch').onpointerdown=()=>running=true;$('runTouch').onpointerup=$('runTouch').onpointercancel=()=>running=false;
 window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)nearest?.cb();if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
-function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-87,Math.min(87,nx));pos.z=Math.max(-85,Math.min(85,nz))}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
+function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='lobby'){const exteriorSide=nz>36;pos.x=Math.max(exteriorSide?-87:-30,Math.min(exteriorSide?87:30,nx));pos.z=Math.max(-31,Math.min(155,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
+if(floor==='lobby')$('zone').textContent=pos.z>36?'HEXCORE // EXTERIOR PLAZA':'G • MAIN LOBBY';
 for(const g of staffActors){const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
  if(g.userData.walkPath){const t=now*.001*g.userData.speed+ph;
  g.position.x=g.userData.homeX+Math.sin(t)*g.userData.range;
  g.position.z=g.userData.homeZ+Math.cos(t)*g.userData.range*.65;
  g.rotation.y=Math.atan2(Math.cos(t),-Math.sin(t));}
 }
-for(const d0 of animatedDoors){const dist=pos.distanceTo(d0.center),target=dist<6.2?1:0;d0.open+= (target-d0.open)*Math.min(1,dt*4.8);d0.left.position.x=-1.55-d0.open*d0.travel; d0.right.position.x=1.55+d0.open*d0.travel;}
+for(const d0 of animatedDoors){const dist=pos.distanceTo(d0.center),target=dist<8.2?1:0;d0.open+= (target-d0.open)*Math.min(1,dt*4.8);d0.left.position.x=-(d0.rest||1.55)-d0.open*d0.travel; d0.right.position.x=(d0.rest||1.55)+d0.open*d0.travel;}
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'USE':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
 $('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile)$('mobileUI').classList.remove('hidden');active=true;travel('lobby');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
 try{Object.assign(selected,JSON.parse(localStorage.getItem('hexcore_character')||'{}'));for(let name of ['species','body']){let match=$(name).querySelector(`[data-value="${selected[name]}"]`);if(match)match.click()}}catch{}

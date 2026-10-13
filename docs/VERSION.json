@@ -1,11 +1,9 @@
 {
-  "version": "V10",
-  "focus": "Lobby material and lighting pass",
+  "version": "V11",
   "changes": [
-    "Brighter readably lit lobby while retaining dark atmosphere",
-    "New stylized panoramic skyline windows",
-    "Improved reception desk with staff holographic consoles",
-    "Additional architectural panels and floor polish",
-    "Preserved one portal per floor, mobile controls, and Legal Q&A"
+    "One shared 3D scene for lobby and outside plaza",
+    "Approach-triggered sliding doors; no interaction required",
+    "No teleport, loading screen, or pointer-lock release when crossing the threshold",
+    "Floor portals and previous controls unchanged"
   ]
 }
