@@ -3,8 +3,8 @@ import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 
 // CLEAN REBUILD: This module creates all geometry from scratch. No original world imports.
 const $=id=>document.getElementById(id);
-const EYE_HEIGHT=2.52;
-const NPC_SCALE=1.4;
+const EYE_HEIGHT=2.7;
+const NPC_SCALE=1.55;
 const floors=[
  {id:'lobby',label:'G • Main Lobby',title:'HEXCORE MAIN LOBBY',summary:'Reception, visitor guidance, after-hours holographic assistant, and access to every company service.'},
  {id:'company',label:'01 • Company & News',title:'COMPANY & NEWS',summary:'Company mission, official announcements, development news, and public information.'},
@@ -43,19 +43,20 @@ const lobbyFill=new THREE.DirectionalLight(0xd6dfff,1.1);lobbyFill.position.set(
 function marbleTexture(){
  const c=document.createElement('canvas');c.width=c.height=1024;
  const g=c.getContext('2d');let seed=28051;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
- const bg=g.createLinearGradient(0,0,1024,1024);bg.addColorStop(0,'#05070c');bg.addColorStop(.48,'#141821');bg.addColorStop(1,'#070911');g.fillStyle=bg;g.fillRect(0,0,1024,1024);
- for(let k=0;k<140;k++){
-  let x=rand()*1270-120,y=rand()*1024,angle=-.73+(rand()-.5)*.53,len=120+rand()*520;
+ g.fillStyle='#040507';g.fillRect(0,0,1024,1024);
+ const bg=g.createLinearGradient(0,0,1024,1024);bg.addColorStop(0,'rgba(26,28,34,.25)');bg.addColorStop(.55,'rgba(12,14,20,.0)');bg.addColorStop(1,'rgba(38,40,48,.22)');g.fillStyle=bg;g.fillRect(0,0,1024,1024);
+ for(let k=0;k<58;k++){
+  let x=rand()*1260-120,y=rand()*1024,angle=-.72+(rand()-.5)*.26,len=240+rand()*640;
   g.beginPath();g.moveTo(x,y);
-  for(let j=1;j<=15;j++){let t=j/15;g.lineTo(x+Math.cos(angle)*len*t+Math.sin(t*18+k)*7,y+Math.sin(angle)*len*t+Math.cos(t*13+k)*6)}
-  g.strokeStyle=k%5===0?'rgba(247,249,255,.95)':k%3===0?'rgba(237,243,255,.73)':'rgba(185,195,226,.38)';g.lineWidth=k%5===0?3.4:1.75;g.stroke();
-  if(k%4===0){g.strokeStyle='rgba(245,247,255,.22)';g.lineWidth=6;g.stroke()}
+  for(let j=1;j<=18;j++){let t=j/18;g.lineTo(x+Math.cos(angle)*len*t+Math.sin(t*15+k)*4.5,y+Math.sin(angle)*len*t+Math.cos(t*11+k)*3.5)}
+  g.strokeStyle=k%7===0?'rgba(210,214,224,.26)':k%3===0?'rgba(142,148,162,.13)':'rgba(92,96,108,.10)';
+  g.lineWidth=k%7===0?2.2:1.1;g.stroke();
  }
- for(let i=0;i<2500;i++){let x=rand()*1024,y=rand()*1024;g.fillStyle=`rgba(216,222,237,${rand()*.09})`;g.fillRect(x,y,1+rand()*2,1+rand()*2)}
- const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(1.6,1.6);tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return tx;
+ for(let i=0;i<1800;i++){let x=rand()*1024,y=rand()*1024;g.fillStyle=`rgba(255,255,255,${rand()*.018})`;g.fillRect(x,y,1+rand()*1.6,1+rand()*1.6)}
+ const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(.85,.85);tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return tx;
 }
 const marbleMap=marbleTexture();
-const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0xffffff,map:marbleMap,metalness:.36,roughness:.11,clearcoat:1,clearcoatRoughness:.09,reflectivity:1}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
+const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0x0a0b0f,map:marbleMap,metalness:.52,roughness:.16,clearcoat:1,clearcoatRoughness:.08,reflectivity:1}),exteriorFloor:new THREE.MeshPhysicalMaterial({color:0x05070b,metalness:.48,roughness:.15,clearcoat:1,clearcoatRoughness:.05,reflectivity:1}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
 let world=new THREE.Group();scene.add(world);let entities=[],colliders=[],animatedDoors=[],staffActors=[];
 const box=(p,s,m,parent=world)=>{let o=new THREE.Mesh(new THREE.BoxGeometry(...s),m);o.position.set(...p);parent.add(o);return o};
 const cyl=(p,rTop,rBottom,h,m,parent=world,n=12)=>{let o=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,h,n),m);o.position.set(...p);parent.add(o);return o};
@@ -177,9 +178,9 @@ function lobbyExteriorVista(){
  const sky=new THREE.Mesh(new THREE.PlaneGeometry(270,156),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,depthWrite:false,fog:false}));
  sky.position.set(0,70,168);g.add(sky);
  new THREE.TextureLoader().load('./reference/space-backdrop.webp',t=>{t.colorSpace=THREE.SRGBColorSpace;sky.material.map=t;sky.material.needsUpdate=true;});
- panel([0,-.18,96],[148,.36,136],M.floor,g);
- for(let i=-5;i<=5;i++){panel([i*12,.018,104],[.045,.018,132],i%2?M.blue:M.violet,g)}
- for(let i=0;i<7;i++){panel([0,.018,52+i*14],[134,.018,.05],i%2?M.violet:M.blue,g)}
+ panel([0,-.18,96],[148,.36,136],M.exteriorFloor,g);
+ for(const z of [52,96,140])panel([0,.006,z],[132,.012,.08],M.wall,g);
+ for(const x of [-42,0,42])panel([x,.006,96],[.08,.012,132],M.wall,g);
  for(const side of [-1,1]){
   for(const z of [58,92,128]){panel([side*54,1.8,z],[18,3.4,12],M.dark,g);panel([side*54,3.52,z],[18.2,.1,12.2],M.blue,g);panel([side*57,2.4,z+4.5],[5.5,2.2,.16],M.glass,g);tree(side*60,z,1.45)}
   for(let j=0;j<6;j++){const x=side*(18+j*8.2),h=82-j*8.5,z=62-j*2.5;panel([x,h/2+2,z],[j<2?4.2:3.3,h,4.8],M.dark,g);panel([x+side*1.55,h/2+2,z+2.45],[.09,h-1,.11],j%2?M.blue:M.violet,g)}
@@ -190,7 +191,7 @@ function lobbyExteriorVista(){
 }
 function exteriorLobbySlice(){
  const g=new THREE.Group();g.position.set(0,0,0);world.add(g);
- panel([0,.03,21],[15,.06,12],M.floor,g);hexcoreFloorLogo(0,21,4.1);
+ panel([0,.03,21],[15,.06,12],M.exteriorFloor,g);hexcoreFloorLogo(0,21,4.1);
  const glowSphere=new THREE.Mesh(new THREE.SphereGeometry(2.5,22,14),new THREE.MeshBasicMaterial({color:0x6b65ff,transparent:true,opacity:.3,wireframe:true}));glowSphere.position.set(0,8.3,17);g.add(glowSphere);
  for(const rr of [3.1,4.1]){const ring=new THREE.Mesh(new THREE.TorusGeometry(rr,.05,6,42),new THREE.MeshBasicMaterial({color:rr>3.5?0xaf74ff:0x8ed8ff}));ring.rotation.x=Math.PI/2;ring.position.set(0,8.3,17);g.add(ring)}
  panel([0,1.0,14],[7.6,2.0,1.4],M.dark,g);panel([0,2.05,14],[7.8,.08,1.55],M.violet,g);
@@ -323,7 +324,7 @@ function elevationBand(x,y,z,sx,sz,mat=M.dark){panel([x,y,z],[sx,.55,sz],mat);pa
 function platformIsland(x,z,sx,sz,h=11){
  // A giant floating architectural platform with thickness, edge treatment, and a polished upper deck.
  panel([x,-h*.5,z],[sx,h,sz],M.dark);
- panel([x,-.26,z],[sx,.55,sz],M.floor);
+ panel([x,-.26,z],[sx,.55,sz],M.exteriorFloor);
  // beveled edge lip
  panel([x,-.02,z-sz/2+2.2],[sx-10,.16,4.3],M.dark);
  panel([x,-.02,z+sz/2-2.2],[sx-10,.16,4.3],M.dark);
@@ -393,7 +394,7 @@ function plazaLightReflections(){
  g.addColorStop(0,'rgba(190,177,255,.37)');g.addColorStop(.24,'rgba(130,111,255,.18)');g.addColorStop(1,'rgba(110,94,255,0)');c.fillStyle=g;c.fillRect(0,0,128,128);
  const tex=new THREE.CanvasTexture(glowTex);tex.colorSpace=THREE.SRGBColorSpace;
  for(const [x,z,w,h] of [[0,49,34,24],[-22,68,18,40],[22,68,18,40],[-46,105,12,36],[46,105,12,36],[0,116,50,34]]){
-  const patch=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,depthTest:true,side:THREE.DoubleSide,opacity:.64}));
+  const patch=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,depthTest:true,side:THREE.DoubleSide,opacity:.42}));
   patch.rotation.x=-Math.PI/2;patch.position.set(x,.079,z);world.add(patch)
  }
 }
@@ -475,18 +476,17 @@ function continuousPlaza(){
  // Waterfalls dropping off the floating edge.
  for(const x of [-90,-56,56,90])waterfall(x,194,16,50,0);
  for(const z of [18,78,138]){waterfall(-110,z,13,44,Math.PI/2);waterfall(110,z,13,44,Math.PI/2)}
- // Major approach surface: glossy black plaza with luminous seams.
- panel([0,.03,104],[186,.05,176],M.floor);
- for(let i=-5;i<=5;i++){let x=i*17;panel([x,.018,104],[.05,.018,168],i%2?M.blue:M.violet)}
- for(let i=0;i<11;i++){let z=24+i*15;panel([0,.018,z],[186,.018,.055],i%2?M.violet:M.blue)}
- // Strong central forecourt closer to reference image.
- panel([0,.04,118],[74,.05,48],M.floor);
- panel([0,.045,118],[52,.018,.10],M.blue);
- panel([0,.045,102],[52,.018,.10],M.violet);
+ // Major approach surface: deep black exterior plaza, distinct from the interior marble lobby.
+ panel([0,.03,104],[186,.05,176],M.exteriorFloor);
+ for(const z of [46,94,142])panel([0,.035,z],[186,.012,.08],M.wall);
+ for(const x of [-56,0,56])panel([x,.035,104],[.08,.012,176],M.wall);
+ // Strong central forecourt closer to the reference image.
+ panel([0,.04,118],[74,.05,48],M.exteriorFloor);
+ panel([0,.035,118],[52,.012,.08],M.wall);
  hexcoreFloorLogo(0,118,10.2);
  // Entrance apron stays flush with the tower, no floating stairs.
- panel([0,.03,46],[58,.05,26],M.floor);
- for(const z of [38,46,54])panel([0,.04,z],[32,.022,.08],z===46?M.blue:M.violet);
+ panel([0,.03,46],[58,.05,26],M.exteriorFloor);
+ panel([0,.035,46],[32,.012,.08],M.wall);
  // Side terraces / planters integrated into the platform.
  for(const side of [-1,1]){
    for(const z of [48,82,116,150]){
@@ -769,8 +769,6 @@ function lobby(){
   for(let i=0;i<3;i++){let z=-24+i*21;tree(side*23,z,1.25);box([side*22,.3,z+3],[9,.5,2.5],M.dark);trim([side*22,.6,z+4.3],[9,.08,.07],M.blue)}
   box([side*20,11,-32.7],[20,19,.25],M.glass);
  }
- for(let i=0;i<9;i++){let x=-28+i*7;trim([x,-.004,0],[.038,.015,68],i%2?M.blue:M.violet)}
- for(let i=0;i<7;i++){let z=-30+i*10;trim([0,.01,z],[63,.018,.04],i%2?M.blue:M.violet)}
  box([0,.03,17],[12,.06,12],M.dark);hexcoreFloorLogo(0,17,6.4);
  // Lower, narrower desk: staff heads and bodies remain visible above the counter.
  box([0,.53,-14],[8.6,1.06,1.5],M.dark);
@@ -796,7 +794,7 @@ function openReception(){
  $('receptionClose').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};
 }
 
-function floorRoom(data){box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let i=0;i<7;i++){let x=-28+i*9;trim([x,.012,0],[.045,.025,67],i%2?M.blue:M.violet)}for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
+function floorRoom(data){box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openDepartmentEmployee(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
 function exterior(){continuousPlaza()} // Separate exterior hero area.
