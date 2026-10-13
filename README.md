@@ -1,24 +1,16 @@
-# HexCore Tower V8
+# HexCore Tower V9 — Lobby Detail & Ambient Life
 
-## Focus
-V8 is mainly a lobby overhaul update while also ensuring every department floor exists and has placeholder NPC questions with safe default answers.
+Full GitHub Pages replacement package with root-level index.html.
 
-## What changed
-- Brighter, more premium lobby presentation inspired by the approved reference images.
-- Polished dark floor material with a black-marble style finish.
-- Visible HexCore H emblem integrated into the lobby floor.
-- More staff and lounge dressing so the tower feels more alive.
-- Sliding tower entrance doors added for the lobby and plaza approach.
-- All department floors continue to exist and now have placeholder staff Q&A that can be replaced later with official answers.
-- Original preserved Legal Q&A remains unchanged.
-- Visible version updated to V8.
+## V9 Changes
+- More solid, well-lit architectural forms and material contrast throughout the atrium.
+- Recessed wall panels, metallic reliefs, subtle furniture and plinths, and additional illumination to reduce the V8 darkness.
+- A few ambient lobby visitors move along short looping paths; reception and department staff retain their static interaction points.
+- Preserves one portal and floor selector per floor, sliding entrance doors, floor layouts, WASD, pointer look, mobile controls, original 41 legal Q&A, and Support contact details.
+- Visible home and HUD label updated to V9.
 
-## Install with GitHub Desktop
-1. Extract the ZIP.
-2. Open your `HexCore_Tower_V1` repository in GitHub Desktop.
-3. Use **Repository → Show in Explorer**.
-4. Copy the extracted files directly into the repository folder, replacing the existing files.
-5. Commit to `main` and Push origin.
+## Notes
+This is a mobile-oriented procedural 3D build, not full photorealistic rendering. The marble material is a stylized approximation, not hardware ray-traced reflections. Interactive browser and physical-device tests still needed.
 
-## Note
-This is still a mobile-first build, so the lobby has been improved toward the references without turning it into a fully heavy AAA environment yet.
+## Installation
+Extract ZIP, copy all contents into GitHub Desktop repository root, Commit to main, Push origin. Visit GitHub Pages after deployment and confirm V9 badge.

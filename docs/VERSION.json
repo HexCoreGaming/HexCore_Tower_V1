@@ -1,10 +1,9 @@
 {
-  "version": "V8",
+  "version": "V9",
   "changes": [
-    "Lobby visual overhaul toward approved reference",
-    "Single floor-transit portal retained on each floor",
-    "Real sliding entrance doors added for tower/plaza access",
-    "Black marble-style floor and visible HexCore H floor emblem",
-    "Expanded staffing and placeholder Q&A across all departments"
+    "More readable solid architectural lobby with premium wall panels, metal relief and balanced fill lights",
+    "Subtle looping visitor walks and staff idle motion in lobby",
+    "Preserved single floor selector portal, functional doors, NPC content and mobile controls",
+    "No changes to preserved legal dialogue"
   ]
 }
