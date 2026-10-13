@@ -1,10 +1,12 @@
 {
-  "version": "V15",
+  "version": "V16",
   "changes": [
-    "Monumental tall exterior facade",
-    "H emblem on tower",
-    "Plaza landscaping and large celestial bodies",
-    "Continuous non-teleporting automatic doors",
-    "Original legal dialogue unchanged"
+    "Tower and broad exterior floating platform reconstructed from supplied front and angled references",
+    "Waterfalls falling off suspended platform edges",
+    "Cosmic sky with visible nebula and planets",
+    "Front/side/rear exterior geometric details",
+    "No airlock; preserve camera orientation at separate-scene doorway",
+    "Fix outside movement bounds",
+    "Keep all company data and original NPC dialogue"
   ]
 }

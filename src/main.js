@@ -139,12 +139,10 @@ function automaticEntrance(x,z){
 }
 
 function lobbyEntranceAirlock(){
+ // Only automatic sliding doors: no airlock, passage corridor, or secondary geometry.
  automaticEntrance(0,32);
- // Clean lobby doorway only. No airlock, no masking hallway, no visible clutter.
- panel([0,10.85,32],[15.4,.16,.82],M.blue);
- sign('PLAZA ACCESS',[0,12.1,32.18],6.5,.7);
- const glow=new THREE.PointLight(0x9f73ff,10,18,2);glow.position.set(0,6.3,31.2);world.add(glow);
 }
+
 // V13: closer tower reconstruction with wraparound architecture and corrected side/rear design.
 
 function towerFacadeV13(){
@@ -256,103 +254,145 @@ function towerFacadeV13(){
   }
  }
 }
-function towerFacadeV15(){
- const stone=new THREE.MeshStandardMaterial({color:0x14192c,metalness:.78,roughness:.22});
- const sideStone=new THREE.MeshStandardMaterial({color:0x171d31,metalness:.74,roughness:.24});
- const accent=new THREE.MeshStandardMaterial({color:0x7e89aa,metalness:.82,roughness:.18});
- const entryZ=42;
- // Main monumental body
- panel([0,42,16],[34,84,38],M.dark);
- panel([0,88,14],[22,26,24],stone);
- panel([0,110,12],[15,18,18],M.dark);
- panel([0,128,10],[11,18,12],stone);
- // Tall front crown pylons
- for(const side of [-1,1]){
-   for(let i=0;i<6;i++){
-     const x=side*(10.5+i*5.1),h=148-i*16,w=i<2?4.8:3.8,z=22-i*.4;
-     panel([x,h/2+8,z],[w,h,w+2],i%2?stone:M.dark);
-     panel([x,h/2+8,z+2.05],[.10,h-2,.12],i%2?M.blue:M.violet);
-     const top=new THREE.Mesh(new THREE.ConeGeometry(w*.48,12,4),accent);top.rotation.y=Math.PI/4;top.position.set(x,h+14,z);world.add(top);
-   }
- }
- // Broad lower shoulders and side masses so it feels like a full complex, not a flat shell
- for(const side of [-1,1]){
-   panel([side*18,18,34],[12,36,20],sideStone);
-   panel([side*24,28,24],[8,56,18],M.dark);
-   panel([side*30,36,14],[5,72,16],stone);
-   panel([side*34,41,8],[3.2,82,10],M.dark);
-   panel([side*18,18,-1],[12,36,10],sideStone);
-   panel([side*24,26,-6],[8,52,9],M.dark);
- }
- // Designed sides and rear
- for(const side of [-1,1]){
-   for(let i=0;i<5;i++){const z=-6+i*11,h=100-i*8; panel([side*39,h/2+8,z],[3.5,h,5],i%2?stone:sideStone); panel([side*39,h/2+8,z+2.55],[.1,h-2,.12],i%2?M.violet:M.blue);}
-   for(let i=0;i<4;i++){const z=0+i*10; panel([side*46,30+i*6,z],[2.5,60+i*8,4],M.dark);}
- }
- for(let i=-2;i<=2;i++){const x=i*8,h=72-Math.abs(i)*5; panel([x,h/2+7,-16],[4,h,5],stone); panel([x,h/2+7,-13.35],[.08,h-2,.1],i===0?M.blue:M.violet);}
- // Ring bridges / elevated architecture behind tower
- for(const col of [0x8d63ff,0x86ccff]){
-   const ring=new THREE.Mesh(new THREE.TorusGeometry(61,.23,8,160,Math.PI*1.18),new THREE.MeshBasicMaterial({color:col}));
-   ring.rotation.x=Math.PI/2; ring.position.set(0,54,8); world.add(ring);
- }
- // Floating side platforms
- for(const side of [-1,1]){
-   for(const spec of [[46,56],[60,38]]){
-     const x=side*spec[0],y=spec[1],z=8;
-     cyl([x,y,z],5.8,7.2,1.5,M.dark);
-     cyl([x,y-6.5,z],1.2,1.8,12,stone);
-     torus([x,y+.95,z],5.8,.16,side===1?M.blue:M.violet,[Math.PI/2,0,0]);
-     for(let i=0;i<4;i++){ const a=i*Math.PI/2; panel([x+Math.cos(a)*2.8,y+5,z+Math.sin(a)*2.8],[1,10,1],M.dark); }
-   }
- }
- // Entrance volume and glazing
- panel([0,10,41.4],[18,20,2.6],M.glass);
- panel([0,5.6,32.5],[26,1.2,24],M.dark);
- for(let i=0;i<4;i++) panel([0,1+i*.7,52-i*3.6],[32- i*4,.36,3.4],i%2?M.violet:M.blue);
- automaticEntrance(0,47.2);
- // Logo slab and wordmark
- const logoCanvas=document.createElement('canvas'); logoCanvas.width=512; logoCanvas.height=512;
- const ctx=logoCanvas.getContext('2d'); ctx.clearRect(0,0,512,512); ctx.strokeStyle='#b179ff'; ctx.lineWidth=16; ctx.shadowColor='#9e60ff'; ctx.shadowBlur=22;
- ctx.beginPath(); for(let i=0;i<6;i++){const a=i*Math.PI/3-Math.PI/2,x=256+170*Math.cos(a),y=256+170*Math.sin(a); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y)} ctx.closePath(); ctx.stroke();
- ctx.font='bold 220px Arial'; ctx.fillStyle='#e5e2ff'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('H',256,268);
- const logoMap=new THREE.CanvasTexture(logoCanvas); logoMap.colorSpace=THREE.SRGBColorSpace;
- const logoMat=new THREE.MeshBasicMaterial({map:logoMap,transparent:true,side:THREE.DoubleSide,depthWrite:false});
- const logo=new THREE.Mesh(new THREE.PlaneGeometry(13,13),logoMat); logo.position.set(0,55.5,35.8); world.add(logo);
- sign('HEXCORE GAMING',[0,42.4,35.95],12.8,1.2);
- // Water features / front lighting pillars
- for(const side of [-1,1]){
-   box([side*44,.35,68],[10,.7,6],M.dark);
-   panel([side*44,.72,68],[9.6,.08,5.6],M.blue);
-   panel([side*54,10,68],[2.1,20,2.1],M.dark); panel([side*54,10,69.08],[.08,19,.08],M.violet);
-   panel([side*63,16,26],[1.8,32,1.8],M.dark); panel([side*63,16,26.96],[.08,31,.08],M.blue);
+// V16 exterior: full tower, floating platform, waterfalls and cosmic sky.
+// Keep this world separate from the large interior; the same automatic doorway is the threshold.
+function glowingLine(points,color=0xb57aff,width=.12){
+ for(let i=1;i<points.length;i++){
+   let a=new THREE.Vector3(...points[i-1]),b=new THREE.Vector3(...points[i]);
+   let d=new THREE.Vector3().subVectors(b,a),o=new THREE.Mesh(new THREE.CylinderGeometry(width,width,d.length(),6),new THREE.MeshBasicMaterial({color}));
+   o.position.copy(a).add(b).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());world.add(o);
  }
 }
-
-function continuousPlaza(){
- // Dedicated exterior scene matching the reference direction more closely.
- box([0,-.36,88],[240,.69,180],M.floor);
- for(let i=0;i<11;i++){const z=26+i*12; trim([0,.018,z],[176,.03,.07],i%2?M.violet:M.blue)}
- for(let i=0;i<9;i++){const x=-64+i*16; trim([x,.015,88],[.08,.025,160],i%2?M.blue:M.violet)}
- hexcoreFloorLogo(0,88,10.5);
- // Forecourt steps
- for(let i=0;i<5;i++) panel([0,.28+i*.55,61-i*3.4],[54-i*4, .52,4], i%2?M.dark:M.wall);
- for(let i=0;i<4;i++) panel([0,2.95+i*.6,48-i*2.3],[40-i*3,.42,2.8],i%2?M.dark:M.wall);
- towerFacadeV15();
- // Cosmic backdrop and stars
- const planet=sphere([-170,150,120],70,new THREE.MeshBasicMaterial({color:0x352858,depthWrite:false}));
- const atmo=new THREE.Mesh(new THREE.SphereGeometry(74,32,24),new THREE.MeshBasicMaterial({color:0x8b72ff,side:THREE.BackSide,transparent:true,opacity:.14,depthWrite:false})); atmo.position.copy(planet.position); world.add(atmo);
- sphere([118,132,92],17,new THREE.MeshBasicMaterial({color:0x4b4a7a,depthWrite:false}));
- const nebula=new THREE.BufferGeometry(),v=[];
- for(let i=0;i<420;i++){const a=Math.random()*Math.PI*2,r=20+Math.random()*54,x=140+Math.cos(a)*r*1.6,y=126+(Math.random()-.5)*44,z=60+Math.sin(a)*r;v.push(x,y,z)}
- nebula.setAttribute('position',new THREE.Float32BufferAttribute(v,3)); world.add(new THREE.Points(nebula,new THREE.PointsMaterial({color:0xb487ff,size:2.1,transparent:true,opacity:.28,sizeAttenuation:false})));
- const stars=new THREE.BufferGeometry(),s=[]; for(let i=0;i<420;i++){s.push((Math.random()-.5)*560,40+Math.random()*230,-30+Math.random()*280)} stars.setAttribute('position',new THREE.Float32BufferAttribute(s,3)); world.add(new THREE.Points(stars,new THREE.PointsMaterial({color:0xe6efff,size:1.4,sizeAttenuation:false})));
- // Landscaping / visitors
- for(const side of [-1,1]){
-   for(const z of [52,76,102]) tree(side*49,z,1.45);
-   lightBench(side*28,75,side>0?.25:-.25); lightBench(side*28,102,side>0?-.25:.25);
-   ambientVisitor(side*18,67,20+side); ambientVisitor(side*32,87,22+side); ambientVisitor(side*11,107,24+side);
+function elevationBand(x,y,z,sx,sz,mat=M.dark){panel([x,y,z],[sx,.55,sz],mat);panel([x,y+.32,z],[sx+.05,.05,sz+.05],M.violet)}
+function platformIsland(x,z,sx,sz,h=11){
+ // A coherent suspended slab with a visible vertical cliff rather than a flat floor in space.
+ panel([x,-h*.5,z],[sx,h,sz],M.dark);
+ panel([x,-.26,z],[sx,.55,sz],M.floor);
+ const rim=new THREE.MeshBasicMaterial({color:0x7b4cff});
+ panel([x,0,z-sz/2],[sx,.12,.22],rim);panel([x,0,z+sz/2],[sx,.12,.22],rim);
+ panel([x-sx/2,0,z],[.22,.12,sz],M.blue);panel([x+sx/2,0,z],[.22,.12,sz],M.blue);
+ for(const dx of [-sx/2+7,sx/2-7])for(const dz of [-sz/2+7,sz/2-7]){
+   panel([x+dx,-h*.55,z+dz],[3.8,h*.68,3.8],M.dark);
  }
- for(const p of [[-6,58,31], [6,58,32], [-14,60,74], [14,60,74]]) employee(...p);
+}
+function waterfall(x,z,width=12,drop=35,rotation=0){
+ let group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=rotation;world.add(group);
+ const canvas=document.createElement('canvas');canvas.width=128;canvas.height=512;const c=canvas.getContext('2d');
+ const grad=c.createLinearGradient(0,0,128,0);grad.addColorStop(0,'rgba(62,132,255,0.1)');grad.addColorStop(.22,'rgba(111,203,255,.7)');grad.addColorStop(.5,'rgba(218,243,255,.9)');grad.addColorStop(.8,'rgba(99,145,255,.65)');grad.addColorStop(1,'rgba(47,96,235,.12)');c.fillStyle=grad;c.fillRect(0,0,128,512);
+ for(let i=0;i<28;i++){c.fillStyle=`rgba(255,255,255,${.04+(i%4)*.04})`;c.fillRect(Math.random()*128,0,.4+Math.random()*3,512)}
+ const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;
+ const sheet=new THREE.Mesh(new THREE.PlaneGeometry(width,drop),new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.86,depthWrite:false,side:THREE.DoubleSide}));
+ sheet.position.y=-drop/2;group.add(sheet);
+ const streak=new THREE.MeshBasicMaterial({color:0xa5ddff,transparent:true,opacity:.55,depthWrite:false});
+ for(const dx of [-width*.38,width*.30]){const line=new THREE.Mesh(new THREE.PlaneGeometry(.11,drop),streak);line.position.set(dx,-drop/2,.08);group.add(line)}
+}
+function skyNebula(){
+ // Static, canvas-generated nebula: no remote images, video, or asset loading.
+ let canvas=document.createElement('canvas');canvas.width=1024;canvas.height=512;let c=canvas.getContext('2d');
+ let bg=c.createLinearGradient(0,0,0,512);bg.addColorStop(0,'#0b0924');bg.addColorStop(.58,'#151034');bg.addColorStop(1,'#211439');c.fillStyle=bg;c.fillRect(0,0,1024,512);
+ let seed=1337;function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+ for(let j=0;j<1350;j++){let x=690+(rand()-.5)*450,y=255+(rand()-.5)*270,r=4+rand()*70;
+ let g=c.createRadialGradient(x,y,0,x,y,r),h=rand()>.47?'175,74,254':'92,106,230';g.addColorStop(0,`rgba(${h},${.07+rand()*.14})`);g.addColorStop(1,`rgba(${h},0)`);c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill()}
+ for(let i=0;i<1600;i++){let x=rand()*1024,y=rand()*512;c.fillStyle=`rgba(234,225,255,${.2+rand()*.75})`;c.fillRect(x,y,rand()<.96?1:2,rand()<.96?1:2)}
+ let t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;
+ const sky=new THREE.Mesh(new THREE.SphereGeometry(400,48,24),new THREE.MeshBasicMaterial({map:t,side:THREE.BackSide,depthWrite:false,fog:false}));sky.position.set(0,70,35);world.add(sky);
+}
+function planetBackdrop(x,y,z,r,color=0x4e367b){
+ const pm=new THREE.MeshBasicMaterial({color,depthWrite:false,fog:false});let planet=sphere([x,y,z],r,pm,world,40);
+ const rim=new THREE.Mesh(new THREE.SphereGeometry(r*1.035,40,24),new THREE.MeshBasicMaterial({color:0x8a72ff,side:THREE.BackSide,transparent:true,opacity:.22,depthWrite:false,fog:false}));rim.position.set(x,y,z);world.add(rim);
+ return planet;
+}
+function towerV16(){
+ const metal=new THREE.MeshStandardMaterial({color:0x1b2036,metalness:.62,roughness:.27});
+ const ink=new THREE.MeshStandardMaterial({color:0x0c101e,metalness:.5,roughness:.32});
+ const silver=new THREE.MeshStandardMaterial({color:0x47506b,metalness:.75,roughness:.21});
+ // Central skyscraper with four sculpted facades and staggered crown, entrance toward positive Z.
+ panel([0,42,0],[39,84,47],ink);
+ panel([0,93,-3],[31,38,33],metal);
+ panel([0,121,-7],[23,27,24],ink);
+ panel([0,145,-8],[13,22,14],metal);
+ // Entrance wings and fascia, while preserving open centerline for the sliding doorway.
+ for(const side of [-1,1]){
+   panel([side*20,16,25],[13,32,15],metal);
+   panel([side*29,23,15],[9,46,19],ink);
+   panel([side*34,33,-4],[6,66,20],metal);
+   // recognizable tall blade-fin arrays on every front side
+   for(let j=0;j<7;j++){
+     const x=side*(8+j*5.0),h=156-j*14.5,z=17-j*1.4;
+     panel([x,h/2+5,z],[j<3?3.5:2.9,h,5.6],j%2?metal:ink);
+     panel([x+side*1.54,h/2+5,z+2.86],[.095,h-1,.1],j%3?M.violet:M.blue);
+     panel([x,h+5,z],[2.1,1.2,4],silver);
+   }
+   // Back-side fins extend the architecture through the depth of the tower.
+   for(let j=0;j<6;j++){
+      const z=-22+j*7.0,h=88-j*5;
+      panel([side*39,h/2+6,z],[3.7,h,5],j%2?metal:ink);
+      panel([side*41,h/2+6,z],[.11,h-1,3],j%2?M.blue:M.violet);
+   }
+ }
+ // Reverse elevation is modeled, not a blank block.
+ for(let i=-4;i<=4;i++){const h=90-Math.abs(i)*8,x=i*7;panel([x,h/2+6,-27],[4,h,5],metal);panel([x,h/2+6,-29.55],[.10,h-1,.13],M.violet)}
+ // Elevated orbital transport-like rings and side pylons visible behind the front structure.
+ for(const [radius,height,col] of [[68,69,0xb978ff],[74,62,0x639aff]]){
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(radius,.26,7,152),new THREE.MeshBasicMaterial({color:col}));ring.rotation.x=Math.PI/2;ring.position.set(0,height,-8);world.add(ring);
+ }
+ // Bold HEXCORE emblem and lettering in the exact front hierarchy of the reference.
+ const lc=document.createElement('canvas');lc.width=512;lc.height=512;const cx=lc.getContext('2d');cx.shadowBlur=21;cx.shadowColor='#975bff';cx.strokeStyle='#ad78ff';cx.lineWidth=16;cx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2,xx=256+191*Math.cos(a),yy=256+191*Math.sin(a);i?cx.lineTo(xx,yy):cx.moveTo(xx,yy)}cx.closePath();cx.stroke();
+ cx.strokeStyle='#ecdcff';cx.lineWidth=35;cx.beginPath();cx.moveTo(200,172);cx.lineTo(200,340);cx.moveTo(312,172);cx.lineTo(312,340);cx.moveTo(200,256);cx.lineTo(312,256);cx.stroke();
+ let t=new THREE.CanvasTexture(lc);t.colorSpace=THREE.SRGBColorSpace;
+ const mark=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,side:THREE.DoubleSide}));mark.position.set(0,88,25.45);world.add(mark);
+ sign('HEXCORE',[0,72,25.58],23,2.7);sign('GAMING',[0,67,25.6],10,1.25);
+ // Giant glass door atrium, framing edges only (not a blocking visual wall).
+ for(const side of [-1,1]){
+   panel([side*9.7,12,27.5],[2.4,24,4],metal);panel([side*8.34,12,29.5],[.10,22,.11],M.blue);
+   panel([side*13.4,11.7,29],[4.8,23.4,2.4],ink);
+ }
+ panel([0,24,27.5],[21,1.3,4],silver);
+ panel([0,25.0,30],[22,.12,.4],M.violet);
+ automaticEntrance(0,32);
+ // Glass architecture above entrance: distinct from the doorway so passage remains open.
+ for(const y of [12,18,23]){panel([0,y,26],[16,.15,.16],y===18?M.blue:M.violet)}
+}
+function continuousPlaza(){
+ scene.fog.density=.0015;
+ skyNebula();planetBackdrop(-181,164,-130,85,0x54407e);planetBackdrop(159,166,-112,18,0x4d4b82);
+ // Main platform, a single hovering architectural island in space.
+ platformIsland(0,81,214,222,19);
+ // Visible front and lateral waterfalls spilling off the floating edge.
+ for(const x of [-84,-50,50,84])waterfall(x,192,16,49,0);
+ for(const z of [18,78,136]){waterfall(-107,z,13,43,Math.PI/2);waterfall(107,z,13,43,Math.PI/2)}
+ // Sculpted terraced edge plazas with landscaping and pools.
+ for(const side of [-1,1])for(const z of [52,101,154]){
+   elevationBand(side*83,.25,z,32,25);
+   panel([side*86,2.1,z],[21,3.8,13],M.dark);panel([side*86,4.08,z],[22,.12,14],M.blue);
+   tree(side*89,z,1.75);
+ }
+ // Ground paving with a dark polished floor and the physical H medallion.
+ for(let i=-5;i<=5;i++){let x=i*17;panel([x,.018,104],[.05,.018,169],i%2?M.blue:M.violet)}
+ for(let i=0;i<11;i++){let z=22+i*15;panel([0,.018,z],[185,.018,.055],i%2?M.violet:M.blue)}
+ hexcoreFloorLogo(0,118,9.7);
+ // Reference-like approach stairs and illuminated guide path to the door.
+ for(let i=0;i<4;i++){
+   panel([0,.15+i*.25,50-i*3],[45-i*3.5,.23,3.0],M.dark);
+   panel([0,.28+i*.25,51.4-i*3],[45-i*3.5,.045,.17],M.violet);
+ }
+ towerV16();
+ // Secondary orbital-column language around tower, surrounding skyline minimal and matched.
+ for(const side of [-1,1]){
+   for(let j=0;j<5;j++){
+     let x=side*(51+j*11),z=15-j*11,h=82-j*10;
+     panel([x,h/2+1,z],[3.4,h,5],M.dark);
+     panel([x+side*1.78,h/2+1,z+2.55],[.09,h-2,.12],j%2?M.blue:M.violet);
+   }
+   for(const z of [40,92,143]){tree(side*62,z,1.55);lightBench(side*48,z,side*.2)}
+   for(const z of [70,124]){ambientVisitor(side*27,z,10+z);ambientVisitor(side*38,z+6,13+z)}
+   // Slender blue-white waterfall source channel above platform edge.
+   for(const z of [18,78,136])panel([side*105,.03,z],[3.0,.14,15],M.blue);
+ }
+ // Soft area fills to make physically shaded surfaces legible (not only neon outlines).
+ for(const [x,z,col] of [[-29,44,0x8e75ff],[29,44,0x7ebcff],[-54,104,0x8e75ff],[54,104,0x89bfff]]){
+  let l=new THREE.PointLight(col,14,70,2);l.position.set(x,13,z);world.add(l);
+ }
 }
 
 function spire(x,z,height,width=5,parent=world){
@@ -635,7 +675,7 @@ function exterior(){continuousPlaza()} // Separate exterior hero area.
 
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];scene.fog.density=.0031}
 let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,1.8,21),active=false,nearest=null,quality='low',transitionCooldown=0;
-function travel(id,spawn='default'){const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,61.5)}else{pos.set(0,1.8,98);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,26.5)}else{pos.set(0,1.8,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,1.8,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;}
+function travel(id,spawn='default'){const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,35.0)}else{pos.set(0,1.8,118);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,30.6)}else{pos.set(0,1.8,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,1.8,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;}
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -740,7 +780,7 @@ function resizeRenderer(){let dpr=quality==='low'?Math.min(devicePixelRatio,1):q
 let prev=performance.now(),movePad={x:0,y:0},lookPad={x:0,y:0},running=false,mobile=matchMedia('(pointer:coarse)').matches;
 function initPad(id,target){let el=$(id),nub=el.querySelector('.nub'),activeId=null;function update(e){let b=el.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;let dx=(e.clientX-cx)/(b.width/2-22),dy=(e.clientY-cy)/(b.height/2-22);let len=Math.max(1,Math.hypot(dx,dy));target.x=dx/len;target.y=dy/len;nub.style.transform=`translate(${target.x*33}px,${target.y*33}px)`}el.onpointerdown=e=>{activeId=e.pointerId;el.setPointerCapture(activeId);update(e)};el.onpointermove=e=>{if(activeId===e.pointerId)update(e)};const end=e=>{if(activeId!==e.pointerId)return;activeId=null;target.x=target.y=0;nub.style.transform='translate(0,0)'};el.onpointerup=end;el.onpointercancel=end}initPad('movePad',movePad);initPad('lookPad',lookPad);$('interactTouch').onclick=()=>{if(!portalSelection)nearest?.cb()};$('runTouch').onpointerdown=()=>running=true;$('runTouch').onpointerup=$('runTouch').onpointercancel=()=>running=false;
 window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)nearest?.cb();if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
-function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='lobby'){const exteriorSide=nz>36;pos.x=Math.max(exteriorSide?-87:-30,Math.min(exteriorSide?87:30,nx));pos.z=Math.max(-31,Math.min(155,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
+function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-23,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(39.6,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
 for(const g of staffActors){const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
@@ -753,7 +793,7 @@ for(const d0 of animatedDoors){const dist=pos.distanceTo(d0.center),target=dist<
 if(transitionCooldown>0)transitionCooldown-=dt;
 if(transitionCooldown<=0){
  if(floor==='lobby'&&Math.abs(pos.x)<5.8&&pos.z>39.2){travel('outside','fromLobby');return}
- if(floor==='outside'&&Math.abs(pos.x)<5.8&&pos.z<52.2){travel('lobby','fromOutside');return}
+ if(floor==='outside'&&Math.abs(pos.x)<5.8&&pos.z<31.1){travel('lobby','fromOutside');return}
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'USE':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
 $('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile)$('mobileUI').classList.remove('hidden');active=true;travel('lobby');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
