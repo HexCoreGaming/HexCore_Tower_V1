@@ -1,4 +1,4 @@
-# HEXCORE TOWER — MOBILE FIRST REPLACEMENT
+# HEXCORE TOWER — MOBILE FIRST V1.1 — CONTROLS AND ENVIRONMENT UPDATE
 
 This is a **new, clean 3D website project**, built as a mobile-first version of the two supplied visual concepts. It does not contain any 3D assets, textures, maps, elevators, interiors, or navigation code copied from the original uploaded old world. The only user-source content retained from that ZIP is the NPC question-and-answer archive; mobile dual-stick movement behavior is recreated in new website code.
 
@@ -20,3 +20,12 @@ New procedural 3D tower exterior and immediate plaza, expanded cathedral-scale l
 This is a functional replacement **release candidate**, not a pixel-identical 3D realization of the concept paintings or a finished AAA game. No secure administrator publication, real-time customer support, fully animated character creation, deep NPC workplace simulation, or extensive exterior civilization is implemented. The admin editor is local-only. A separate server/authenticated GitHub publishing workflow is needed before anyone can securely publish content from the in-world dashboard.
 
 Requires an Internet connection to load the Three.js module from CDN; the website itself is single-player, without accounts.
+
+
+## V1.1 update
+- Corrected desktop WASD to camera-relative forward, backward, left strafe and right strafe.
+- Preserved continuous pointer-lock mouse-look during ordinary gameplay. Menus release the cursor; close buttons re-request pointer lock following the click. Browser Escape/tab restrictions still apply.
+- Added new low-cost neo-futuristic architectural geometry, structural fins, gallery details, lighting, seating and reception accents for tower and lobby.
+- Preserved the Q&A file exactly. No prior-world models, textures or building interiors have been introduced.
+- This ZIP is not padded to a requested size. The current code-built geometry is compact and package size reflects real content.
+- JavaScript syntax and archive integrity checked; interactive browser/mobile performance not verified in this execution environment.
