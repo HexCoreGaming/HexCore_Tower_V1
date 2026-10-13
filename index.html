@@ -4,4 +4,18 @@
 <div id="hud" class="hidden"><div class="hud-top"><div class="hud-brand">⬡ <b>HEXCORE</b><span>GAMING</span></div><div id="zone">TOWER // MAIN LOBBY</div><button id="menuBtn" aria-label="Open navigation menu">☰ MENU</button></div><div class="hint" id="hint">Explore the headquarters. Approach a terminal and press E / INTERACT.</div><div class="crosshair">+</div><div class="prompt hidden" id="prompt"></div><div id="mobileUI" class="hidden"><div id="movePad" class="pad"><div class="nub"></div></div><div id="lookPad" class="pad"><div class="nub"></div></div><button id="interactTouch" class="touch-action">USE</button><button id="runTouch" class="touch-run">RUN</button></div></div>
 <div id="panel" class="overlay hidden"><div class="panel-box"><button class="close" id="closePanel" aria-label="Close">✕</button><div id="panelBody"></div></div></div>
 <div id="nav" class="overlay hidden"><div class="panel-box nav-box"><button class="close" id="closeNav" aria-label="Close">✕</button><div class="eyebrow">HEXCORE / DIRECTORY</div><h2>HEADQUARTERS</h2><p>Choose a destination. The elevators and doors in-world also work.</p><div id="floorButtons" class="floor-buttons"></div><div class="actions"><button id="settingsBtn">SETTINGS</button><button id="returnLobby">RETURN TO LOBBY</button></div><p class="small">WASD move • Mouse look • Shift run • E interact • Esc menu<br>Mobile: left pad move, right pad look, USE interact.</p></div></div>
-<script type="module" src="./src/main.js"></script></body></html>
+<script>
+// Surface module/WebGL initialization failures instead of trapping visitors behind loading.
+window.__hexcoreBootTimer = setTimeout(() => {
+  if (!document.getElementById('loading')?.classList.contains('hidden')) {
+    const el=document.querySelector('#loading p');
+    if(el) el.textContent='Unable to start the 3D engine. Check your internet connection and WebGL support, then reload.';
+  }
+},12000);
+window.addEventListener('error', function(event) {
+ const msg=String(event.message || 'Resource could not load');
+ if(!document.getElementById('loading')?.classList.contains('hidden')) {
+   const el=document.querySelector('#loading p');if(el) el.textContent='Website startup error: '+msg;
+ }
+});
+</script><script type="module" src="./src/main.js"></script></body></html>
