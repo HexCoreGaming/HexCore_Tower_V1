@@ -140,16 +140,10 @@ function automaticEntrance(x,z){
 
 function lobbyEntranceAirlock(){
  automaticEntrance(0,32);
- // Separate interior zone: a luminous airlock masks the disconnected outside scene.
- panel([0,5.4,38.2],[14,.18,12],M.blue);
- panel([0,10.7,38.2],[14,.18,12],M.violet);
- panel([-7,5.4,38.2],[.18,10.8,12],M.glass);
- panel([7,5.4,38.2],[.18,10.8,12],M.glass);
- panel([0,5.4,44.15],[13.6,10.8,.18],new THREE.MeshBasicMaterial({color:0xd4dcff,transparent:true,opacity:.18,side:THREE.DoubleSide,depthWrite:false}));
- const haze=new THREE.Mesh(new THREE.PlaneGeometry(12,8),new THREE.MeshBasicMaterial({color:0xd2b9ff,transparent:true,opacity:.18,side:THREE.DoubleSide,depthWrite:false}));
- haze.position.set(0,5.2,43.8);world.add(haze);
- const light=new THREE.PointLight(0x9f73ff,18,24,2);light.position.set(0,5.5,39.5);world.add(light);
- sign('EXIT TO PLAZA',[0,11.9,38.1],7.2,.8);
+ // Clean lobby doorway only. No airlock, no masking hallway, no visible clutter.
+ panel([0,10.85,32],[15.4,.16,.82],M.blue);
+ sign('PLAZA ACCESS',[0,12.1,32.18],6.5,.7);
+ const glow=new THREE.PointLight(0x9f73ff,10,18,2);glow.position.set(0,6.3,31.2);world.add(glow);
 }
 // V13: closer tower reconstruction with wraparound architecture and corrected side/rear design.
 
@@ -262,39 +256,103 @@ function towerFacadeV13(){
   }
  }
 }
+function towerFacadeV15(){
+ const stone=new THREE.MeshStandardMaterial({color:0x14192c,metalness:.78,roughness:.22});
+ const sideStone=new THREE.MeshStandardMaterial({color:0x171d31,metalness:.74,roughness:.24});
+ const accent=new THREE.MeshStandardMaterial({color:0x7e89aa,metalness:.82,roughness:.18});
+ const entryZ=42;
+ // Main monumental body
+ panel([0,42,16],[34,84,38],M.dark);
+ panel([0,88,14],[22,26,24],stone);
+ panel([0,110,12],[15,18,18],M.dark);
+ panel([0,128,10],[11,18,12],stone);
+ // Tall front crown pylons
+ for(const side of [-1,1]){
+   for(let i=0;i<6;i++){
+     const x=side*(10.5+i*5.1),h=148-i*16,w=i<2?4.8:3.8,z=22-i*.4;
+     panel([x,h/2+8,z],[w,h,w+2],i%2?stone:M.dark);
+     panel([x,h/2+8,z+2.05],[.10,h-2,.12],i%2?M.blue:M.violet);
+     const top=new THREE.Mesh(new THREE.ConeGeometry(w*.48,12,4),accent);top.rotation.y=Math.PI/4;top.position.set(x,h+14,z);world.add(top);
+   }
+ }
+ // Broad lower shoulders and side masses so it feels like a full complex, not a flat shell
+ for(const side of [-1,1]){
+   panel([side*18,18,34],[12,36,20],sideStone);
+   panel([side*24,28,24],[8,56,18],M.dark);
+   panel([side*30,36,14],[5,72,16],stone);
+   panel([side*34,41,8],[3.2,82,10],M.dark);
+   panel([side*18,18,-1],[12,36,10],sideStone);
+   panel([side*24,26,-6],[8,52,9],M.dark);
+ }
+ // Designed sides and rear
+ for(const side of [-1,1]){
+   for(let i=0;i<5;i++){const z=-6+i*11,h=100-i*8; panel([side*39,h/2+8,z],[3.5,h,5],i%2?stone:sideStone); panel([side*39,h/2+8,z+2.55],[.1,h-2,.12],i%2?M.violet:M.blue);}
+   for(let i=0;i<4;i++){const z=0+i*10; panel([side*46,30+i*6,z],[2.5,60+i*8,4],M.dark);}
+ }
+ for(let i=-2;i<=2;i++){const x=i*8,h=72-Math.abs(i)*5; panel([x,h/2+7,-16],[4,h,5],stone); panel([x,h/2+7,-13.35],[.08,h-2,.1],i===0?M.blue:M.violet);}
+ // Ring bridges / elevated architecture behind tower
+ for(const col of [0x8d63ff,0x86ccff]){
+   const ring=new THREE.Mesh(new THREE.TorusGeometry(61,.23,8,160,Math.PI*1.18),new THREE.MeshBasicMaterial({color:col}));
+   ring.rotation.x=Math.PI/2; ring.position.set(0,54,8); world.add(ring);
+ }
+ // Floating side platforms
+ for(const side of [-1,1]){
+   for(const spec of [[46,56],[60,38]]){
+     const x=side*spec[0],y=spec[1],z=8;
+     cyl([x,y,z],5.8,7.2,1.5,M.dark);
+     cyl([x,y-6.5,z],1.2,1.8,12,stone);
+     torus([x,y+.95,z],5.8,.16,side===1?M.blue:M.violet,[Math.PI/2,0,0]);
+     for(let i=0;i<4;i++){ const a=i*Math.PI/2; panel([x+Math.cos(a)*2.8,y+5,z+Math.sin(a)*2.8],[1,10,1],M.dark); }
+   }
+ }
+ // Entrance volume and glazing
+ panel([0,10,41.4],[18,20,2.6],M.glass);
+ panel([0,5.6,32.5],[26,1.2,24],M.dark);
+ for(let i=0;i<4;i++) panel([0,1+i*.7,52-i*3.6],[32- i*4,.36,3.4],i%2?M.violet:M.blue);
+ automaticEntrance(0,47.2);
+ // Logo slab and wordmark
+ const logoCanvas=document.createElement('canvas'); logoCanvas.width=512; logoCanvas.height=512;
+ const ctx=logoCanvas.getContext('2d'); ctx.clearRect(0,0,512,512); ctx.strokeStyle='#b179ff'; ctx.lineWidth=16; ctx.shadowColor='#9e60ff'; ctx.shadowBlur=22;
+ ctx.beginPath(); for(let i=0;i<6;i++){const a=i*Math.PI/3-Math.PI/2,x=256+170*Math.cos(a),y=256+170*Math.sin(a); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y)} ctx.closePath(); ctx.stroke();
+ ctx.font='bold 220px Arial'; ctx.fillStyle='#e5e2ff'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('H',256,268);
+ const logoMap=new THREE.CanvasTexture(logoCanvas); logoMap.colorSpace=THREE.SRGBColorSpace;
+ const logoMat=new THREE.MeshBasicMaterial({map:logoMap,transparent:true,side:THREE.DoubleSide,depthWrite:false});
+ const logo=new THREE.Mesh(new THREE.PlaneGeometry(13,13),logoMat); logo.position.set(0,55.5,35.8); world.add(logo);
+ sign('HEXCORE GAMING',[0,42.4,35.95],12.8,1.2);
+ // Water features / front lighting pillars
+ for(const side of [-1,1]){
+   box([side*44,.35,68],[10,.7,6],M.dark);
+   panel([side*44,.72,68],[9.6,.08,5.6],M.blue);
+   panel([side*54,10,68],[2.1,20,2.1],M.dark); panel([side*54,10,69.08],[.08,19,.08],M.violet);
+   panel([side*63,16,26],[1.8,32,1.8],M.dark); panel([side*63,16,26.96],[.08,31,.08],M.blue);
+ }
+}
+
 function continuousPlaza(){
- // Plaza and tower share the same scene; walking through the entrance never teleports.
- box([0,-.36,99],[190,.69,136],M.floor);
- for(const x of [-32,-16,16,32])trim([x,.014,102],[.10,.023,123],M.blue);
- for(let z=48;z<166;z+=15)trim([0,.017,z],[174,.035,.075],z%2?M.violet:M.blue);
- for(let side of [-1,1]){
-  // Open framing pylons are secondary to the central tower.
-  for(let k=0;k<4;k++){
-   const x=side*(46+k*13),z=69+k*25,h=20+(k%2)*9;
-   panel([x,h/2,z],[2.6,h,3.2],M.dark);
-   panel([x,h/2,z+1.75],[.10,h-1,.12],M.blue);
-  }
-  for(const z of [53,86,124])tree(side*43,z,1.45);
-  // High curving transport-like light rings are architectural, not a train or spawn hub.
-  const arc=new THREE.Mesh(new THREE.TorusGeometry(72,.2,6,90,Math.PI*.92),new THREE.MeshBasicMaterial({color:side===1?0x874cfb:0x6aa9ff}));
-  arc.rotation.x=Math.PI/2;arc.rotation.z=side===1?.14:Math.PI+.14;arc.position.set(0,60,25);world.add(arc);
+ // Dedicated exterior scene matching the reference direction more closely.
+ box([0,-.36,88],[240,.69,180],M.floor);
+ for(let i=0;i<11;i++){const z=26+i*12; trim([0,.018,z],[176,.03,.07],i%2?M.violet:M.blue)}
+ for(let i=0;i<9;i++){const x=-64+i*16; trim([x,.015,88],[.08,.025,160],i%2?M.blue:M.violet)}
+ hexcoreFloorLogo(0,88,10.5);
+ // Forecourt steps
+ for(let i=0;i<5;i++) panel([0,.28+i*.55,61-i*3.4],[54-i*4, .52,4], i%2?M.dark:M.wall);
+ for(let i=0;i<4;i++) panel([0,2.95+i*.6,48-i*2.3],[40-i*3,.42,2.8],i%2?M.dark:M.wall);
+ towerFacadeV15();
+ // Cosmic backdrop and stars
+ const planet=sphere([-170,150,120],70,new THREE.MeshBasicMaterial({color:0x352858,depthWrite:false}));
+ const atmo=new THREE.Mesh(new THREE.SphereGeometry(74,32,24),new THREE.MeshBasicMaterial({color:0x8b72ff,side:THREE.BackSide,transparent:true,opacity:.14,depthWrite:false})); atmo.position.copy(planet.position); world.add(atmo);
+ sphere([118,132,92],17,new THREE.MeshBasicMaterial({color:0x4b4a7a,depthWrite:false}));
+ const nebula=new THREE.BufferGeometry(),v=[];
+ for(let i=0;i<420;i++){const a=Math.random()*Math.PI*2,r=20+Math.random()*54,x=140+Math.cos(a)*r*1.6,y=126+(Math.random()-.5)*44,z=60+Math.sin(a)*r;v.push(x,y,z)}
+ nebula.setAttribute('position',new THREE.Float32BufferAttribute(v,3)); world.add(new THREE.Points(nebula,new THREE.PointsMaterial({color:0xb487ff,size:2.1,transparent:true,opacity:.28,sizeAttenuation:false})));
+ const stars=new THREE.BufferGeometry(),s=[]; for(let i=0;i<420;i++){s.push((Math.random()-.5)*560,40+Math.random()*230,-30+Math.random()*280)} stars.setAttribute('position',new THREE.Float32BufferAttribute(s,3)); world.add(new THREE.Points(stars,new THREE.PointsMaterial({color:0xe6efff,size:1.4,sizeAttenuation:false})));
+ // Landscaping / visitors
+ for(const side of [-1,1]){
+   for(const z of [52,76,102]) tree(side*49,z,1.45);
+   lightBench(side*28,75,side>0?.25:-.25); lightBench(side*28,102,side>0?-.25:.25);
+   ambientVisitor(side*18,67,20+side); ambientVisitor(side*32,87,22+side); ambientVisitor(side*11,107,24+side);
  }
- towerFacadeV13();
- // Keep the SAME walk-through entrance, no E prompt and no area transition.
- automaticEntrance(0,35);
- // Prominent celestial atmosphere built from lightweight geometry (not old assets).
- const planetMat=new THREE.MeshBasicMaterial({color:0x40316f,depthWrite:false});
- sphere([-185,168,165],69,planetMat);
- const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(72,32,20),new THREE.MeshBasicMaterial({color:0x735eff,side:THREE.BackSide,transparent:true,opacity:.13,depthWrite:false}));atmosphere.position.set(-185,168,165);world.add(atmosphere);
- sphere([171,154,208],21,new THREE.MeshBasicMaterial({color:0x5c518c,depthWrite:false}));
- const cloud=new THREE.Group();world.add(cloud);
- for(let i=0;i<42;i++){
-  let a=i*.48,r=35+(i%6)*6,xx=125+Math.cos(a)*r,yy=140+Math.sin(a)*r;
-  let star=sphere([xx,yy,225],1.3+(i%3)*.8,new THREE.MeshBasicMaterial({color:i%2?0x865cdd:0x597acb,transparent:true,opacity:.42,depthWrite:false}),cloud,6);
- }
- const sg=new THREE.BufferGeometry(),v=[];
- for(let i=0;i<260;i++){let a=i*2.399,r=90+(i*43)%260;v.push(Math.cos(a)*r,72+(i*61)%170,100+Math.sin(a)*r)}
- sg.setAttribute('position',new THREE.Float32BufferAttribute(v,3));world.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xc4bbff,size:1.35,sizeAttenuation:false})));
+ for(const p of [[-6,58,31], [6,58,32], [-14,60,74], [14,60,74]]) employee(...p);
 }
 
 function spire(x,z,height,width=5,parent=world){
@@ -577,7 +635,7 @@ function exterior(){continuousPlaza()} // Separate exterior hero area.
 
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];scene.fog.density=.0031}
 let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,1.8,21),active=false,nearest=null,quality='low',transitionCooldown=0;
-function travel(id,spawn='default'){closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();if(spawn==='fromLobby'){pos.set(0,1.8,72);yaw=0}else{pos.set(0,1.8,98);yaw=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(0,1.8,27);yaw=0}else{pos.set(0,1.8,21);yaw=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,1.8,21);yaw=0}pitch=0;camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.55;}
+function travel(id,spawn='default'){const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,61.5)}else{pos.set(0,1.8,98);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,26.5)}else{pos.set(0,1.8,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,1.8,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;}
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -695,7 +753,7 @@ for(const d0 of animatedDoors){const dist=pos.distanceTo(d0.center),target=dist<
 if(transitionCooldown>0)transitionCooldown-=dt;
 if(transitionCooldown<=0){
  if(floor==='lobby'&&Math.abs(pos.x)<5.8&&pos.z>39.2){travel('outside','fromLobby');return}
- if(floor==='outside'&&Math.abs(pos.x)<5.8&&pos.z<49.5){travel('lobby','fromOutside');return}
+ if(floor==='outside'&&Math.abs(pos.x)<5.8&&pos.z<52.2){travel('lobby','fromOutside');return}
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'USE':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
 $('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile)$('mobileUI').classList.remove('hidden');active=true;travel('lobby');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
