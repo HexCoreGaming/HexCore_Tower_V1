@@ -12,3 +12,8 @@
 
 /* V7: mobile-only controls for the holographic portal selector */
 .portal-mobile{position:fixed;z-index:9;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,90vw);max-height:80vh;overflow:auto;padding:18px;background:rgba(7,11,32,.95);border:1px solid #9d79fb;box-shadow:0 0 35px #6c41bf88;display:grid;gap:8px;text-align:center} .portal-mobile strong{letter-spacing:.12em;color:#b6d7ff}.portal-mobile button{padding:10px;font-size:12px}
+
+/* V8 visual polish */
+.panel-box{backdrop-filter:blur(8px)}
+.prompt{border-color:#b28dff;background:#0c0b1ae8;box-shadow:0 0 20px #5d38b644}
+.hint{background:#090c18cc;border-color:#7e6db4b2;box-shadow:0 0 16px #3e2d6f40}

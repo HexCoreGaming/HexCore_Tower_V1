@@ -1,11 +1,10 @@
 {
-  "version": "V7",
+  "version": "V8",
   "changes": [
-    "One portal per floor (not multiple gates)",
-    "In-world holographic 3D floor selector on desktop",
-    "Mobile destination buttons for portal",
-    "Desktop pointer lock unchanged by travel selection",
-    "Support contact information approved by HexCore",
-    "Original legal dialogue preserved"
+    "Lobby visual overhaul toward approved reference",
+    "Single floor-transit portal retained on each floor",
+    "Real sliding entrance doors added for tower/plaza access",
+    "Black marble-style floor and visible HexCore H floor emblem",
+    "Expanded staffing and placeholder Q&A across all departments"
   ]
 }
