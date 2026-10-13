@@ -1,12 +1,12 @@
 {
-  "release": "V2",
+  "release": "V3",
   "changes": [
-    "Visible V2 on entry, loading, HUD",
-    "New geometric lobby ceiling and floating luminous rings",
-    "New reception-side interactive tower directory",
-    "New minimal tower approach pylons and landscaping",
-    "Approved NPC Q&A and existing mobile controls unchanged"
+    "Visible V3 on loading, entry and HUD",
+    "Lobby has approachable Company Representative with original Q&A",
+    "Legal floor contains all four original representatives, individually interactive",
+    "Preserved original dialogue source byte-for-byte",
+    "Existing mobile and desktop controls preserved"
   ],
-  "legacy_reuse": "Only preservedLegalDialogue and previously recreated mobile controls; no imported old-world assets",
-  "test_status": "Static checks; no physical mobile or live WebGL browser testing"
+  "legacy_reuse": "PreservedLegalDialogue and approved recreated controls only; no old-world assets",
+  "test_status": "JavaScript syntax, archive integrity and dialogue hash verified; browser runtime not guaranteed"
 }
