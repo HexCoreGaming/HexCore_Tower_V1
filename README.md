@@ -1,17 +1,9 @@
-# HexCore Tower — V6
+# HexCore Tower V7
 
-## Changes
-- Every department floor and the lobby now have a multi-destination portal transit area.
-- Choose any other floor from the floor you are on, without returning to the lobby.
-- Portal travel calls the same direct `travel()` function and does not open the information/menu overlay or release desktop pointer lock.
-- Department employee figures now have interactable answers for department purpose and currently available updates.
-- More complex official answers are not invented; additional department dialogue needs owner approval.
-- All original 41 questions and answers are retained without editing.
-- Mobile movement/look controls retained.
-- Visible version is V6.
+V7 replaces the multi-gate transit with **one portal per floor**. On PC, walk to the portal and press E. The holographic floor display appears in the 3D game view while mouse look remains captured. Use Up/Down or W/S to select, Enter or E to travel, Escape to cancel. On mobile, use USE to open the portal and tap a floor button. Every floor allows selection of any other floor.
 
-## GitHub Desktop deployment
-Extract the folder and copy its *contents* (including `index.html`, `src`, `data`, `reference`, and `docs`) directly into the repository folder opened by GitHub Desktop. Commit and Push origin.
+The Support department now contains HexCore's approved Discord support link and alternative email instructions. The original preserved legal NPC dialogue remains untouched. Other missing official NPC replies are not invented.
 
-## Limitations
-Not tested in a live browser or on a physical phone. NPCs remain simplified models. The free local content editor is not a secure publishing backend.
+Extract the ZIP and copy its root contents directly into the local `HexCore_Tower_V1` repository opened through GitHub Desktop, then commit to main and Push origin.
+
+Limitations: no full browser or device playtest completed. Secure live administrative publishing remains unimplemented.

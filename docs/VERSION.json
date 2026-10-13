@@ -1,9 +1,11 @@
 {
-  "version": "V6",
+  "version": "V7",
   "changes": [
-    "Floor portals available from every floor",
-    "Keep pointer lock during portal transit",
-    "Add department staff interactions with existing site facts",
-    "Preserve 41 legal Q&A and mobile controls"
+    "One portal per floor (not multiple gates)",
+    "In-world holographic 3D floor selector on desktop",
+    "Mobile destination buttons for portal",
+    "Desktop pointer lock unchanged by travel selection",
+    "Support contact information approved by HexCore",
+    "Original legal dialogue preserved"
   ]
 }

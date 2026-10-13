@@ -9,3 +9,6 @@
 .build-version{position:fixed;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:35;padding:7px 13px;font-size:12px;font-weight:700;letter-spacing:.2em;color:#f0e6ff;border:1px solid #ab83fa99;background:rgba(14,10,34,.88);box-shadow:0 0 18px #7540d62e;border-radius:4px;pointer-events:none}
 .hud-version{display:inline-block;margin-left:14px!important;padding:5px 9px;border:1px solid #a787ff99;border-radius:4px;color:#f0e6ff!important;background:#1c1532d9;font-size:11px!important;font-weight:700;letter-spacing:.13em}
 @media(max-width:700px){.build-version{top:max(9px,env(safe-area-inset-top));right:max(9px,env(safe-area-inset-right));padding:5px 9px;font-size:11px}.hud-version{margin-left:5px!important;padding:3px 5px;font-size:10px!important}}
+
+/* V7: mobile-only controls for the holographic portal selector */
+.portal-mobile{position:fixed;z-index:9;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,90vw);max-height:80vh;overflow:auto;padding:18px;background:rgba(7,11,32,.95);border:1px solid #9d79fb;box-shadow:0 0 35px #6c41bf88;display:grid;gap:8px;text-align:center} .portal-mobile strong{letter-spacing:.12em;color:#b6d7ff}.portal-mobile button{padding:10px;font-size:12px}
