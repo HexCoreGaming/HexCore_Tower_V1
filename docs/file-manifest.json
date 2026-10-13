@@ -1,62 +1,70 @@
-[
-  {
-    "path": ".nojekyll",
-    "bytes": 0,
-    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  },
-  {
-    "path": "README.md",
-    "bytes": 1368,
-    "sha256": "16ca641b1194a0acd9bec504e55f39ffb924dc05995604db57f761adeebe2ccb"
-  },
-  {
-    "path": "data/preservedLegalDialogue.js",
-    "bytes": 22839,
-    "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
-  },
-  {
-    "path": "docs/REBUILD_AUDIT.md",
-    "bytes": 885,
-    "sha256": "44ac8516609bee78c4d9c614f80e29574f6564039cf01ebd5abb7ff5b4b0daba"
-  },
-  {
-    "path": "docs/VERSION.json",
-    "bytes": 572,
-    "sha256": "cc75f201039cf9bb4b2b408c963a0ca21a2a2c37bb1bdeaaa8e70c4c105840da"
-  },
-  {
-    "path": "index.html",
-    "bytes": 4159,
-    "sha256": "5dad40d26555dccea489e9ad8ebb1382d27aa9eaf45d2a98cdd5bbea0273bf2a"
-  },
-  {
-    "path": "reference/approved-lobby.png",
-    "bytes": 3847405,
-    "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
-  },
-  {
-    "path": "reference/approved-tower.png",
-    "bytes": 3383997,
-    "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
-  },
-  {
-    "path": "reference/lobby-design.png",
-    "bytes": 3847405,
-    "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
-  },
-  {
-    "path": "reference/tower-design.png",
-    "bytes": 3383997,
-    "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
-  },
-  {
-    "path": "src/main.js",
-    "bytes": 34644,
-    "sha256": "b7e0f164d6696697b01df2f01b4be16baefa4aab2c1b38c252f155cbffeec0fe"
-  },
-  {
-    "path": "src/style.css",
-    "bytes": 6884,
-    "sha256": "2f2d34ed31158b11662d88d4e60e6104abdcaaa6f62f8fc06ee007e0c6011e0f"
-  }
-]
+{
+  "version": "V4",
+  "files": [
+    {
+      "file": ".nojekyll",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "README.md",
+      "size": 1414,
+      "sha256": "2fd598b3dae75b64ce4930959d2c0e183aac55666b0f28cd2cfb484f3c7817c7"
+    },
+    {
+      "file": "data/preservedLegalDialogue.js",
+      "size": 22839,
+      "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
+    },
+    {
+      "file": "docs/REBUILD_AUDIT.md",
+      "size": 885,
+      "sha256": "44ac8516609bee78c4d9c614f80e29574f6564039cf01ebd5abb7ff5b4b0daba"
+    },
+    {
+      "file": "docs/VERSION.json",
+      "size": 265,
+      "sha256": "f14a791aba95e3ad7d74252429f96b3e5400d7cf4418c97be2250750e09fb9ac"
+    },
+    {
+      "file": "docs/file-manifest.json",
+      "size": 1739,
+      "sha256": "80997e7e61859178d4aaede42063301c14ed8f10a4d5079d857a59f9e08f32a2"
+    },
+    {
+      "file": "index.html",
+      "size": 4160,
+      "sha256": "abadcf63db1d78f11f49a49a47fd702159e185ad188bc93b60164321da252d31"
+    },
+    {
+      "file": "reference/approved-lobby.png",
+      "size": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    {
+      "file": "reference/approved-tower.png",
+      "size": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    {
+      "file": "reference/lobby-design.png",
+      "size": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    {
+      "file": "reference/tower-design.png",
+      "size": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    {
+      "file": "src/main.js",
+      "size": 35025,
+      "sha256": "8be2d442884a93c0016115161774d8c15fb24d9e8ebbdd900b844ce108ff6d15"
+    },
+    {
+      "file": "src/style.css",
+      "size": 6884,
+      "sha256": "2f2d34ed31158b11662d88d4e60e6104abdcaaa6f62f8fc06ee007e0c6011e0f"
+    }
+  ]
+}

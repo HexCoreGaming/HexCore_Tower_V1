@@ -1,19 +1,19 @@
-# HEXCORE TOWER — V3
+# HexCore Tower — V4
 
-Complete GitHub Pages replacement for V2. **V3** is visible on the loading screen, home/character screen, and in-game HUD.
+Complete replacement ZIP for the GitHub Desktop repository `HexCore_Tower_V1`.
 
-## Changes in V3
-- Company Representative Alex Morgan can be approached in the lobby and asked the existing original questions.
-- Legal floor includes four interactive company/legal representatives: Alex Morgan, Victoria Hale, Naomi Reed, and Daniel Cross. Each has their original questions and answers.
-- All original questions and answers are preserved byte-for-byte from V2.
-- Existing WASD, mouse and dual-pad mobile controls are retained.
+## V4 corrections
+- Removed ALL lobby Legal Archive, Visitor Information, holographic Q&A, and tower-directory interaction stations.
+- No department Q&A can be accessed through reception: reception only directs visitors to the elevator.
+- Rebuilt reception furniture to a much smaller/lower desk and positioned five visible lobby employees.
+- Added supplementary decorative employees to department floors.
+- Existing Legal representatives and exact legal NPC Q&A remain on the Legal floor.
+- Removed direct department teleporting from the menu; floor list is informational, elevators provide travel.
+- Visible V4 version across home/loading/HUD and updated cache-busting query values.
+- Preserved existing desktop and mobile input logic.
 
-## Installation with GitHub Desktop
-1. Extract this archive.
-2. In GitHub Desktop select `HexCore_Tower_V1`, then Repository > Show in Explorer.
-3. Replace old website files with everything at the top level of this archive. Make sure `index.html` is directly at the repository root.
-4. Commit to `main`, then Push origin.
-5. Verify Settings > Pages publishes from main / (root). Once deployed, refresh and look for **V3**.
+## Install
+Extract and copy the contents directly into the root of your local GitHub Desktop repository. Replace corresponding project files. Commit to main, push origin, and wait for Pages deployment. You should see V4 on the start screen.
 
 ## Limits
-This is a staged website build, not completed AAA graphics. Admin publishing remains local/export only. NPCs can answer original prepared questions, but do not have freeform AI. No external server is needed to browse the site, but Three.js currently loads from a CDN. Testing is static only; browser/device performance is not yet validated.
+This build has not been verified using a live interactive browser/physical phone. Additional decorative employee models are not yet realistic scheduled NPCs. The in-world AI assistant remains a future feature rather than a production-grade AI. The current editor only saves locally; GitHub publishing is not automatic.

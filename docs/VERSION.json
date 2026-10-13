@@ -1,12 +1,10 @@
 {
-  "release": "V3",
+  "version": "V4",
   "changes": [
-    "Visible V3 on loading, entry and HUD",
-    "Lobby has approachable Company Representative with original Q&A",
-    "Legal floor contains all four original representatives, individually interactive",
-    "Preserved original dialogue source byte-for-byte",
-    "Existing mobile and desktop controls preserved"
-  ],
-  "legacy_reuse": "PreservedLegalDialogue and approved recreated controls only; no old-world assets",
-  "test_status": "JavaScript syntax, archive integrity and dialogue hash verified; browser runtime not guaranteed"
+    "Removed lobby information stations",
+    "Reception resized and employees visible",
+    "Information only on department floors",
+    "Elevator required for department navigation",
+    "Preserved legal Q&A and controls"
+  ]
 }
