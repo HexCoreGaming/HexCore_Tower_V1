@@ -53,7 +53,7 @@ function trim(p,s,material=M.violet){box(p,s,material)}
 function tree(x,z,scale=1){cyl([x,.9*scale,z],.12*scale,.22*scale,1.8*scale,M.dark);sphere([x,2.05*scale,z],.85*scale,M.leaf);for(let i=0;i<5;i++){let a=i*Math.PI*2/5;sphere([x+Math.cos(a)*.65*scale,1.9*scale,z+Math.sin(a)*.65*scale],.42*scale,M.leaf)}}
 function portal(label,x,z,cb){box([x,1.8,z],[4.7,3.6,.35],M.dark);box([x,3.6,z],[4.9,.08,.5],M.violet);for(let dx of [-2.36,2.36])box([x+dx,1.8,z],[.09,3.6,.5],M.blue);sign(label,[x,4.65,z+.32],5.8,.7);interact(label,[x,1.7,z],cb,5)}
 function hologram(x,y,z){sphere([x,y,z],2.25,new THREE.MeshBasicMaterial({color:0x5555ef,transparent:true,opacity:.42,wireframe:true}));torus([x,y,z],3.05,.04,M.blue,[1.05,0,.2]);torus([x,y,z],2.55,.04,M.violet,[.3,.2,0]);}
-function employee(x,z,i){let g=new THREE.Group();g.position.set(x,0,z);g.userData={baseY:0,phase:Math.random()*Math.PI*2,turn:(Math.random()-.5)*.22};world.add(g);staffActors.push(g);cyl([0,1.15,0],.25,.31,1.35,M.black,g);sphere([0,2.06,0],.27,i%2?M.skin:M.hair,g);box([-.37,1.2,0],[.15,.88,.18],M.black,g);box([.37,1.2,0],[.15,.88,.18],M.black,g);box([-.14,.3,0],[.18,.67,.23],M.black,g);box([.14,.3,0],[.18,.67,.23],M.black,g);box([0,1.35,.27],[.25,.15,.05],i%2?M.violet:M.blue,g);return g;}
+function employee(x,z,i){let g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(NPC_SCALE);g.userData={baseY:0,phase:Math.random()*Math.PI*2,turn:(Math.random()-.5)*.22};world.add(g);staffActors.push(g);cyl([0,1.15,0],.25,.31,1.35,M.black,g);sphere([0,2.06,0],.27,i%2?M.skin:M.hair,g);box([-.37,1.2,0],[.15,.88,.18],M.black,g);box([.37,1.2,0],[.15,.88,.18],M.black,g);box([-.14,.3,0],[.18,.67,.23],M.black,g);box([.14,.3,0],[.18,.67,.23],M.black,g);box([0,1.35,.27],[.25,.15,.05],i%2?M.violet:M.blue,g);return g;}
 
 // V7: exactly ONE portal per floor. The destination display is a hologram in the 3D scene.
 let portalSelection=null, portalHologram=null;
@@ -327,13 +327,30 @@ function waterfall(x,z,width=12,drop=35,rotation=0){
  for(const dx of [-width*.38,width*.30]){const line=new THREE.Mesh(new THREE.PlaneGeometry(.11,drop),streak);line.position.set(dx,-drop/2,.08);group.add(line)}
 }
 function skyNebula(){
- // Static, canvas-generated nebula: no remote images, video, or asset loading.
- let canvas=document.createElement('canvas');canvas.width=1024;canvas.height=512;let c=canvas.getContext('2d');
- let bg=c.createLinearGradient(0,0,0,512);bg.addColorStop(0,'#02040b');bg.addColorStop(.48,'#090d1b');bg.addColorStop(.8,'#120f2c');bg.addColorStop(1,'#1b1438');c.fillStyle=bg;c.fillRect(0,0,1024,512);
+ // Darker starfield with a stretched nebula ribbon, not a bright flat magenta sheet.
+ let canvas=document.createElement('canvas');canvas.width=2048;canvas.height=1024;let c=canvas.getContext('2d');
+ let bg=c.createLinearGradient(0,0,0,1024);bg.addColorStop(0,'#02030a');bg.addColorStop(.38,'#050814');bg.addColorStop(.72,'#0a0d1f');bg.addColorStop(1,'#060812');c.fillStyle=bg;c.fillRect(0,0,2048,1024);
  let seed=1337;function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
- for(let j=0;j<1350;j++){let x=690+(rand()-.5)*450,y=255+(rand()-.5)*270,r=4+rand()*70;
- let g=c.createRadialGradient(x,y,0,x,y,r),h=rand()>.47?'175,74,254':'92,106,230';g.addColorStop(0,`rgba(${h},${.07+rand()*.14})`);g.addColorStop(1,`rgba(${h},0)`);c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill()}
- for(let i=0;i<1600;i++){let x=rand()*1024,y=rand()*512;c.fillStyle=`rgba(234,225,255,${.2+rand()*.75})`;c.fillRect(x,y,rand()<.96?1:2,rand()<.96?1:2)}
+ // Stretched nebula ribbon concentrated to the right side like the reference.
+ for(let i=0;i<1800;i++){
+   let x=1160+(rand()-.5)*860;
+   let y=260+(rand()-.5)*220 + Math.sin((x-1160)*0.006)*95;
+   let r=18+rand()*145;
+   let g=c.createRadialGradient(x,y,0,x,y,r);
+   let h=rand()>.55?'180,92,255':'96,128,255';
+   g.addColorStop(0,`rgba(${h},${.08+rand()*.18})`);
+   g.addColorStop(.6,`rgba(${h},${.025+rand()*.05})`);
+   g.addColorStop(1,'rgba(0,0,0,0)');
+   c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();
+ }
+ // Subtle haze to stretch the nebula into a band instead of a circular patch.
+ c.save();
+ c.translate(1560,250);c.rotate(-0.36);
+ let haze=c.createLinearGradient(-520,0,520,0);haze.addColorStop(0,'rgba(0,0,0,0)');haze.addColorStop(.22,'rgba(121,84,255,.08)');haze.addColorStop(.5,'rgba(172,98,255,.16)');haze.addColorStop(.78,'rgba(111,136,255,.09)');haze.addColorStop(1,'rgba(0,0,0,0)');
+ c.fillStyle=haze;c.fillRect(-620,-95,1240,190);
+ c.restore();
+ // Dense stars.
+ for(let i=0;i<2600;i++){let x=rand()*2048,y=rand()*1024,a=.16+rand()*.8,s=rand()>.97?2:1;c.fillStyle=`rgba(237,236,255,${a})`;c.fillRect(x,y,s,s)}
  let t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;
  const sky=new THREE.Mesh(new THREE.SphereGeometry(400,48,24),new THREE.MeshBasicMaterial({map:t,side:THREE.BackSide,depthWrite:false,fog:false}));sky.position.set(0,70,35);world.add(sky);
 }
@@ -398,7 +415,7 @@ function towerV16(){
 }
 function continuousPlaza(){
  scene.fog.density=.0015;
- skyNebula();planetBackdrop(-181,164,-130,85,0x54407e);planetBackdrop(159,166,-112,18,0x4d4b82);
+ skyNebula();planetBackdrop(-214,160,-175,72,0x54407e);planetBackdrop(168,170,-128,14,0x4d4b82);
  // Main platform, a single hovering architectural island in space.
  platformIsland(0,81,214,222,19);
  // Visible front and lateral waterfalls spilling off the floating edge.
@@ -414,11 +431,9 @@ function continuousPlaza(){
  for(let i=-5;i<=5;i++){let x=i*17;panel([x,.018,104],[.05,.018,169],i%2?M.blue:M.violet)}
  for(let i=0;i<11;i++){let z=22+i*15;panel([0,.018,z],[185,.018,.055],i%2?M.violet:M.blue)}
  hexcoreFloorLogo(0,118,9.7);
- // Reference-like approach stairs and illuminated guide path to the door.
- for(let i=0;i<4;i++){
-   panel([0,.15+i*.25,50-i*3],[45-i*3.5,.23,3.0],M.dark);
-   panel([0,.28+i*.25,51.4-i*3],[45-i*3.5,.045,.17],M.violet);
- }
+ // Entrance remains flush with the plaza floor — no disconnected stairs or fake stepping.
+ panel([0,.03,47],[56,.05,18],M.floor);
+ for(const z of [39,47,55])panel([0,.04,z],[30,.025,.08],z===47?M.blue:M.violet);
  towerV16();
  // Secondary orbital-column language around tower, surrounding skyline minimal and matched.
  for(const side of [-1,1]){
@@ -722,7 +737,7 @@ function floorRoom(data){box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22
 function exterior(){continuousPlaza()} // Separate exterior hero area.
 
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];scene.fog.density=.0031}
-let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,1.8,21),active=false,nearest=null,quality='low',transitionCooldown=0;
+let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,21),active=false,nearest=null,quality='low',transitionCooldown=0;
 let doorCache=null;
 function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors}}
 function installDoorWorld(data){
@@ -743,11 +758,11 @@ function crossDoor(target){
  installDoorWorld(doorCache[target]);floor=target;
  // Aligned entrance axes, unchanged input, yaw, pitch and cursor lock.
  // Short movement along the crossing direction, with no loading or world reconstruction.
- pos.set(Math.max(-5.5,Math.min(5.5,previous.x)),1.8,target==='outside'?32.35:31.65);
+ pos.set(Math.max(-5.5,Math.min(5.5,previous.x)),EYE_HEIGHT,target==='outside'?32.35:31.65);
  camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
  transitionCooldown=.32;
 }
-function travel(id,spawn='default'){if((spawn==='fromLobby'||spawn==='fromOutside')&&doorCache){crossDoor(id);return;}doorCache=null;const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,35.0)}else{pos.set(0,1.8,118);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),1.8,30.6)}else{pos.set(0,1.8,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,1.8,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;if(id==='lobby')prebuildDoorWorlds();}
+function travel(id,spawn='default'){if((spawn==='fromLobby'||spawn==='fromOutside')&&doorCache){crossDoor(id);return;}doorCache=null;const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,35.0)}else{pos.set(0,EYE_HEIGHT,118);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,30.6)}else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;if(id==='lobby')prebuildDoorWorlds();}
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
