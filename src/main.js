@@ -374,18 +374,21 @@ function planetBackdrop(x,y,z,r,color=0x4e367b){
 }
 
 function towerBackgroundPlanet(){
- // The approved reference puts a huge celestial body behind the left side of the tower.
- // Actual 3D sphere, not an opaque billboard over the tower.
- const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
- const grad=g.createLinearGradient(0,0,512,256);grad.addColorStop(0,'#322754');grad.addColorStop(.48,'#665083');grad.addColorStop(1,'#171b37');g.fillStyle=grad;g.fillRect(0,0,512,256);
- let seed=21053;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
- for(let i=0;i<90;i++){const x=rand()*512,y=rand()*256,r=6+rand()*72;const fog=g.createRadialGradient(x,y,0,x,y,r);fog.addColorStop(0,i%3?'rgba(130,97,181,.21)':'rgba(207,156,240,.12)');fog.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=fog;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()}
- const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;
- const mat=new THREE.MeshStandardMaterial({map:texture,roughness:1,metalness:0,emissive:0x241542,emissiveIntensity:.22,fog:false});
- const planet=new THREE.Mesh(new THREE.SphereGeometry(84,48,24),mat);
- planet.position.set(-148,150,-185);world.add(planet);
- const atmo=new THREE.Mesh(new THREE.SphereGeometry(89,48,24),new THREE.MeshBasicMaterial({color:0x9477ff,transparent:true,opacity:.14,side:THREE.BackSide,depthWrite:false,fog:false}));atmo.position.copy(planet.position);world.add(atmo);
+ // Huge celestial body behind the left tower facade, using the visitor's exact planet artwork.
+ // It is a transparent distant image plane (not a crude painted sphere) and cannot block the building.
+ const material=new THREE.MeshBasicMaterial({transparent:true,side:THREE.DoubleSide,
+   depthWrite:false,fog:false,opacity:1,polygonOffset:true,polygonOffsetFactor:1});
+ const planet=new THREE.Mesh(new THREE.PlaneGeometry(290,290),material);
+ planet.position.set(-155,167,-162);
+ planet.renderOrder=-8;
+ world.add(planet);
+ new THREE.TextureLoader().load('./reference/cracked-planet-transparent.png',texture=>{
+  texture.colorSpace=THREE.SRGBColorSpace;
+  material.map=texture;
+  material.needsUpdate=true;
+ });
 }
+
 function plazaLightReflections(){
  // Low-opacity luminous reflection pools on the existing glossy black marble.
  // Kept on the horizontal floor; these are not added structures or raised obstacles.
@@ -399,8 +402,8 @@ function plazaLightReflections(){
  }
 }
 function towerV16(){
- const metal=new THREE.MeshStandardMaterial({color:0x32384c,metalness:.8,roughness:.2,emissive:0x111126,emissiveIntensity:.14});
- const ink=new THREE.MeshStandardMaterial({color:0x181a2a,metalness:.78,roughness:.22,emissive:0x0b071b,emissiveIntensity:.18});
+ const metal=new THREE.MeshStandardMaterial({color:0x49566b,metalness:.7,roughness:.18,emissive:0x292141,emissiveIntensity:.32});
+ const ink=new THREE.MeshStandardMaterial({color:0x22263a,metalness:.67,roughness:.21,emissive:0x160f2b,emissiveIntensity:.33});
  const silver=new THREE.MeshStandardMaterial({color:0x929fbe,metalness:.82,roughness:.17});
  // Central skyscraper with four sculpted facades and staggered crown, entrance toward positive Z.
  // Open ground-floor approach: no solid mass behind the automatic doors.
@@ -455,6 +458,32 @@ function towerV16(){
    panel([x,h*.57,z+2.86],[.10,h*.72,.08],i%2?M.blue:M.violet);
    panel([x,h*.94,z+2.86],[2.0,.10,.1],silver);
   }
+ }
+ // Faceted metallic detailing on existing tower front. No main silhouette changes.
+ const facePanel=new THREE.MeshStandardMaterial({color:0x333849,metalness:.72,roughness:.24,
+   emissive:0x141227,emissiveIntensity:.26});
+ const insetPanel=new THREE.MeshStandardMaterial({color:0x151b30,metalness:.74,roughness:.22});
+ const accents=[M.violet,M.blue,M.white];
+ for(const side of [-1,1]){
+   for(let j=0;j<7;j++){
+     const x=side*(10.2+j*4.4),height=126-j*11.5,z=20.1-j*1.4;
+     panel([x,height*.49+10,z+2.78],[1.65,height*.73,.18],j%2?facePanel:insetPanel);
+     panel([x+side*.9,height*.51+10,z+2.92],[.085,height*.76,.10],accents[j%3]);
+     for(let k=0;k<3;k++){
+       const yy=24+k*19+j*2;
+       if(yy<height-8)panel([x,yy,z+2.95],[1.52,.12,.12],facePanel);
+     }
+   }
+ }
+ // Architectural perimeter framing and recessed front plaque for the existing H emblem.
+ panel([0,89,25.30],[32,34,.48],insetPanel);
+ panel([0,106.2,25.63],[32.4,.26,.25],M.violet);
+ for(const side of [-1,1])panel([side*16.25,89,25.63],[.21,34,.25],side>0?M.blue:M.violet);
+ panel([0,73,25.65],[30,.15,.24],M.blue);
+ // Soft surface lighting gives relief to dark metallic facade rather than flat black silhouette.
+ for(const side of [-1,1]){
+  const wash=new THREE.PointLight(side<0?0x9b72ff:0x86bfff,30,95,2);
+  wash.position.set(side*25,44,53);world.add(wash);
  }
  // Giant glass door atrium, framing edges only (not a blocking visual wall).
  for(const side of [-1,1]){

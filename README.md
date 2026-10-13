@@ -1,8 +1,1 @@
-# HexCore Tower V2.4
-
-Full replacement GitHub Pages website. Changes are limited to tower materials, existing facade details, larger logo, HEXCORE TOWER name, and black marble floor with white veining.
-
-Extract and copy the CONTENTS directly into the repository root, replacing files, then commit and push.
-
-
-V2.4: More visible procedural white veining in the black marble, a large 3D planet behind the tower, restrained facade lighting details, and low-opacity floor light-reflection patches. Existing geometry and doorway logic retained.
+HexCore Tower V2.5\n\nComplete replacement for GitHub Pages. Extract all files into the repository root, then commit and push.\n\nUpdates: giant detailed cracked planet from the supplied artwork, softly obscured lower portion, enhanced tower facade materials, metallic layers, lighting and architectural accents. Existing tower structure, doors, departments, legal dialogue, and controls preserved.\n
