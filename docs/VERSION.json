@@ -1,5 +1,5 @@
 {
-  "version": "V1.9",
+  "version": "V1.9.1",
   "codename": "Seamless Doorway & Exterior Refinement",
   "notes": [
     "Version label updated to V1.8",
@@ -12,5 +12,6 @@
     "Sky rewritten to use a darker space backdrop with a stretched nebula band",
     "Removed disconnected approach stairs and kept entrance flush with the plaza",
     "Increased player eye height and NPC scale by 40 percent"
-  ]
+  ],
+  "hotfix": "Defined EYE_HEIGHT and NPC_SCALE used by the character and NPC geometry."
 }

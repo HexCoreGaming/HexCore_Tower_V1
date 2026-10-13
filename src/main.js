@@ -3,6 +3,8 @@ import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 
 // CLEAN REBUILD: This module creates all geometry from scratch. No original world imports.
 const $=id=>document.getElementById(id);
+const EYE_HEIGHT=2.52;
+const NPC_SCALE=1.4;
 const floors=[
  {id:'lobby',label:'G • Main Lobby',title:'HEXCORE MAIN LOBBY',summary:'Reception, visitor guidance, after-hours holographic assistant, and access to every company service.'},
  {id:'company',label:'01 • Company & News',title:'COMPANY & NEWS',summary:'Company mission, official announcements, development news, and public information.'},
