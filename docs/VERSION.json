@@ -1,12 +1,11 @@
 {
-  "version": "V2.0",
-  "codename": "Seamless Doorway & Exterior Refinement",
+  "version": "V2.1",
+  "codename": "Space Reference Backdrop",
   "notes": [
-    "Version label updated to V1.8",
-    "Door threshold adjusted for a more seamless lobby/exterior transition",
-    "Exterior lobby slice added so the open door no longer shows a hallway",
-    "Lobby exterior vista added so the open door no longer shows a blank wall",
-    "Exterior sky and surrounding architecture refined closer to the approved concept"
+    "User-provided space reference artwork integrated into the in-world 3D sky",
+    "Reduced extraneous duplicate planets",
+    "360-degree starfield to reinforce space depth",
+    "Existing tower, floating plaza, sliding doors, departments and NPC dialogue preserved"
   ],
   "changes": [
     "Sky rewritten to use a darker space backdrop with a stretched nebula band",

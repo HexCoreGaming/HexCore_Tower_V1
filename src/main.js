@@ -161,8 +161,9 @@ function makeVistaTexture(width=1600,height=900,style='exterior'){
 }
 function lobbyExteriorVista(){
  const g=new THREE.Group();g.position.set(0,0,0);world.add(g);
- const sky=new THREE.Mesh(new THREE.PlaneGeometry(260,150),new THREE.MeshBasicMaterial({map:makeVistaTexture(1800,900,'lobbyvista'),side:THREE.DoubleSide,depthWrite:false,fog:false}));
- sky.position.set(0,67,168);g.add(sky);
+ const sky=new THREE.Mesh(new THREE.PlaneGeometry(270,156),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,depthWrite:false,fog:false}));
+ sky.position.set(0,70,168);g.add(sky);
+ new THREE.TextureLoader().load('./reference/space-backdrop.webp',t=>{t.colorSpace=THREE.SRGBColorSpace;sky.material.map=t;sky.material.needsUpdate=true;});
  panel([0,-.18,96],[148,.36,136],M.floor,g);
  for(let i=-5;i<=5;i++){panel([i*12,.018,104],[.045,.018,132],i%2?M.blue:M.violet,g)}
  for(let i=0;i<7;i++){panel([0,.018,52+i*14],[134,.018,.05],i%2?M.violet:M.blue,g)}
@@ -333,30 +334,24 @@ function waterfall(x,z,width=12,drop=35,rotation=0){
  for(const dx of [-width*.38,width*.30]){const line=new THREE.Mesh(new THREE.PlaneGeometry(.11,drop),streak);line.position.set(dx,-drop/2,.08);group.add(line)}
 }
 function skyNebula(){
- // Dark cosmic sky with a stretched right-side nebula ribbon, avoiding a flat magenta sheet.
- let canvas=document.createElement('canvas');canvas.width=2048;canvas.height=1024;let c=canvas.getContext('2d');
- let bg=c.createLinearGradient(0,0,0,1024);bg.addColorStop(0,'#010208');bg.addColorStop(.42,'#040816');bg.addColorStop(.78,'#090d1c');bg.addColorStop(1,'#040610');c.fillStyle=bg;c.fillRect(0,0,2048,1024);
- let seed=1337;function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
- // broad ribbon cloud on the right
- for(let i=0;i<2600;i++){
-   let x=1320+(rand()-.5)*840;
-   let y=220+(rand()-.5)*250 + Math.sin((x-1280)*0.0075)*78;
-   let r=16+rand()*100;
-   let g=c.createRadialGradient(x,y,0,x,y,r);
-   let h=rand()>.56?'171,94,255':'107,139,255';
-   g.addColorStop(0,`rgba(${h},${.05+rand()*.12})`);
-   g.addColorStop(.58,`rgba(${h},${.016+rand()*.03})`);
-   g.addColorStop(1,'rgba(0,0,0,0)');
-   c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();
+ // 360-degree sky mapped from the user-supplied space reference: planets, clouds, nebula and stars.
+ // Prebuilt in the exterior world; it is not a hallway, screen or physical obstruction.
+ const material=new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false});
+ const sky=new THREE.Mesh(new THREE.SphereGeometry(420,64,36),material);
+ sky.position.set(0,72,80);
+ sky.rotation.y=Math.PI;
+ sky.renderOrder=-100;
+ world.add(sky);
+ new THREE.TextureLoader().load('./reference/space-backdrop.webp',t=>{t.colorSpace=THREE.SRGBColorSpace;material.map=t;material.needsUpdate=true;});
+ // A restrained distant-star layer gives depth when looking around in first person.
+ const vertices=[];let seed=7823;
+ const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ for(let i=0;i<500;i++){
+  const theta=rand()*Math.PI*2,phi=Math.acos(2*rand()-1),r=340+rand()*38;
+  vertices.push(Math.sin(phi)*Math.cos(theta)*r,72+Math.cos(phi)*r,80+Math.sin(phi)*Math.sin(theta)*r);
  }
- c.save();
- c.translate(1520,245);c.rotate(-0.33);
- let haze=c.createLinearGradient(-620,0,620,0);haze.addColorStop(0,'rgba(0,0,0,0)');haze.addColorStop(.18,'rgba(97,78,230,.05)');haze.addColorStop(.5,'rgba(160,92,255,.15)');haze.addColorStop(.82,'rgba(120,133,255,.06)');haze.addColorStop(1,'rgba(0,0,0,0)');
- c.fillStyle=haze;c.fillRect(-660,-100,1320,200);c.restore();
- // dense but subtle starfield
- for(let i=0;i<3200;i++){let x=rand()*2048,y=rand()*1024,a=.14+rand()*.72,s=rand()>.985?2:1;c.fillStyle=`rgba(239,238,255,${a})`;c.fillRect(x,y,s,s)}
- let t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;
- const sky=new THREE.Mesh(new THREE.SphereGeometry(400,48,24),new THREE.MeshBasicMaterial({map:t,side:THREE.BackSide,depthWrite:false,fog:false}));sky.position.set(0,70,35);world.add(sky);
+ const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+ world.add(new THREE.Points(geometry,new THREE.PointsMaterial({color:0xd8d5ff,size:0.48,transparent:true,opacity:.48,sizeAttenuation:false,depthWrite:false,fog:false})));
 }
 function planetBackdrop(x,y,z,r,color=0x4e367b){
  const pm=new THREE.MeshBasicMaterial({color,depthWrite:false,fog:false});let planet=sphere([x,y,z],r,pm,world,40);
@@ -419,9 +414,7 @@ function towerV16(){
 }
 function continuousPlaza(){
  scene.fog.density=.00135;
- skyNebula();
- // Large left planet and smaller right moon similar to the approved references.
- planetBackdrop(-214,160,-175,74,0x4f3c7c);planetBackdrop(168,170,-128,14,0x4d4b82);
+ skyNebula(); // Planet and moon are already present in the approved sky image; do not duplicate them.
  // Main floating platform.
  platformIsland(0,81,220,228,19);
  // Waterfalls dropping off the floating edge.
