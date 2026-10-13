@@ -1,16 +1,9 @@
-# HexCore Tower V9 — Lobby Detail & Ambient Life
+# HexCore Tower V10 — Lobby Visual Pass
 
-Full GitHub Pages replacement package with root-level index.html.
+Changes: brighter lobby lighting, improved polished dark floor material, more visible reception with holographic staff consoles, skyline display windows, and cleaner metallic architectural panels. Existing HexCore H emblem, department floors, single floor-selector portal per floor, sliding doors, original Legal Q&A, and mobile controls are retained.
 
-## V9 Changes
-- More solid, well-lit architectural forms and material contrast throughout the atrium.
-- Recessed wall panels, metallic reliefs, subtle furniture and plinths, and additional illumination to reduce the V8 darkness.
-- A few ambient lobby visitors move along short looping paths; reception and department staff retain their static interaction points.
-- Preserves one portal and floor selector per floor, sliding entrance doors, floor layouts, WASD, pointer look, mobile controls, original 41 legal Q&A, and Support contact details.
-- Visible home and HUD label updated to V9.
+### Install (GitHub Desktop)
+Extract this full replacement ZIP. Open the HexCore_Tower_V1 repository in GitHub Desktop > Repository > Show in Explorer. Copy the extracted CONTENTS into that repository root, overwrite matching files, Commit to main, and Push origin. Wait for Pages deployment and look for V10 on the home screen.
 
-## Notes
-This is a mobile-oriented procedural 3D build, not full photorealistic rendering. The marble material is a stylized approximation, not hardware ray-traced reflections. Interactive browser and physical-device tests still needed.
-
-## Installation
-Extract ZIP, copy all contents into GitHub Desktop repository root, Commit to main, Push origin. Visit GitHub Pages after deployment and confirm V9 badge.
+### Limitations
+The floor remains a stylized polished material, not real-time ray-traced reflection. NPC schedules, physical mobile performance, and the new V10 lighting require playtesting. Three.js still loads from an external CDN.

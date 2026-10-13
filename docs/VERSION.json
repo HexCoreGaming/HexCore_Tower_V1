@@ -1,9 +1,11 @@
 {
-  "version": "V9",
+  "version": "V10",
+  "focus": "Lobby material and lighting pass",
   "changes": [
-    "More readable solid architectural lobby with premium wall panels, metal relief and balanced fill lights",
-    "Subtle looping visitor walks and staff idle motion in lobby",
-    "Preserved single floor selector portal, functional doors, NPC content and mobile controls",
-    "No changes to preserved legal dialogue"
+    "Brighter readably lit lobby while retaining dark atmosphere",
+    "New stylized panoramic skyline windows",
+    "Improved reception desk with staff holographic consoles",
+    "Additional architectural panels and floor polish",
+    "Preserved one portal per floor, mobile controls, and Legal Q&A"
   ]
 }
