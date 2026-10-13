@@ -137,61 +137,116 @@ function automaticEntrance(x,z){
  const right=panel([2.75,3.65,.06],[5.5,7.3,.12],M.glass,g);
  animatedDoors.push({left,right,travel:5.6,open:0,center:new THREE.Vector3(x,1.8,z),rest:2.75});
 }
-// V12: Monumental facade and immediate plaza. Shared physical world with the lobby.
-function towerFacadeV12(){
- const stone=new THREE.MeshStandardMaterial({color:0x14192c,metalness:.76,roughness:.23});
- const crest=new THREE.MeshBasicMaterial({color:0xaa72ff,side:THREE.DoubleSide});
- const champagne=new THREE.MeshStandardMaterial({color:0x939ab8,metalness:.83,roughness:.18});
- // Tower front is on the positive-Z side of the building. These upper structures do not block the entrance.
- const face=35;
+// V13: closer tower reconstruction with wraparound architecture and corrected side/rear design.
+
+function towerFacadeV13(){
+ const stone=new THREE.MeshStandardMaterial({color:0x14192c,metalness:.78,roughness:.22});
+ const sideStone=new THREE.MeshStandardMaterial({color:0x171d31,metalness:.74,roughness:.24});
+ const champagne=new THREE.MeshStandardMaterial({color:0x959dbc,metalness:.84,roughness:.17});
+ const face=35, tz=35;
+
+ // central body and stacked crown so the building reads like a full tower, not a flat wall.
+ panel([0,42,tz+1],[26,84,24],M.dark);
+ panel([0,80,tz+1],[18,34,16],stone);
+ panel([0,105,tz],[13,18,11],M.dark);
+ panel([0,121,tz],[9,14,8],stone);
+
+ // front monumental spires framing the entrance silhouette.
  for(const side of [-1,1]){
-  // Building wings and tall nested vertical spires.
   for(let j=0;j<6;j++){
-   const x=side*(8.8+j*5.1), h=142-j*15.8, wid=j<2?4.4:3.6;
-   panel([x,h/2+10,face-2-j*.65],[wid,h,wid+1.8],j%2?stone:M.dark);
-   panel([x,h/2+10,face+.52-j*.65],[.095,h-2,.1],j%2?M.blue:M.violet);
-   const top=new THREE.Mesh(new THREE.ConeGeometry(wid*.46,12,4),stone);top.rotation.y=Math.PI/4;top.position.set(x,h+14,face-2-j*.65);world.add(top);
+   const x=side*(9.5+j*4.9), h=146-j*15.2, wid=j<2?4.6:3.7;
+   panel([x,h/2+10,face-2-j*.5],[wid,h,wid+2],j%2?stone:M.dark);
+   panel([x,h/2+10,face+.62-j*.5],[.10,h-2,.11],j%2?M.blue:M.violet);
+   const top=new THREE.Mesh(new THREE.ConeGeometry(wid*.46,12,4),stone);
+   top.rotation.y=Math.PI/4;top.position.set(x,h+14,face-2-j*.5);world.add(top);
   }
-  for(let j=0;j<4;j++){
-   const x=side*(38+j*7),h=69-j*10;
-   panel([x,h/2,face+4],[3.2,h,5],stone);
-   panel([x,h/2,face+6.55],[.10,h-3,.10],M.violet);
+ }
+
+ // side and rear architecture so the tower is designed from every angle.
+ for(const side of [-1,1]){
+  // side shell walls cover the previously bare lobby exterior.
+  panel([side*13.8,16,tz],[1.8,32,36],sideStone);
+  panel([side*15.4,26,tz],[1.8,52,28],M.dark);
+  panel([side*17.2,40,tz],[2.2,80,22],stone);
+  for(let i=0;i<5;i++){
+   const z=tz-12+i*6.1, h=110-i*9.5;
+   panel([side*20.2,h/2+10,z],[3.6,h,5.5],i%2?sideStone:stone);
+   panel([side*20.2,h/2+10,z+2.9],[.09,h-2,.12],i%2?M.violet:M.blue);
   }
-  // Portal-flanking legs with edge-lit black metallic framing.
+  for(let i=0;i<4;i++){
+   const z=tz-13+i*8.7, h=86-i*7;
+   panel([side*25.2,h/2+8,z],[3.2,h,4.4],stone);
+   panel([side*25.2,h/2+8,z+2.25],[.09,h-2,.1],M.blue);
+  }
+ }
+
+ // rear support cluster and corners for a 360-degree silhouette.
+ for(let i=-2;i<=2;i++){
+  const x=i*6.2, h=88-Math.abs(i)*8;
+  panel([x,h/2+7,tz+18],[3.8,h,4.8],stone);
+  panel([x,h/2+7,tz+20.45],[.09,h-2,.11],i===0?M.blue:M.violet);
+ }
+ for(const sx of [-1,1]) for(const sz of [-1,1]){
+  const x=sx*28,z=tz+sz*19,h=78;
+  panel([x,h/2+6,z],[3.3,h,3.3],sideStone);
+  panel([x,h/2+6,z+1.72],[.08,h-2,.1],sz>0?M.blue:M.violet);
+ }
+
+ // wraparound elevated rings inspired by the reference image.
+ for(const spec of [[49,53,0xad72ff],[57,49,0x86ccff]]){
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(spec[1],.18,8,140),new THREE.MeshBasicMaterial({color:spec[2]}));
+  ring.rotation.x=Math.PI/2;ring.position.set(0,spec[0],tz);world.add(ring);
+ }
+
+ // emblem graphic reused on front and rear so both hero and reverse views feel intentional.
+ const logoCanvas=document.createElement('canvas'); logoCanvas.width=512; logoCanvas.height=512;
+ const ctx=logoCanvas.getContext('2d'); ctx.clearRect(0,0,512,512);
+ ctx.strokeStyle='#b179ff'; ctx.lineWidth=17; ctx.shadowColor='#9e60ff'; ctx.shadowBlur=25;
+ ctx.beginPath();
+ for(let i=0;i<6;i++){
+  const a=i*Math.PI/3-Math.PI/2; const x=256+195*Math.cos(a), y=256+195*Math.sin(a);
+  if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+ }
+ ctx.closePath(); ctx.stroke();
+ ctx.lineWidth=37; ctx.strokeStyle='#d3a8ff'; ctx.lineCap='square';
+ ctx.beginPath(); ctx.moveTo(202,158); ctx.lineTo(202,352); ctx.moveTo(310,158); ctx.lineTo(310,352); ctx.moveTo(202,256); ctx.lineTo(310,256); ctx.stroke();
+ const tx=new THREE.CanvasTexture(logoCanvas); tx.colorSpace=THREE.SRGBColorSpace;
+ const frontEmblem=new THREE.Mesh(new THREE.PlaneGeometry(17,17),new THREE.MeshBasicMaterial({map:tx,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+ frontEmblem.position.set(0,83,face+3.2); world.add(frontEmblem);
+ const rearEmblem=new THREE.Mesh(new THREE.PlaneGeometry(11,11),new THREE.MeshBasicMaterial({map:tx,transparent:true,side:THREE.DoubleSide,depthWrite:false,opacity:.75}));
+ rearEmblem.position.set(0,67,tz+22.3); rearEmblem.rotation.y=Math.PI; world.add(rearEmblem);
+ sign('HEXCORE GAMING',[0,64,face+3.24],25,3);
+
+ // entrance framing: taller, glassier, closer to the approved tower image.
+ panel([0,57,face+2],[14,86,.35],stone);
+ for(const y of [9.5,15,22]) panel([0,y,35],[13.4,.16,.72],y===15?champagne:M.violet);
+ for(const x of [-6.8,6.8]) panel([x,11.2,36.15],[.2,22,.3],M.blue);
+ panel([0,23,35.65],[14,.2,.52],M.white);
+ for(const side of [-1,1]){
   panel([side*8.1,8.6,35.25],[4.1,17.2,2.7],stone);
   panel([side*5.84,9,36.8],[.15,16,.2],M.blue);
   panel([side*12,8.1,35.8],[3,16.2,2.1],stone);
   panel([side*12,13.1,36.92],[3.2,.14,.24],M.violet);
-  // Restrained surrounding colonnade, tiered bases and lit landscaping.
-  for(let k=0;k<3;k++){
-   const x=side*(30+k*24),z=60+k*20;
+ }
+ const flood=new THREE.PointLight(0x9b69ff,23,45,2); flood.position.set(0,12,51); world.add(flood);
+
+ // front and side landscaping, water accents, and lit architectural pads.
+ const waterMat=new THREE.MeshBasicMaterial({color:0x72bcff,transparent:true,opacity:.62,side:THREE.DoubleSide});
+ for(const side of [-1,1]){
+  for(const datum of [[30,60],[54,82],[78,110]]){
+   const x=side*datum[0], z=datum[1];
    panel([x,1.1,z],[17,2.1,15],stone);
    panel([x,2.3,z],[17.1,.12,15.1],M.violet);
    tree(x+side*4,z,1.55);
-   const waterfall=new THREE.Mesh(new THREE.PlaneGeometry(5,1.7),new THREE.MeshBasicMaterial({color:0x72bcff,transparent:true,opacity:.64,side:THREE.DoubleSide}));
-   waterfall.position.set(x-side*5,.85,z+7.65);world.add(waterfall);
+   const waterfall=new THREE.Mesh(new THREE.PlaneGeometry(5,1.7),waterMat);
+   waterfall.position.set(x-side*5,.85,z+7.65); world.add(waterfall);
+  }
+  for(const z of [28,45]){
+   panel([side*34,1.0,z],[9,2,8],stone);
+   panel([side*34,2.08,z],[9.1,.12,8.1],M.blue);
+   tree(side*34,z,1.15);
   }
  }
- // Raised central face and a real visible, double-sided faceted H crest.
- panel([0,76,face-3],[17,112,9],M.dark);
- panel([0,128,face-3],[10,34,8],stone);
- panel([0,57,face+2],[14,86,.35],stone);
- for(const y of [19,108,146])panel([0,y,face+3],[17,.19,.25],M.violet);
- // Flat, readable emblem, built into the wall facing the plaza rather than a placeholder character.
- const logoCanvas=document.createElement('canvas'); logoCanvas.width=512;logoCanvas.height=512;
- const ctx=logoCanvas.getContext('2d');ctx.clearRect(0,0,512,512);
- ctx.strokeStyle='#b179ff';ctx.lineWidth=17;ctx.shadowColor='#9e60ff';ctx.shadowBlur=25;
- ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3-Math.PI/2;let x=256+195*Math.cos(a),y=256+195*Math.sin(a);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.closePath();ctx.stroke();
- ctx.lineWidth=37;ctx.strokeStyle='#d3a8ff';ctx.lineCap='square';ctx.beginPath();ctx.moveTo(202,158);ctx.lineTo(202,352);ctx.moveTo(310,158);ctx.lineTo(310,352);ctx.moveTo(202,256);ctx.lineTo(310,256);ctx.stroke();
- const tx=new THREE.CanvasTexture(logoCanvas);tx.colorSpace=THREE.SRGBColorSpace;
- const emblem=new THREE.Mesh(new THREE.PlaneGeometry(17,17),new THREE.MeshBasicMaterial({map:tx,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
- emblem.position.set(0,83,face+3.2);world.add(emblem);
- sign('HEXCORE GAMING',[0,64,face+3.24],25,3);
- // Luminous threshold and a high glass-like entry hall surrounding the functioning automatic doors.
- for(let y of [9.5,15,22])panel([0,y,35],[13.4,.16,.72],y===15?champagne:M.violet);
- for(const x of [-6.8,6.8])panel([x,11.2,36.15],[.2,22,.3],M.blue);
- panel([0,23,35.65],[14,.2,.52],M.white);
- const flood=new THREE.PointLight(0x9b69ff,23,45,2);flood.position.set(0,12,51);world.add(flood);
 }
 function continuousPlaza(){
  // Plaza and tower share the same scene; walking through the entrance never teleports.
@@ -210,7 +265,7 @@ function continuousPlaza(){
   const arc=new THREE.Mesh(new THREE.TorusGeometry(72,.2,6,90,Math.PI*.92),new THREE.MeshBasicMaterial({color:side===1?0x874cfb:0x6aa9ff}));
   arc.rotation.x=Math.PI/2;arc.rotation.z=side===1?.14:Math.PI+.14;arc.position.set(0,60,25);world.add(arc);
  }
- towerFacadeV12();
+ towerFacadeV13();
  // Keep the SAME walk-through entrance, no E prompt and no area transition.
  automaticEntrance(0,35);
  // Prominent celestial atmosphere built from lightweight geometry (not old assets).
