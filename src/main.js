@@ -307,15 +307,19 @@ function glowingLine(points,color=0xb57aff,width=.12){
 }
 function elevationBand(x,y,z,sx,sz,mat=M.dark){panel([x,y,z],[sx,.55,sz],mat);panel([x,y+.32,z],[sx+.05,.05,sz+.05],M.violet)}
 function platformIsland(x,z,sx,sz,h=11){
- // A coherent suspended slab with a visible vertical cliff rather than a flat floor in space.
+ // A giant floating architectural platform with thickness, edge treatment, and a polished upper deck.
  panel([x,-h*.5,z],[sx,h,sz],M.dark);
  panel([x,-.26,z],[sx,.55,sz],M.floor);
- const rim=new THREE.MeshBasicMaterial({color:0x7b4cff});
- panel([x,0,z-sz/2],[sx,.12,.22],rim);panel([x,0,z+sz/2],[sx,.12,.22],rim);
- panel([x-sx/2,0,z],[.22,.12,sz],M.blue);panel([x+sx/2,0,z],[.22,.12,sz],M.blue);
- for(const dx of [-sx/2+7,sx/2-7])for(const dz of [-sz/2+7,sz/2-7]){
-   panel([x+dx,-h*.55,z+dz],[3.8,h*.68,3.8],M.dark);
- }
+ // beveled edge lip
+ panel([x,-.02,z-sz/2+2.2],[sx-10,.16,4.3],M.dark);
+ panel([x,-.02,z+sz/2-2.2],[sx-10,.16,4.3],M.dark);
+ panel([x-sx/2+2.2,-.02,z],[4.3,.16,sz-10],M.dark);
+ panel([x+sx/2-2.2,-.02,z],[4.3,.16,sz-10],M.dark);
+ // luminous seam around platform edge
+ panel([x,.02,z-sz/2+.18],[sx,.05,.22],M.violet);panel([x,.02,z+sz/2-.18],[sx,.05,.22],M.violet);
+ panel([x-sx/2+.18,.02,z],[.22,.05,sz],M.blue);panel([x+sx/2-.18,.02,z],[.22,.05,sz],M.blue);
+ // underside support masses so it reads as a huge suspended structure
+ for(const dx of [-sx*.28,0,sx*.28])for(const dz of [-sz*.28,0,sz*.28])panel([x+dx,-h*.72,z+dz],[sx*.12,h*.44,sz*.12],M.dark);
 }
 function waterfall(x,z,width=12,drop=35,rotation=0){
  let group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=rotation;world.add(group);
@@ -329,30 +333,28 @@ function waterfall(x,z,width=12,drop=35,rotation=0){
  for(const dx of [-width*.38,width*.30]){const line=new THREE.Mesh(new THREE.PlaneGeometry(.11,drop),streak);line.position.set(dx,-drop/2,.08);group.add(line)}
 }
 function skyNebula(){
- // Darker starfield with a stretched nebula ribbon, not a bright flat magenta sheet.
+ // Dark cosmic sky with a stretched right-side nebula ribbon, avoiding a flat magenta sheet.
  let canvas=document.createElement('canvas');canvas.width=2048;canvas.height=1024;let c=canvas.getContext('2d');
- let bg=c.createLinearGradient(0,0,0,1024);bg.addColorStop(0,'#02030a');bg.addColorStop(.38,'#050814');bg.addColorStop(.72,'#0a0d1f');bg.addColorStop(1,'#060812');c.fillStyle=bg;c.fillRect(0,0,2048,1024);
+ let bg=c.createLinearGradient(0,0,0,1024);bg.addColorStop(0,'#010208');bg.addColorStop(.42,'#040816');bg.addColorStop(.78,'#090d1c');bg.addColorStop(1,'#040610');c.fillStyle=bg;c.fillRect(0,0,2048,1024);
  let seed=1337;function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
- // Stretched nebula ribbon concentrated to the right side like the reference.
- for(let i=0;i<1800;i++){
-   let x=1160+(rand()-.5)*860;
-   let y=260+(rand()-.5)*220 + Math.sin((x-1160)*0.006)*95;
-   let r=18+rand()*145;
+ // broad ribbon cloud on the right
+ for(let i=0;i<2600;i++){
+   let x=1320+(rand()-.5)*840;
+   let y=220+(rand()-.5)*250 + Math.sin((x-1280)*0.0075)*78;
+   let r=16+rand()*100;
    let g=c.createRadialGradient(x,y,0,x,y,r);
-   let h=rand()>.55?'180,92,255':'96,128,255';
-   g.addColorStop(0,`rgba(${h},${.08+rand()*.18})`);
-   g.addColorStop(.6,`rgba(${h},${.025+rand()*.05})`);
+   let h=rand()>.56?'171,94,255':'107,139,255';
+   g.addColorStop(0,`rgba(${h},${.05+rand()*.12})`);
+   g.addColorStop(.58,`rgba(${h},${.016+rand()*.03})`);
    g.addColorStop(1,'rgba(0,0,0,0)');
    c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();
  }
- // Subtle haze to stretch the nebula into a band instead of a circular patch.
  c.save();
- c.translate(1560,250);c.rotate(-0.36);
- let haze=c.createLinearGradient(-520,0,520,0);haze.addColorStop(0,'rgba(0,0,0,0)');haze.addColorStop(.22,'rgba(121,84,255,.08)');haze.addColorStop(.5,'rgba(172,98,255,.16)');haze.addColorStop(.78,'rgba(111,136,255,.09)');haze.addColorStop(1,'rgba(0,0,0,0)');
- c.fillStyle=haze;c.fillRect(-620,-95,1240,190);
- c.restore();
- // Dense stars.
- for(let i=0;i<2600;i++){let x=rand()*2048,y=rand()*1024,a=.16+rand()*.8,s=rand()>.97?2:1;c.fillStyle=`rgba(237,236,255,${a})`;c.fillRect(x,y,s,s)}
+ c.translate(1520,245);c.rotate(-0.33);
+ let haze=c.createLinearGradient(-620,0,620,0);haze.addColorStop(0,'rgba(0,0,0,0)');haze.addColorStop(.18,'rgba(97,78,230,.05)');haze.addColorStop(.5,'rgba(160,92,255,.15)');haze.addColorStop(.82,'rgba(120,133,255,.06)');haze.addColorStop(1,'rgba(0,0,0,0)');
+ c.fillStyle=haze;c.fillRect(-660,-100,1320,200);c.restore();
+ // dense but subtle starfield
+ for(let i=0;i<3200;i++){let x=rand()*2048,y=rand()*1024,a=.14+rand()*.72,s=rand()>.985?2:1;c.fillStyle=`rgba(239,238,255,${a})`;c.fillRect(x,y,s,s)}
  let t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;
  const sky=new THREE.Mesh(new THREE.SphereGeometry(400,48,24),new THREE.MeshBasicMaterial({map:t,side:THREE.BackSide,depthWrite:false,fog:false}));sky.position.set(0,70,35);world.add(sky);
 }
@@ -416,49 +418,61 @@ function towerV16(){
  for(const y of [12,18,23]){panel([0,y,26],[16,.15,.16],y===18?M.blue:M.violet)}
 }
 function continuousPlaza(){
- scene.fog.density=.0015;
- skyNebula();planetBackdrop(-214,160,-175,72,0x54407e);planetBackdrop(168,170,-128,14,0x4d4b82);
- // Main platform, a single hovering architectural island in space.
- platformIsland(0,81,214,222,19);
- // Visible front and lateral waterfalls spilling off the floating edge.
- for(const x of [-84,-50,50,84])waterfall(x,192,16,49,0);
- for(const z of [18,78,136]){waterfall(-107,z,13,43,Math.PI/2);waterfall(107,z,13,43,Math.PI/2)}
- // Sculpted terraced edge plazas with landscaping and pools.
- for(const side of [-1,1])for(const z of [52,101,154]){
-   elevationBand(side*83,.25,z,32,25);
-   panel([side*86,2.1,z],[21,3.8,13],M.dark);panel([side*86,4.08,z],[22,.12,14],M.blue);
-   tree(side*89,z,1.75);
- }
- // Ground paving with a dark polished floor and the physical H medallion.
- for(let i=-5;i<=5;i++){let x=i*17;panel([x,.018,104],[.05,.018,169],i%2?M.blue:M.violet)}
- for(let i=0;i<11;i++){let z=22+i*15;panel([0,.018,z],[185,.018,.055],i%2?M.violet:M.blue)}
- hexcoreFloorLogo(0,118,9.7);
- // Entrance remains flush with the plaza floor — no disconnected stairs or fake stepping.
- panel([0,.03,47],[56,.05,18],M.floor);
- for(const z of [39,47,55])panel([0,.04,z],[30,.025,.08],z===47?M.blue:M.violet);
- towerV16();
- // Secondary orbital-column language around tower, surrounding skyline minimal and matched.
+ scene.fog.density=.00135;
+ skyNebula();
+ // Large left planet and smaller right moon similar to the approved references.
+ planetBackdrop(-214,160,-175,74,0x4f3c7c);planetBackdrop(168,170,-128,14,0x4d4b82);
+ // Main floating platform.
+ platformIsland(0,81,220,228,19);
+ // Waterfalls dropping off the floating edge.
+ for(const x of [-90,-56,56,90])waterfall(x,194,16,50,0);
+ for(const z of [18,78,138]){waterfall(-110,z,13,44,Math.PI/2);waterfall(110,z,13,44,Math.PI/2)}
+ // Major approach surface: glossy black plaza with luminous seams.
+ panel([0,.03,104],[186,.05,176],M.floor);
+ for(let i=-5;i<=5;i++){let x=i*17;panel([x,.018,104],[.05,.018,168],i%2?M.blue:M.violet)}
+ for(let i=0;i<11;i++){let z=24+i*15;panel([0,.018,z],[186,.018,.055],i%2?M.violet:M.blue)}
+ // Strong central forecourt closer to reference image.
+ panel([0,.04,118],[74,.05,48],M.floor);
+ panel([0,.045,118],[52,.018,.10],M.blue);
+ panel([0,.045,102],[52,.018,.10],M.violet);
+ hexcoreFloorLogo(0,118,10.2);
+ // Entrance apron stays flush with the tower, no floating stairs.
+ panel([0,.03,46],[58,.05,26],M.floor);
+ for(const z of [38,46,54])panel([0,.04,z],[32,.022,.08],z===46?M.blue:M.violet);
+ // Side terraces / planters integrated into the platform.
  for(const side of [-1,1]){
-   for(let j=0;j<7;j++){
-     let x=side*(48+j*10),z=18-j*10,h=88-j*8.5;
-     panel([x,h/2+1,z],[3.4,h,5],M.dark);
-     panel([x+side*1.78,h/2+1,z+2.55],[.09,h-2,.12],j%2?M.blue:M.violet);
+   for(const z of [48,82,116,150]){
+     elevationBand(side*82,.25,z,34,26);
+     panel([side*85,2.15,z],[22,3.9,14],M.dark);panel([side*85,4.10,z],[22.2,.12,14.2],side>0?M.blue:M.violet);
+     tree(side*89,z,1.7);
+     tree(side*81,z+3,1.25);
    }
-   for(const z of [40,92,143]){tree(side*62,z,1.55);lightBench(side*48,z,side*.2)}
-   for(const z of [70,124]){ambientVisitor(side*27,z,10+z);ambientVisitor(side*38,z+6,13+z)}
-   // Slender blue-white waterfall source channel above platform edge.
-   for(const z of [18,78,136])panel([side*105,.03,z],[3.0,.14,15],M.blue);
+   // Tall light monoliths framing the tower and platform.
+   for(const data of [[58,20],[72,54],[86,90],[72,126],[58,162]]){
+     const x=side*data[0],z=data[1],h=52+(162-data[1])*.18;
+     panel([x,h/2,z],[4.8,h,5.2],M.dark);
+     panel([x+side*2.2,h/2,z+2.62],[.11,h-2,.14],data[1]%2?M.blue:M.violet);
+   }
+   for(const z of [66,132]){lightBench(side*48,z,side*.2)}
+   for(const z of [72,124]){ambientVisitor(side*29,z,10+z);ambientVisitor(side*40,z+6,13+z)}
+   // channel source above side-edge waterfalls.
+   for(const z of [18,78,138])panel([side*108,.03,z],[4,.14,16],M.blue);
  }
- // Soft area fills to make physically shaded surfaces legible (not only neon outlines).
- for(const [x,z,col] of [[-29,44,0x8e75ff],[29,44,0x7ebcff],[-54,104,0x8e75ff],[54,104,0x89bfff]]){
-  let l=new THREE.PointLight(col,14,70,2);l.position.set(x,13,z);world.add(l);
- }
+ towerV16();
+ // Distant surrounding spires to sell the wider floating mega-structure cityscape.
  for(const side of [-1,1]){
-  for(const z of [34,170]){panel([side*96,20,z],[5,40,8],M.dark);panel([side*98.6,20,z],[.1,38,4],side>0?M.blue:M.violet)}
+   for(let j=0;j<8;j++){
+     let x=side*(52+j*11),z=10-j*8,h=92-j*8.5;
+     panel([x,h/2+1,z],[3.5,h,5.2],M.dark);
+     panel([x+side*1.82,h/2+1,z+2.65],[.09,h-2,.12],j%2?M.blue:M.violet);
+   }
+   for(const z of [34,170]){panel([side*98,20,z],[5,40,8],M.dark);panel([side*100.6,20,z],[.1,38,4],side>0?M.blue:M.violet)}
+ }
+ // soft architectural fills so the dark materials remain readable
+ for(const [x,z,col] of [[-30,44,0x916fff],[30,44,0x7ebeff],[-55,106,0x8f73ff],[55,106,0x87bfff]]){
+  let l=new THREE.PointLight(col,14,70,2);l.position.set(x,14,z);world.add(l);
  }
 }
-
-
 function spire(x,z,height,width=5,parent=world){
  panel([x,height*.43,z],[width,height*.86,width],M.dark,parent);
  panel([x,height*.89,z],[width*.63,height*.18,width*.63],M.wall,parent);
