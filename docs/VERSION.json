@@ -1,5 +1,5 @@
 {
-  "version": "V2.1",
+  "version": "V2.2",
   "codename": "Space Reference Backdrop",
   "notes": [
     "User-provided space reference artwork integrated into the in-world 3D sky",
@@ -8,9 +8,9 @@
     "Existing tower, floating plaza, sliding doors, departments and NPC dialogue preserved"
   ],
   "changes": [
-    "Sky rewritten to use a darker space backdrop with a stretched nebula band",
-    "Removed disconnected approach stairs and kept entrance flush with the plaza",
-    "Increased player eye height and NPC scale by 40 percent"
+    "Improved existing tower metallic materials and lighting detail without changing silhouette",
+    "Increased tower front logo and HEXCORE TOWER sign",
+    "Added higher contrast white veining to glossy black marble floor"
   ],
   "hotfix": "Defined EYE_HEIGHT and NPC_SCALE used by the character and NPC geometry."
 }

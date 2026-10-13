@@ -40,7 +40,20 @@ const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.08,1100);cam
 const lighting=new THREE.AmbientLight(0xd5dcff,2.05);scene.add(lighting);
 const hemi=new THREE.HemisphereLight(0xb1b2ff,0x272132,2.45);scene.add(hemi);
 const lobbyFill=new THREE.DirectionalLight(0xd6dfff,1.1);lobbyFill.position.set(20,50,18);scene.add(lobbyFill);
-function marbleTexture(){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');const grad=g.createLinearGradient(0,0,512,512);grad.addColorStop(0,'#0f1017');grad.addColorStop(.48,'#141826');grad.addColorStop(1,'#0a0b12');g.fillStyle=grad;g.fillRect(0,0,512,512);for(let i=0;i<1500;i++){const x=Math.random()*512,y=Math.random()*512,a=Math.random()*Math.PI*2,l=15+Math.random()*80;g.strokeStyle=i%5===0?'rgba(166,196,255,0.06)':'rgba(255,255,255,0.025)';g.lineWidth=Math.random()*1.4+.1;g.beginPath();g.moveTo(x,y);for(let s=0;s<4;s++){g.lineTo(x+Math.cos(a+s*.35)*(l*(s+1)/4),y+Math.sin(a+s*.35)*(l*(s+1)/4)+Math.sin((x+y+s)*.08)*6)}g.stroke()}const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(8,8);return tx}
+function marbleTexture(){
+ const c=document.createElement('canvas');c.width=c.height=1024;
+ const g=c.getContext('2d');let seed=28051;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ const bg=g.createLinearGradient(0,0,1024,1024);bg.addColorStop(0,'#05070c');bg.addColorStop(.48,'#141821');bg.addColorStop(1,'#070911');g.fillStyle=bg;g.fillRect(0,0,1024,1024);
+ for(let k=0;k<88;k++){
+  let x=rand()*1270-120,y=rand()*1024,angle=-.73+(rand()-.5)*.53,len=120+rand()*520;
+  g.beginPath();g.moveTo(x,y);
+  for(let j=1;j<=15;j++){let t=j/15;g.lineTo(x+Math.cos(angle)*len*t+Math.sin(t*18+k)*7,y+Math.sin(angle)*len*t+Math.cos(t*13+k)*6)}
+  g.strokeStyle=k%5===0?'rgba(238,242,255,.68)':k%3===0?'rgba(221,225,244,.38)':'rgba(165,177,214,.19)';g.lineWidth=k%5===0?1.55:1.0;g.stroke();
+  if(k%4===0){g.strokeStyle='rgba(225,228,245,.12)';g.lineWidth=3;g.stroke()}
+ }
+ for(let i=0;i<2500;i++){let x=rand()*1024,y=rand()*1024;g.fillStyle=`rgba(216,222,237,${rand()*.09})`;g.fillRect(x,y,1+rand()*2,1+rand()*2)}
+ const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(5,5);tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return tx;
+}
 const marbleMap=marbleTexture();
 const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0x12151f,map:marbleMap,metalness:.63,roughness:.16,clearcoat:1,clearcoatRoughness:.09,reflectivity:1}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
 let world=new THREE.Group();scene.add(world);let entities=[],colliders=[],animatedDoors=[],staffActors=[];
@@ -359,9 +372,9 @@ function planetBackdrop(x,y,z,r,color=0x4e367b){
  return planet;
 }
 function towerV16(){
- const metal=new THREE.MeshStandardMaterial({color:0x1b2036,metalness:.62,roughness:.27});
- const ink=new THREE.MeshStandardMaterial({color:0x0c101e,metalness:.5,roughness:.32});
- const silver=new THREE.MeshStandardMaterial({color:0x47506b,metalness:.75,roughness:.21});
+ const metal=new THREE.MeshStandardMaterial({color:0x32384c,metalness:.8,roughness:.2,emissive:0x111126,emissiveIntensity:.14});
+ const ink=new THREE.MeshStandardMaterial({color:0x181a2a,metalness:.78,roughness:.22,emissive:0x0b071b,emissiveIntensity:.18});
+ const silver=new THREE.MeshStandardMaterial({color:0x929fbe,metalness:.82,roughness:.17});
  // Central skyscraper with four sculpted facades and staggered crown, entrance toward positive Z.
  // Open ground-floor approach: no solid mass behind the automatic doors.
  for(const side of [-1,1])panel([side*13.0,12,0],[13,24,47],ink);
@@ -398,8 +411,16 @@ function towerV16(){
  const lc=document.createElement('canvas');lc.width=512;lc.height=512;const cx=lc.getContext('2d');cx.shadowBlur=21;cx.shadowColor='#975bff';cx.strokeStyle='#ad78ff';cx.lineWidth=16;cx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2,xx=256+191*Math.cos(a),yy=256+191*Math.sin(a);i?cx.lineTo(xx,yy):cx.moveTo(xx,yy)}cx.closePath();cx.stroke();
  cx.strokeStyle='#ecdcff';cx.lineWidth=35;cx.beginPath();cx.moveTo(200,172);cx.lineTo(200,340);cx.moveTo(312,172);cx.lineTo(312,340);cx.moveTo(200,256);cx.lineTo(312,256);cx.stroke();
  let t=new THREE.CanvasTexture(lc);t.colorSpace=THREE.SRGBColorSpace;
- const mark=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,side:THREE.DoubleSide}));mark.position.set(0,88,25.45);world.add(mark);
- sign('HEXCORE',[0,72,25.58],23,2.7);sign('GAMING',[0,67,25.6],10,1.25);
+ const mark=new THREE.Mesh(new THREE.PlaneGeometry(29,29),new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,side:THREE.DoubleSide}));mark.position.set(0,90,25.55);world.add(mark);
+ sign('HEXCORE TOWER',[0,69,25.61],35,3.6);
+ // Material detail only: restrained metallic face strips and illuminated inset panel seams.
+ for(const side of [-1,1]){
+  for(let i=0;i<4;i++){
+   const x=side*(7.5+i*3.1);
+   panel([x,44,24.02],[.16,35,.12],i%2?M.blue:M.violet);
+   panel([x,61.5,24.05],[2.3,.10,.12],silver);
+  }
+ }
  // Giant glass door atrium, framing edges only (not a blocking visual wall).
  for(const side of [-1,1]){
    panel([side*9.7,12,27.5],[2.4,24,4],metal);panel([side*8.34,12,29.5],[.10,22,.11],M.blue);
