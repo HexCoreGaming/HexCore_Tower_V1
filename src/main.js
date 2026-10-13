@@ -44,18 +44,18 @@ function marbleTexture(){
  const c=document.createElement('canvas');c.width=c.height=1024;
  const g=c.getContext('2d');let seed=28051;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
  const bg=g.createLinearGradient(0,0,1024,1024);bg.addColorStop(0,'#05070c');bg.addColorStop(.48,'#141821');bg.addColorStop(1,'#070911');g.fillStyle=bg;g.fillRect(0,0,1024,1024);
- for(let k=0;k<88;k++){
+ for(let k=0;k<140;k++){
   let x=rand()*1270-120,y=rand()*1024,angle=-.73+(rand()-.5)*.53,len=120+rand()*520;
   g.beginPath();g.moveTo(x,y);
   for(let j=1;j<=15;j++){let t=j/15;g.lineTo(x+Math.cos(angle)*len*t+Math.sin(t*18+k)*7,y+Math.sin(angle)*len*t+Math.cos(t*13+k)*6)}
-  g.strokeStyle=k%5===0?'rgba(238,242,255,.68)':k%3===0?'rgba(221,225,244,.38)':'rgba(165,177,214,.19)';g.lineWidth=k%5===0?1.55:1.0;g.stroke();
-  if(k%4===0){g.strokeStyle='rgba(225,228,245,.12)';g.lineWidth=3;g.stroke()}
+  g.strokeStyle=k%5===0?'rgba(247,249,255,.95)':k%3===0?'rgba(237,243,255,.73)':'rgba(185,195,226,.38)';g.lineWidth=k%5===0?3.4:1.75;g.stroke();
+  if(k%4===0){g.strokeStyle='rgba(245,247,255,.22)';g.lineWidth=6;g.stroke()}
  }
  for(let i=0;i<2500;i++){let x=rand()*1024,y=rand()*1024;g.fillStyle=`rgba(216,222,237,${rand()*.09})`;g.fillRect(x,y,1+rand()*2,1+rand()*2)}
- const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(5,5);tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return tx;
+ const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(1.6,1.6);tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return tx;
 }
 const marbleMap=marbleTexture();
-const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0x12151f,map:marbleMap,metalness:.63,roughness:.16,clearcoat:1,clearcoatRoughness:.09,reflectivity:1}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
+const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0xffffff,map:marbleMap,metalness:.36,roughness:.11,clearcoat:1,clearcoatRoughness:.09,reflectivity:1}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
 let world=new THREE.Group();scene.add(world);let entities=[],colliders=[],animatedDoors=[],staffActors=[];
 const box=(p,s,m,parent=world)=>{let o=new THREE.Mesh(new THREE.BoxGeometry(...s),m);o.position.set(...p);parent.add(o);return o};
 const cyl=(p,rTop,rBottom,h,m,parent=world,n=12)=>{let o=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,h,n),m);o.position.set(...p);parent.add(o);return o};
@@ -371,6 +371,32 @@ function planetBackdrop(x,y,z,r,color=0x4e367b){
  const rim=new THREE.Mesh(new THREE.SphereGeometry(r*1.035,40,24),new THREE.MeshBasicMaterial({color:0x8a72ff,side:THREE.BackSide,transparent:true,opacity:.22,depthWrite:false,fog:false}));rim.position.set(x,y,z);world.add(rim);
  return planet;
 }
+
+function towerBackgroundPlanet(){
+ // The approved reference puts a huge celestial body behind the left side of the tower.
+ // Actual 3D sphere, not an opaque billboard over the tower.
+ const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
+ const grad=g.createLinearGradient(0,0,512,256);grad.addColorStop(0,'#322754');grad.addColorStop(.48,'#665083');grad.addColorStop(1,'#171b37');g.fillStyle=grad;g.fillRect(0,0,512,256);
+ let seed=21053;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ for(let i=0;i<90;i++){const x=rand()*512,y=rand()*256,r=6+rand()*72;const fog=g.createRadialGradient(x,y,0,x,y,r);fog.addColorStop(0,i%3?'rgba(130,97,181,.21)':'rgba(207,156,240,.12)');fog.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=fog;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()}
+ const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;
+ const mat=new THREE.MeshStandardMaterial({map:texture,roughness:1,metalness:0,emissive:0x241542,emissiveIntensity:.22,fog:false});
+ const planet=new THREE.Mesh(new THREE.SphereGeometry(84,48,24),mat);
+ planet.position.set(-148,150,-185);world.add(planet);
+ const atmo=new THREE.Mesh(new THREE.SphereGeometry(89,48,24),new THREE.MeshBasicMaterial({color:0x9477ff,transparent:true,opacity:.14,side:THREE.BackSide,depthWrite:false,fog:false}));atmo.position.copy(planet.position);world.add(atmo);
+}
+function plazaLightReflections(){
+ // Low-opacity luminous reflection pools on the existing glossy black marble.
+ // Kept on the horizontal floor; these are not added structures or raised obstacles.
+ const glowTex=document.createElement('canvas');glowTex.width=128;glowTex.height=128;
+ const c=glowTex.getContext('2d');const g=c.createRadialGradient(64,64,0,64,64,64);
+ g.addColorStop(0,'rgba(190,177,255,.37)');g.addColorStop(.24,'rgba(130,111,255,.18)');g.addColorStop(1,'rgba(110,94,255,0)');c.fillStyle=g;c.fillRect(0,0,128,128);
+ const tex=new THREE.CanvasTexture(glowTex);tex.colorSpace=THREE.SRGBColorSpace;
+ for(const [x,z,w,h] of [[0,49,34,24],[-22,68,18,40],[22,68,18,40],[-46,105,12,36],[46,105,12,36],[0,116,50,34]]){
+  const patch=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,depthTest:true,side:THREE.DoubleSide,opacity:.64}));
+  patch.rotation.x=-Math.PI/2;patch.position.set(x,.079,z);world.add(patch)
+ }
+}
 function towerV16(){
  const metal=new THREE.MeshStandardMaterial({color:0x32384c,metalness:.8,roughness:.2,emissive:0x111126,emissiveIntensity:.14});
  const ink=new THREE.MeshStandardMaterial({color:0x181a2a,metalness:.78,roughness:.22,emissive:0x0b071b,emissiveIntensity:.18});
@@ -421,6 +447,14 @@ function towerV16(){
    panel([x,61.5,24.05],[2.3,.10,.12],silver);
   }
  }
+ // Narrow facade inlays and light catching trims: preserve the original silhouette.
+ for(const side of [-1,1]){
+  for(let i=0;i<5;i++){
+   const x=side*(11+i*4.9), h=130-i*12,z=19-i*1.4;
+   panel([x,h*.57,z+2.86],[.10,h*.72,.08],i%2?M.blue:M.violet);
+   panel([x,h*.94,z+2.86],[2.0,.10,.1],silver);
+  }
+ }
  // Giant glass door atrium, framing edges only (not a blocking visual wall).
  for(const side of [-1,1]){
    panel([side*9.7,12,27.5],[2.4,24,4],metal);panel([side*8.34,12,29.5],[.10,22,.11],M.blue);
@@ -435,7 +469,7 @@ function towerV16(){
 }
 function continuousPlaza(){
  scene.fog.density=.00135;
- skyNebula(); // Planet and moon are already present in the approved sky image; do not duplicate them.
+ skyNebula(); towerBackgroundPlanet(); // Distinct 3D planet behind the tower.
  // Main floating platform.
  platformIsland(0,81,220,228,19);
  // Waterfalls dropping off the floating edge.
@@ -473,6 +507,7 @@ function continuousPlaza(){
    for(const z of [18,78,138])panel([side*108,.03,z],[4,.14,16],M.blue);
  }
  towerV16();
+ plazaLightReflections();
  // Distant surrounding spires to sell the wider floating mega-structure cityscape.
  for(const side of [-1,1]){
    for(let j=0;j<8;j++){

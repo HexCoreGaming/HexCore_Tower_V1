@@ -1,5 +1,5 @@
 {
-  "version": "V2.2",
+  "version": "V2.3",
   "codename": "Space Reference Backdrop",
   "notes": [
     "User-provided space reference artwork integrated into the in-world 3D sky",
@@ -8,9 +8,9 @@
     "Existing tower, floating plaza, sliding doors, departments and NPC dialogue preserved"
   ],
   "changes": [
-    "Improved existing tower metallic materials and lighting detail without changing silhouette",
-    "Increased tower front logo and HEXCORE TOWER sign",
-    "Added higher contrast white veining to glossy black marble floor"
+    "White-veined marble texture visibility increase",
+    "Large background planet behind tower",
+    "Facade lighting and floor glow refinements"
   ],
   "hotfix": "Defined EYE_HEIGHT and NPC_SCALE used by the character and NPC geometry."
 }
