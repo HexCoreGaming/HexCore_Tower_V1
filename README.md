@@ -1,54 +1,21 @@
-# HEXCORE TOWER — RELEASE V1
+# HEXCORE TOWER — V2
 
-**Visible version indicator: V1** on loading screen, character-entry home screen, and in-game HUD. Every subsequent delivered ZIP will update this visible release number (V2, V3, etc.).
+This is a complete replacement for V1. Visible V2 badges on the loading screen, entry screen, and HUD.
 
-## What this package changes
-- Adds a persistent visible **V1** indicator so you can confirm GitHub Pages published your replacement files after refreshing.
-- Adds `?v=1` to the website's own JavaScript/CSS URLs to reduce stale file caching after an update.
-- Retains the working tower/lobby geometry, controls, NPC Q&A, and previous startup fixes without intentionally changing gameplay behavior.
-- Keeps `index.html` at the ZIP root for GitHub Pages and GitHub Desktop.
+## V2 changes
+- A newly generated minimalist ceiling framework and luminous atrium rings.
+- Interactive Tower Directory console in the lobby (approach and press E / USE).
+- Refined tower approach with sparing futuristic pylons and bioluminescent landscaping.
+- Keeps existing NPC question-and-answer data unchanged, as well as keyboard/mouse and mobile touch controls.
 
-## How to install
-1. Open GitHub Desktop and select **HexCore_Tower_V1**.
-2. Choose **Repository → Show in Explorer**.
-3. Extract this ZIP and copy **all contents** directly into that repository folder, replacing the same-named files. Do not create an extra directory around them.
-4. In GitHub Desktop, **Commit to main** and then **Push origin**.
-5. After GitHub Pages finishes deploying, refresh `https://hexcoregaming.github.io/HexCore_Tower_V1/`. You should see **V1** on the entry screen and during play.
-6. If V1 does not appear, check the GitHub Desktop push and Pages deployment before making any additional file edits.
+## GitHub Desktop installation
+1. Select HexCore_Tower_V1 in GitHub Desktop.
+2. Repository > Show in Explorer.
+3. Extract this ZIP and copy the contents (index.html, src, data, reference, docs, README.md, .nojekyll) into the repository root, replacing corresponding files.
+4. Commit to main and Push origin.
+5. After Pages deploy, refresh. Confirm the visible version reads V2.
 
-## Verification scope
-This release has static/syntax/archive checks only; not a successful browser or physical phone playtest. The advanced NPC simulation and secure admin publishing are still unimplemented. Three.js currently loads from a CDN and requires an initial network connection.
+Do not put the outer extracted folder inside the repository.
 
----
-
-# HEXCORE TOWER — MOBILE FIRST V1.1 — CONTROLS AND ENVIRONMENT UPDATE
-
-This is a **new, clean 3D website project**, built as a mobile-first version of the two supplied visual concepts. It does not contain any 3D assets, textures, maps, elevators, interiors, or navigation code copied from the original uploaded old world. The only user-source content retained from that ZIP is the NPC question-and-answer archive; mobile dual-stick movement behavior is recreated in new website code.
-
-## Install with GitHub Desktop
-1. In GitHub Desktop choose `HexCore_Tower_V1`, then **Repository → Show in Explorer**.
-2. Back up your repository files outside the repository if needed.
-3. Extract this ZIP and copy its **contents** (`index.html`, `src`, `data`, `reference`, `docs`, `.nojekyll`, `README.md`) directly into the repository root. Remove the *previous prototype files* that are being replaced; avoid preserving nested old implementations.
-4. Commit and **Push origin**.
-5. At GitHub.com select repository **Settings → Pages → Deploy from a branch → main → /(root)**.
-6. Visit `https://hexcoregaming.github.io/HexCore_Tower_V1/`.
-
-## Controls
-Desktop: click scene to capture pointer; WASD move, mouse to look, Shift run, E interact, Escape navigation. Mobile: two touch sticks, USE, RUN.
-
-## What is implemented
-New procedural 3D tower exterior and immediate plaza, expanded cathedral-scale lobby, fresh department-floor interiors, functioning directory and floor transitions, NPC help archive containing all original questions and answers, responsive first-person touch and desktop controls, editable local content panels. Reference concepts included only for review and entry graphics.
-
-## What isn't complete
-This is a functional replacement **release candidate**, not a pixel-identical 3D realization of the concept paintings or a finished AAA game. No secure administrator publication, real-time customer support, fully animated character creation, deep NPC workplace simulation, or extensive exterior civilization is implemented. The admin editor is local-only. A separate server/authenticated GitHub publishing workflow is needed before anyone can securely publish content from the in-world dashboard.
-
-Requires an Internet connection to load the Three.js module from CDN; the website itself is single-player, without accounts.
-
-
-## V1.1 update
-- Corrected desktop WASD to camera-relative forward, backward, left strafe and right strafe.
-- Preserved continuous pointer-lock mouse-look during ordinary gameplay. Menus release the cursor; close buttons re-request pointer lock following the click. Browser Escape/tab restrictions still apply.
-- Added new low-cost neo-futuristic architectural geometry, structural fins, gallery details, lighting, seating and reception accents for tower and lobby.
-- Preserved the Q&A file exactly. No prior-world models, textures or building interiors have been introduced.
-- This ZIP is not padded to a requested size. The current code-built geometry is compact and package size reflects real content.
-- JavaScript syntax and archive integrity checked; interactive browser/mobile performance not verified in this execution environment.
+## Limitations
+The target images are design references; the 3D environments are procedural lower-detail mobile geometry and not a full image-equivalent recreation. NPC schedules, secure admin publishing, and advanced character models are not completed. Requires CDN-loaded Three.js and initial network access. Static checks only; no physical device playtest.

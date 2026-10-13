@@ -1,10 +1,12 @@
 {
-  "release": "V1",
-  "base": "HexCore_Tower_V1_ERROR_FIX.zip",
+  "release": "V2",
   "changes": [
-    "Visible V1 badge on loading, character selection, in-game HUD",
-    "Local CSS/JS cache-bust version query parameters",
-    "README release instructions"
+    "Visible V2 on entry, loading, HUD",
+    "New geometric lobby ceiling and floating luminous rings",
+    "New reception-side interactive tower directory",
+    "New minimal tower approach pylons and landscaping",
+    "Approved NPC Q&A and existing mobile controls unchanged"
   ],
-  "legacy_reuse": "Only data/preservedLegalDialogue.js and recreated mobile controls per earlier clean-rebuild rule"
+  "legacy_reuse": "Only preservedLegalDialogue and previously recreated mobile controls; no imported old-world assets",
+  "test_status": "Static checks; no physical mobile or live WebGL browser testing"
 }
