@@ -1,17 +1,17 @@
-# HexCore Tower V5
+# HexCore Tower — V6
 
-Mobile-first HexCore Tower website build.
+## Changes
+- Every department floor and the lobby now have a multi-destination portal transit area.
+- Choose any other floor from the floor you are on, without returning to the lobby.
+- Portal travel calls the same direct `travel()` function and does not open the information/menu overlay or release desktop pointer lock.
+- Department employee figures now have interactable answers for department purpose and currently available updates.
+- More complex official answers are not invented; additional department dialogue needs owner approval.
+- All original 41 questions and answers are retained without editing.
+- Mobile movement/look controls retained.
+- Visible version is V6.
 
-## V5 changes
-- Replaced the lobby elevator overlay with an in-world portal transit area in the lobby.
-- Each department floor is reached by directly using a labeled portal gate in the lobby.
-- Using portal transit no longer opens the old elevator destination menu, so mouse-look stays active during travel.
-- Department floors now direct visitors back to the lobby to choose another floor.
-- Original preserved NPC dialogue and mobile controls remain intact.
+## GitHub Desktop deployment
+Extract the folder and copy its *contents* (including `index.html`, `src`, `data`, `reference`, and `docs`) directly into the repository folder opened by GitHub Desktop. Commit and Push origin.
 
-## Install
-1. Extract the ZIP.
-2. Open your `HexCore_Tower_V1` repository in GitHub Desktop.
-3. Use **Repository → Show in Explorer**.
-4. Copy these files into the repository folder, replacing the existing files.
-5. Commit to `main` and push origin.
+## Limitations
+Not tested in a live browser or on a physical phone. NPCs remain simplified models. The free local content editor is not a secure publishing backend.

@@ -52,24 +52,23 @@ function portal(label,x,z,cb){box([x,1.8,z],[4.7,3.6,.35],M.dark);box([x,3.6,z],
 function hologram(x,y,z){sphere([x,y,z],2.25,new THREE.MeshBasicMaterial({color:0x5555ef,transparent:true,opacity:.42,wireframe:true}));torus([x,y,z],3.05,.04,M.blue,[1.05,0,.2]);torus([x,y,z],2.55,.04,M.violet,[.3,.2,0]);}
 function employee(x,z,i){let g=new THREE.Group();g.position.set(x,0,z);world.add(g);cyl([0,1.15,0],.25,.31,1.35,M.black,g);sphere([0,2.06,0],.27,i%2?M.skin:M.hair,g);box([-.37,1.2,0],[.15,.88,.18],M.black,g);box([.37,1.2,0],[.15,.88,.18],M.black,g);box([-.14,.3,0],[.18,.67,.23],M.black,g);box([.14,.3,0],[.18,.67,.23],M.black,g);box([0,1.35,.27],[.25,.15,.05],M.violet,g);return g;}
 
-function lobbyPortalNexus(){
- // Teleporter-style floor access in the lobby. Using a portal should not open a detached UI overlay.
- panel([21,1.25,-3],[16,2.5,22],M.dark);
- panel([21,2.55,-3],[16.2,.08,22.2],M.violet);
- sign('PORTAL TRANSIT',[21,4.6,-3],8.4,.7);
- panel([21,1.35,-9.8],[12,.12,.08],M.blue);
- const destinations=floors.filter(f=>f.id!=='lobby');
+function floorPortalNexus(isLobby=false){
+ // All floors have the SAME floor-selection ability. Travel does not open any UI.
+ const baseX=isLobby?21:0, baseZ=isLobby?-3:1;
+ const platformW=isLobby?16:16;
+ panel([baseX, .12, baseZ],[platformW,.24,26],M.dark);
+ panel([baseX,.26,baseZ],[platformW,.035,25.6],M.glass);
+ sign('FLOOR TRANSIT',[baseX,4.8,baseZ-12.6],9,.72);
+ const destinations=floors.filter(f=>f.id!==floor);
  destinations.forEach((f,i)=>{
    const row=Math.floor(i/2),col=i%2;
-   const px=17.4+col*7.2, pz=-10.5+row*6.2;
-   box([px,1.6,pz],[2.9,3.2,.28],M.dark);
-   box([px,3.22,pz],[3.05,.08,.36],col?M.blue:M.violet);
-   box([px,1.6,pz+.08],[2.1,2.45,.05],M.glass);
-   trim([px-1.5,1.6,pz],[.07,3.15,.06],M.violet);
-   trim([px+1.5,1.6,pz],[.07,3.15,.06],M.blue);
-   sign(f.label,[px,4.15,pz+.22],5.7,.5);
-   interact('Travel to '+f.label,[px,1.6,pz],()=>travel(f.id),4.4);
-   let glow=new THREE.PointLight(col?0x55b9ff:0x9357ff,8,9,2);glow.position.set(px,2.1,pz+1.2);world.add(glow);
+   const px=baseX+(col===0?-3.75:3.75),pz=baseZ-10.4+row*6.15;
+   panel([px,1.68,pz],[3,3.36,.32],M.dark);
+   panel([px,1.68,pz+.19],[2.45,2.85,.09],M.glass);
+   for(const side of [-1,1])panel([px+side*1.5,1.72,pz+.24],[.07,3.35,.12],side===1?M.blue:M.violet);
+   panel([px,3.39,pz],[3.15,.11,.39],col?M.blue:M.violet);
+   sign(f.label,[px,4.25,pz+.24],5.3,.55);
+   interact('Portal: '+f.label,[px,1.6,pz],()=>travel(f.id),4.25);
  });
 }
 
@@ -257,7 +256,7 @@ function lobby(){
  hologram(0,12,-27);sign('WELCOME TO HEXCORE',[0,25,-34.2],23,2);
  for(let side of [-1,1]){box([side*29,20,-25],[.35,35,4],M.dark);trim([side*29,20,-22.9],[.07,34,.08],M.violet);box([side*22,7,-24],[.6,12,.8],M.dark)}
  // All department information belongs on its respective floor, never the lobby.
- lobbyPortalNexus();
+ floorPortalNexus(true);
  portal('OUTSIDE',0,33,()=>travel('outside'));
  for(let x of [-25,25]){let lamp=new THREE.PointLight(0x7431ed,26,18,2);lamp.position.set(x,6,-8);world.add(lamp)}
  lobbyAccents();atriumUpgrade();v2LobbyArchitecture();
@@ -267,7 +266,9 @@ function openReception(){
  $('receptionClose').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};
 }
 
-function floorRoom(data){box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let i=0;i<7;i++){let x=-28+i*9;trim([x,.012,0],[.045,.025,67],i%2?M.blue:M.violet)}for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,42).toUpperCase(),[0,1.7,-24.35],23,1);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4)}portal('DEPARTMENT CONSOLE',0,-15,()=>openService(data.id));portal('RETURN TO LOBBY',0,24,()=>travel('lobby'));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x7540ef,18,20,2);l.position.set(x,6,-14);world.add(l)}}
+function floorRoom(data){box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let i=0;i<7;i++){let x=-28+i*9;trim([x,.012,0],[.045,.025,67],i%2?M.blue:M.violet)}for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,42).toUpperCase(),[0,1.7,-24.35],23,1);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);
+ interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openDepartmentEmployee(data.id),4.4);
+ interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x7540ef,18,20,2);l.position.set(x,6,-14);world.add(l)}}
 function exterior(){scene.fog.density=.0034;box([0,-.4,0],[180,.8,180],M.floor);for(let i=-4;i<=4;i++){trim([i*20,.03,0],[.05,.03,170],i%2?M.violet:M.blue);trim([0,.03,i*20],[170,.03,.05],M.violet)}let tower=new THREE.Group();world.add(tower);box([0,44,-55],[42,88,36],M.dark,tower);for(let side of [-1,1])for(let k=0;k<4;k++){box([side*(12+k*3),49+k*5,-55],[2,90-k*10,39],M.wall,tower);box([side*(12+k*3),49+k*5,-35.3],[.18,78-k*10,.1],k%2?M.blue:M.violet,tower)}for(let k=-3;k<=3;k++){box([k*5,52,-35.65],[2.5,100-Math.abs(k)*10,.5],M.dark,tower);box([k*5,48,-35.36],[.12,86-Math.abs(k)*10,.09],k%2?M.blue:M.violet,tower)}box([0,6,-35],[19,12,.5],M.glass,tower);box([0,12.1,-34.5],[22,.18,1],M.violet,tower);for(let x of [-11,11])box([x,6,-34.4],[.18,12,.5],M.blue,tower);sign('HEXCORE GAMING',[0,24,-34.9],30,4);for(let i=0;i<8;i++){let angle=i*Math.PI/4;let r=70;let x=Math.cos(angle)*r,z=Math.sin(angle)*r-25;box([x,17,z],[9,34,11],M.dark);trim([x,17,z+5.58],[.11,32,.11],M.violet)}for(let p of [[-43,-4],[43,-4],[-35,32],[35,32]])tree(p[0],p[1],2);for(let side of [-1,1]){box([side*27,1.5,13],[25,3,13],M.dark);trim([side*27,3.05,19.6],[25,.07,.1],M.blue)}hologram(0,14,-48);portal('ENTER TOWER',0,-27,()=>travel('lobby'));sign('HEXCORE TOWER',[0,8,-34.45],17,1.5);let skySphere=sphere([-220,160,-340],65,new THREE.MeshBasicMaterial({color:0x403273}));skySphere.material.depthWrite=false;let moon=sphere([170,160,-450],29,new THREE.MeshBasicMaterial({color:0x28285c}));moon.material.depthWrite=false;const starG=new THREE.BufferGeometry();const arr=[];for(let i=0;i<180;i++){let a=i*2.399,rr=210+(i*37)%290;arr.push(Math.cos(a)*rr,90+(i*71)%245,Math.sin(a)*rr-200)}starG.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));world.add(new THREE.Points(starG,new THREE.PointsMaterial({color:0xadb2ff,size:1.8,sizeAttenuation:false})));exteriorAccents();towerUpgrade();v2TowerApproach();}
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];scene.fog.density=.008}
 let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,1.8,21),active=false,nearest=null,quality='low';
@@ -276,6 +277,24 @@ function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function openService(id){const c=content(id);const qaLink=id==='legal'?'<button id="seeQA">OPEN PRESERVED POLICY Q & A</button>':'';setPanel(`<div class="eyebrow">HEXCORE / ${esc(id.toUpperCase())}</div><h2>${esc(c.headline)}</h2><p>${esc(c.description)}</p><div class="directory-item"><h3>INFORMATION</h3><p>${esc(c.updates)}</p></div>${qaLink}<p class="small">This is an editable content location. Unpublished contact links, sales, and submissions are not represented as live services.</p>`);$('seeQA')?.addEventListener('click',()=>openKnowledge())}
+function openDepartmentEmployee(id){
+ const c=content(id),f=floors.find(f=>f.id===id);
+ const questions=[
+  ['What does this department handle?',c.description],
+  ['What is the latest information?',c.updates]
+ ];
+ const html=`<div class="eyebrow">HEXCORE / DEPARTMENT EMPLOYEE</div>
+ <h2>${esc(f?.title||c.headline)}</h2><p>How can I help you?</p>
+ <div class="floor-buttons">${questions.map((q,i)=>`<button data-staffq="${i}">${esc(q[0])}</button>`).join('')}</div>
+ <div id="staffAnswer" class="directory-item hidden" aria-live="polite"></div>
+ <p class="small">Additional questions and answers will be added only after HexCore approves their wording.</p>`;
+ setPanel(html);
+ $('panelBody').querySelectorAll('[data-staffq]').forEach(b=>b.onclick=()=>{
+ const q=questions[Number(b.dataset.staffq)],answer=$('staffAnswer');
+ answer.innerHTML=`<h3>${esc(q[0])}</h3><p>${esc(q[1])}</p>`;
+ answer.classList.remove('hidden');
+ });
+}
 function openKnowledge(ai=false){const title=ai?'HEXCORE HOLOGRAPHIC ASSISTANT':'LEGAL KNOWLEDGE ARCHIVE';let html=`<div class="eyebrow">HEXCORE / VERIFIED SOURCE CONTENT</div><h2>${title}</h2><p>${ai?'The after-hours assistant searches the preserved NPC dialogue library.':'All original NPC questions and answers are preserved word for word.'}</p><input id="qaSearch" placeholder="Search all questions and answers…" aria-label="Search knowledge archive"><div id="qaResults"></div>`;setPanel(html);const draw=()=>{let term=$('qaSearch').value.toLowerCase().trim();let items=groups.flatMap(g=>g.questions.map(q=>({...q,who:g.name,title:g.title}))).filter(q=>!term||(`${q.question} ${q.answer} ${q.title}`).toLowerCase().includes(term));$('qaResults').innerHTML=`<div class="category">${items.length} MATCHING ANSWERS</div>`+items.map((q,i)=>`<div class="qa-item"><button data-qa="${i}">${esc(q.question)} ▾</button><div class="qa-answer hidden" id="qa-${i}"><span class="subtle">${esc(q.who)} • ${esc(q.title)}</span><p>${esc(q.answer)}</p></div></div>`).join('');$('qaResults').querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>$("qa-"+b.dataset.qa).classList.toggle('hidden'))};$('qaSearch').addEventListener('input',draw);draw()}
 // V3: Department representatives use their original, unaltered dialogue source.
 function openRepresentative(index){

@@ -1,9 +1,9 @@
 {
-  "version": "V5",
+  "version": "V6",
   "changes": [
-    "Replaced lobby elevator overlay with in-world portal transit",
-    "Portal travel keeps mouse-look active during floor changes",
-    "Department floors return visitors to the lobby for floor selection",
-    "Updated visible website version to V5"
+    "Floor portals available from every floor",
+    "Keep pointer lock during portal transit",
+    "Add department staff interactions with existing site facts",
+    "Preserve 41 legal Q&A and mobile controls"
   ]
 }
