@@ -1,10 +1,9 @@
 {
-  "version": "V4",
+  "version": "V5",
   "changes": [
-    "Removed lobby information stations",
-    "Reception resized and employees visible",
-    "Information only on department floors",
-    "Elevator required for department navigation",
-    "Preserved legal Q&A and controls"
+    "Replaced lobby elevator overlay with in-world portal transit",
+    "Portal travel keeps mouse-look active during floor changes",
+    "Department floors return visitors to the lobby for floor selection",
+    "Updated visible website version to V5"
   ]
 }
