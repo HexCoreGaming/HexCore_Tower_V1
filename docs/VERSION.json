@@ -1,9 +1,10 @@
 {
-  "version": "V11",
+  "version": "V12",
   "changes": [
-    "One shared 3D scene for lobby and outside plaza",
-    "Approach-triggered sliding doors; no interaction required",
-    "No teleport, loading screen, or pointer-lock release when crossing the threshold",
-    "Floor portals and previous controls unchanged"
+    "Monumental tall exterior facade",
+    "H emblem on tower",
+    "Plaza landscaping and large celestial bodies",
+    "Continuous non-teleporting automatic doors",
+    "Original legal dialogue unchanged"
   ]
 }

@@ -1,11 +1,11 @@
-# HexCore Tower V11 — Seamless entrance update
+# HexCore Tower V12 — Exterior Reconstruction
 
-The lobby and immediate exterior plaza now occupy the same rendered 3D scene. Walk toward the front doors: the panels slide open automatically and you can continue walking outside or back inside with no interaction, teleport, loading screen, or pointer-lock change.
+## V12
+Tall newly modeled spires, layered tower facade, prominently placed H emblem, purple-blue trims, monumental gateway, landscaping, water panels, a large planet and cosmic details. Exterior and lobby remain one connected scene with automatic sliding doors. Department floors, single portal per floor, controls, and legal Q&A preserved.
 
-The portal on each department floor is still for floor selection only. NPC questions and answers (including the 41 original legal Q&As) and mobile controls are unchanged.
+This is a mobile-focused procedural geometry interpretation of the approved reference image, not a photorealistic match. No old world model was imported.
 
-## Install with GitHub Desktop
-Extract the ZIP, copy all files including `index.html` and directories directly into the cloned `HexCore_Tower_V1` repository folder, replace old files, Commit to main, then Push origin. Refresh and look for V11.
+## GitHub Desktop
+Extract the ZIP, copy the **contents** into the HexCore_Tower_V1 repository root, commit to main, and push origin. Refresh and look for V12.
 
-## Known limitations
-The outside world is only a lightweight prototype plaza. It is not yet the eventual approved tower exterior design. Browser-based performance and touch testing are still required.
+The file is provided as a complete replacement, not a partial patch.

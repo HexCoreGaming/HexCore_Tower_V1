@@ -137,44 +137,95 @@ function automaticEntrance(x,z){
  const right=panel([2.75,3.65,.06],[5.5,7.3,.12],M.glass,g);
  animatedDoors.push({left,right,travel:5.6,open:0,center:new THREE.Vector3(x,1.8,z),rest:2.75});
 }
+// V12: Monumental facade and immediate plaza. Shared physical world with the lobby.
+function towerFacadeV12(){
+ const stone=new THREE.MeshStandardMaterial({color:0x14192c,metalness:.76,roughness:.23});
+ const crest=new THREE.MeshBasicMaterial({color:0xaa72ff,side:THREE.DoubleSide});
+ const champagne=new THREE.MeshStandardMaterial({color:0x939ab8,metalness:.83,roughness:.18});
+ // Tower front is on the positive-Z side of the building. These upper structures do not block the entrance.
+ const face=35;
+ for(const side of [-1,1]){
+  // Building wings and tall nested vertical spires.
+  for(let j=0;j<6;j++){
+   const x=side*(8.8+j*5.1), h=142-j*15.8, wid=j<2?4.4:3.6;
+   panel([x,h/2+10,face-2-j*.65],[wid,h,wid+1.8],j%2?stone:M.dark);
+   panel([x,h/2+10,face+.52-j*.65],[.095,h-2,.1],j%2?M.blue:M.violet);
+   const top=new THREE.Mesh(new THREE.ConeGeometry(wid*.46,12,4),stone);top.rotation.y=Math.PI/4;top.position.set(x,h+14,face-2-j*.65);world.add(top);
+  }
+  for(let j=0;j<4;j++){
+   const x=side*(38+j*7),h=69-j*10;
+   panel([x,h/2,face+4],[3.2,h,5],stone);
+   panel([x,h/2,face+6.55],[.10,h-3,.10],M.violet);
+  }
+  // Portal-flanking legs with edge-lit black metallic framing.
+  panel([side*8.1,8.6,35.25],[4.1,17.2,2.7],stone);
+  panel([side*5.84,9,36.8],[.15,16,.2],M.blue);
+  panel([side*12,8.1,35.8],[3,16.2,2.1],stone);
+  panel([side*12,13.1,36.92],[3.2,.14,.24],M.violet);
+  // Restrained surrounding colonnade, tiered bases and lit landscaping.
+  for(let k=0;k<3;k++){
+   const x=side*(30+k*24),z=60+k*20;
+   panel([x,1.1,z],[17,2.1,15],stone);
+   panel([x,2.3,z],[17.1,.12,15.1],M.violet);
+   tree(x+side*4,z,1.55);
+   const waterfall=new THREE.Mesh(new THREE.PlaneGeometry(5,1.7),new THREE.MeshBasicMaterial({color:0x72bcff,transparent:true,opacity:.64,side:THREE.DoubleSide}));
+   waterfall.position.set(x-side*5,.85,z+7.65);world.add(waterfall);
+  }
+ }
+ // Raised central face and a real visible, double-sided faceted H crest.
+ panel([0,76,face-3],[17,112,9],M.dark);
+ panel([0,128,face-3],[10,34,8],stone);
+ panel([0,57,face+2],[14,86,.35],stone);
+ for(const y of [19,108,146])panel([0,y,face+3],[17,.19,.25],M.violet);
+ // Flat, readable emblem, built into the wall facing the plaza rather than a placeholder character.
+ const logoCanvas=document.createElement('canvas'); logoCanvas.width=512;logoCanvas.height=512;
+ const ctx=logoCanvas.getContext('2d');ctx.clearRect(0,0,512,512);
+ ctx.strokeStyle='#b179ff';ctx.lineWidth=17;ctx.shadowColor='#9e60ff';ctx.shadowBlur=25;
+ ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3-Math.PI/2;let x=256+195*Math.cos(a),y=256+195*Math.sin(a);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.closePath();ctx.stroke();
+ ctx.lineWidth=37;ctx.strokeStyle='#d3a8ff';ctx.lineCap='square';ctx.beginPath();ctx.moveTo(202,158);ctx.lineTo(202,352);ctx.moveTo(310,158);ctx.lineTo(310,352);ctx.moveTo(202,256);ctx.lineTo(310,256);ctx.stroke();
+ const tx=new THREE.CanvasTexture(logoCanvas);tx.colorSpace=THREE.SRGBColorSpace;
+ const emblem=new THREE.Mesh(new THREE.PlaneGeometry(17,17),new THREE.MeshBasicMaterial({map:tx,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+ emblem.position.set(0,83,face+3.2);world.add(emblem);
+ sign('HEXCORE GAMING',[0,64,face+3.24],25,3);
+ // Luminous threshold and a high glass-like entry hall surrounding the functioning automatic doors.
+ for(let y of [9.5,15,22])panel([0,y,35],[13.4,.16,.72],y===15?champagne:M.violet);
+ for(const x of [-6.8,6.8])panel([x,11.2,36.15],[.2,22,.3],M.blue);
+ panel([0,23,35.65],[14,.2,.52],M.white);
+ const flood=new THREE.PointLight(0x9b69ff,23,45,2);flood.position.set(0,12,51);world.add(flood);
+}
 function continuousPlaza(){
- // Exterior and lobby share a world, coordinate system and camera; no scene-switching.
- box([0,-.35,94],[185,.65,135],M.floor);
- for(let x of [-80,-60,-40,-20,20,40,60,80]){
-   trim([x,.015,96],[.065,.03,125],Math.abs(x)%40?M.blue:M.violet);
- }
- for(let z=48;z<159;z+=16)trim([0,.02,z],[174,.03,.07],M.violet);
- // Portal-free entrance apron, with a full-size architectural façade behind the player.
+ // Plaza and tower share the same scene; walking through the entrance never teleports.
+ box([0,-.36,99],[190,.69,136],M.floor);
+ for(const x of [-32,-16,16,32])trim([x,.014,102],[.10,.023,123],M.blue);
+ for(let z=48;z<166;z+=15)trim([0,.017,z],[174,.035,.075],z%2?M.violet:M.blue);
  for(let side of [-1,1]){
-  panel([side*25,6,35],[22,12,1.7],M.dark);
-  panel([side*25,10.6,35],[22,.16,1.8],M.blue);
-  for(let j=0;j<5;j++){
-    const x=side*(14+j*4.7);
-    panel([x,18,35],[1.35,36,1.4],M.dark);
-    panel([x,18,35.85],[.09,35,.07],j%2?M.blue:M.violet);
+  // Open framing pylons are secondary to the central tower.
+  for(let k=0;k<4;k++){
+   const x=side*(46+k*13),z=69+k*25,h=20+(k%2)*9;
+   panel([x,h/2,z],[2.6,h,3.2],M.dark);
+   panel([x,h/2,z+1.75],[.10,h-1,.12],M.blue);
   }
-  for(let i=0;i<6;i++){
-   const z=54+i*19;
-   panel([side*37,.36,z],[10,.7,8],M.dark);
-   tree(side*39,z,1.35);
-   panel([side*37,.75,z+4],[9,.075,.12],M.violet);
-  }
-  for(let j=0;j<5;j++){
-   const z=58+j*24;
-   panel([side*(65+j%2*6),17+j*3,z],[10,34+j*6,11],M.dark);
-   panel([side*(65+j%2*6),17+j*3,z+5.6],[.13,30+j*6,.12],M.blue);
-  }
+  for(const z of [53,86,124])tree(side*43,z,1.45);
+  // High curving transport-like light rings are architectural, not a train or spawn hub.
+  const arc=new THREE.Mesh(new THREE.TorusGeometry(72,.2,6,90,Math.PI*.92),new THREE.MeshBasicMaterial({color:side===1?0x874cfb:0x6aa9ff}));
+  arc.rotation.x=Math.PI/2;arc.rotation.z=side===1?.14:Math.PI+.14;arc.position.set(0,60,25);world.add(arc);
  }
- sign('HEXCORE GAMING',[0,18,36.4],20,2);
+ towerFacadeV12();
+ // Keep the SAME walk-through entrance, no E prompt and no area transition.
  automaticEntrance(0,35);
- // Celestial atmosphere: purely decorative, shared with the lobby scene.
- const pmat=new THREE.MeshBasicMaterial({color:0x37265d,depthWrite:false});
- sphere([-180,155,200],56,pmat);
- sphere([175,143,210],24,new THREE.MeshBasicMaterial({color:0x342e64,depthWrite:false}));
- const starGeom=new THREE.BufferGeometry(),v=[];
- for(let i=0;i<110;i++){const a=i*2.399,radius=130+(i*31)%220;v.push(Math.cos(a)*radius,100+(i*47)%165,100+Math.sin(a)*radius)}
- starGeom.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
- world.add(new THREE.Points(starGeom,new THREE.PointsMaterial({color:0xb0bcff,size:1.1,sizeAttenuation:false})));
+ // Prominent celestial atmosphere built from lightweight geometry (not old assets).
+ const planetMat=new THREE.MeshBasicMaterial({color:0x40316f,depthWrite:false});
+ sphere([-185,168,165],69,planetMat);
+ const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(72,32,20),new THREE.MeshBasicMaterial({color:0x735eff,side:THREE.BackSide,transparent:true,opacity:.13,depthWrite:false}));atmosphere.position.set(-185,168,165);world.add(atmosphere);
+ sphere([171,154,208],21,new THREE.MeshBasicMaterial({color:0x5c518c,depthWrite:false}));
+ const cloud=new THREE.Group();world.add(cloud);
+ for(let i=0;i<42;i++){
+  let a=i*.48,r=35+(i%6)*6,xx=125+Math.cos(a)*r,yy=140+Math.sin(a)*r;
+  let star=sphere([xx,yy,225],1.3+(i%3)*.8,new THREE.MeshBasicMaterial({color:i%2?0x865cdd:0x597acb,transparent:true,opacity:.42,depthWrite:false}),cloud,6);
+ }
+ const sg=new THREE.BufferGeometry(),v=[];
+ for(let i=0;i<260;i++){let a=i*2.399,r=90+(i*43)%260;v.push(Math.cos(a)*r,72+(i*61)%170,100+Math.sin(a)*r)}
+ sg.setAttribute('position',new THREE.Float32BufferAttribute(v,3));world.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xc4bbff,size:1.35,sizeAttenuation:false})));
 }
 
 function spire(x,z,height,width=5,parent=world){
