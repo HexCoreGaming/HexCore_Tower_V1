@@ -1,0 +1,42 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 3436,
+    "sha256": "3c53ff3e235f549a87233c10c924704dffc4d1664e3ec42da34c769b6a2549ca"
+  },
+  {
+    "path": "data/preservedLegalDialogue.js",
+    "bytes": 22839,
+    "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
+  },
+  {
+    "path": "docs/REBUILD_AUDIT.md",
+    "bytes": 1339,
+    "sha256": "12245b19da0c77810b120a7c8167eb83834f2d49631e53f18600f441b86c2010"
+  },
+  {
+    "path": "index.html",
+    "bytes": 3221,
+    "sha256": "bf90a7c5267081c201a524d191f80f4cdfdddc3586a647daf3e28544205d0ce9"
+  },
+  {
+    "path": "reference/approved-lobby.png",
+    "bytes": 3847405,
+    "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+  },
+  {
+    "path": "reference/approved-tower.png",
+    "bytes": 3383997,
+    "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+  },
+  {
+    "path": "src/main.js",
+    "bytes": 24198,
+    "sha256": "f2fbded1d1eb0632c87f7d50e9cac9c295449e80651cebeb84bab7cc675b2536"
+  },
+  {
+    "path": "src/style.css",
+    "bytes": 5230,
+    "sha256": "c48b31b52933079b7f89898626d7baf440cd1dcb91370ca4ab96c17411061bf3"
+  }
+]
