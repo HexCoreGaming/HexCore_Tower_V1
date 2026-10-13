@@ -4,3 +4,8 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media (max-width: 500px){.entry-panel{top:21%;max-height:79%}.entry-visual{height:37%}.choice-row button{padding:11px 6px;font-size:12px}.hud-brand span{display:none}.pad{width:112px;height:112px}.pad .nub{left:32px;top:32px}.hint{display:none}}
 @media (max-height:640px) and (orientation:landscape){.entry-visual{height:100%;width:53%}.entry-panel{top:0;right:0;left:auto;width:49%;max-height:100%;padding:16px}.entry-panel h1{font-size:22px}.entry-panel label{margin:9px 0 4px}.pad{bottom:12px;width:94px;height:94px}.pad .nub{left:23px;top:23px}.touch-action{bottom:120px}.touch-run{bottom:100px}}
+
+/* VERSION IDENTIFIER — update the displayed release number with each new ZIP. */
+.build-version{position:fixed;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:35;padding:7px 13px;font-size:12px;font-weight:700;letter-spacing:.2em;color:#f0e6ff;border:1px solid #ab83fa99;background:rgba(14,10,34,.88);box-shadow:0 0 18px #7540d62e;border-radius:4px;pointer-events:none}
+.hud-version{display:inline-block;margin-left:14px!important;padding:5px 9px;border:1px solid #a787ff99;border-radius:4px;color:#f0e6ff!important;background:#1c1532d9;font-size:11px!important;font-weight:700;letter-spacing:.13em}
+@media(max-width:700px){.build-version{top:max(9px,env(safe-area-inset-top));right:max(9px,env(safe-area-inset-right));padding:5px 9px;font-size:11px}.hud-version{margin-left:5px!important;padding:3px 5px;font-size:10px!important}}

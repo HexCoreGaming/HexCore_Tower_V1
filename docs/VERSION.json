@@ -1,0 +1,10 @@
+{
+  "release": "V1",
+  "base": "HexCore_Tower_V1_ERROR_FIX.zip",
+  "changes": [
+    "Visible V1 badge on loading, character selection, in-game HUD",
+    "Local CSS/JS cache-bust version query parameters",
+    "README release instructions"
+  ],
+  "legacy_reuse": "Only data/preservedLegalDialogue.js and recreated mobile controls per earlier clean-rebuild rule"
+}

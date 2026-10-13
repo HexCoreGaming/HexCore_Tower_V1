@@ -1,3 +1,26 @@
+# HEXCORE TOWER — RELEASE V1
+
+**Visible version indicator: V1** on loading screen, character-entry home screen, and in-game HUD. Every subsequent delivered ZIP will update this visible release number (V2, V3, etc.).
+
+## What this package changes
+- Adds a persistent visible **V1** indicator so you can confirm GitHub Pages published your replacement files after refreshing.
+- Adds `?v=1` to the website's own JavaScript/CSS URLs to reduce stale file caching after an update.
+- Retains the working tower/lobby geometry, controls, NPC Q&A, and previous startup fixes without intentionally changing gameplay behavior.
+- Keeps `index.html` at the ZIP root for GitHub Pages and GitHub Desktop.
+
+## How to install
+1. Open GitHub Desktop and select **HexCore_Tower_V1**.
+2. Choose **Repository → Show in Explorer**.
+3. Extract this ZIP and copy **all contents** directly into that repository folder, replacing the same-named files. Do not create an extra directory around them.
+4. In GitHub Desktop, **Commit to main** and then **Push origin**.
+5. After GitHub Pages finishes deploying, refresh `https://hexcoregaming.github.io/HexCore_Tower_V1/`. You should see **V1** on the entry screen and during play.
+6. If V1 does not appear, check the GitHub Desktop push and Pages deployment before making any additional file edits.
+
+## Verification scope
+This release has static/syntax/archive checks only; not a successful browser or physical phone playtest. The advanced NPC simulation and secure admin publishing are still unimplemented. Three.js currently loads from a CDN and requires an initial network connection.
+
+---
+
 # HEXCORE TOWER — MOBILE FIRST V1.1 — CONTROLS AND ENVIRONMENT UPDATE
 
 This is a **new, clean 3D website project**, built as a mobile-first version of the two supplied visual concepts. It does not contain any 3D assets, textures, maps, elevators, interiors, or navigation code copied from the original uploaded old world. The only user-source content retained from that ZIP is the NPC question-and-answer archive; mobile dual-stick movement behavior is recreated in new website code.
