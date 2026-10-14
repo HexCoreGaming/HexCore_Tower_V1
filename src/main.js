@@ -508,7 +508,7 @@ function makeSpaceCloudMaterial(){
              +.29*noise(p*8.0-vec2(uTime*.014,uPhase))
              +.17*noise(p*17.1+uPhase);
       float density=smoothstep(.78,.15,r)*smoothstep(.32,.70,n+.16);
-      float transparency=density*uAlpha*.54;
+      float transparency=density*uAlpha*.72;
       if(transparency<.006)discard;
       vec3 col=uColor*mix(.5,1.5,n);
       gl_FragColor=vec4(col,transparency);
@@ -518,7 +518,7 @@ function makeSpaceCloudMaterial(){
 function createLivingSpace(){
  spaceClouds=[];
  const seedFn=()=>{let x=482791;return ()=>{x=(x*1664525+1013904223)>>>0;return x/4294967296}};const rand=seedFn();
- const amount=quality==='low'?12:quality==='medium'?20:32;
+ const amount=quality==='low'?18:quality==='medium'?30:44;
  const palette=[0x8b65ef,0x5f85ff,0x8e72ff,0xb78cff,0x60b9ff];
  const cloudPlane=new THREE.PlaneGeometry(1,1);
  for(let i=0;i<amount;i++){
@@ -526,7 +526,7 @@ function createLivingSpace(){
   mat.uniforms.uPhase.value=rand()*17;
   mat.uniforms.uColor.value.setHex(palette[i%palette.length]);
   const cloud=new THREE.Mesh(cloudPlane,mat);
-  const size=54+rand()*112;cloud.scale.set(size,size*.68,1);
+  const size=68+rand()*148;cloud.scale.set(size,size*.68,1);
   const theta=rand()*6.283;
   const distance=34+rand()*220;
   cloud.position.set(Math.cos(theta)*distance,8+rand()*125,Math.sin(theta)*distance+78);
@@ -589,53 +589,94 @@ function codeRainTexture(){
  }
  const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapT=THREE.RepeatWrapping;return tx;
 }
+
 function buildCosmicEventSystem(){
  const loader=new THREE.TextureLoader();
- // Blend a second animated cosmic layer so the sky no longer reads like one static image.
- const upperMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.48,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
+ // Multiple moving layers so the backdrop reads as a deep surrounding environment.
+ const upperMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.44,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
  const upperSky=new THREE.Mesh(new THREE.SphereGeometry(412,64,36),upperMat);
  upperSky.position.set(0,72,80);upperSky.rotation.set(.03,Math.PI*.55,0);upperSky.renderOrder=-98;world.add(upperSky);
  loader.load('./reference/space-backdrop-alt.png',t=>{t.colorSpace=THREE.SRGBColorSpace;upperMat.map=t;upperMat.needsUpdate=true;});
  cosmicSkyLayers.push({mesh:upperSky,type:'sphere',speedY:-0.00042,speedX:0.00005,origin:upperSky.position.clone()});
- const cloudMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.34,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
- const driftPlane=new THREE.Mesh(new THREE.PlaneGeometry(620,270),cloudMat);
- driftPlane.position.set(0,170,-255);driftPlane.renderOrder=-97;world.add(driftPlane);
- loader.load('./reference/space-backdrop-alt.png',t=>{t.colorSpace=THREE.SRGBColorSpace;cloudMat.map=t;cloudMat.needsUpdate=true;});
- cosmicSkyLayers.push({mesh:driftPlane,type:'plane',speedY:0.00018,speedX:0.00011,driftX:14,driftY:7,origin:driftPlane.position.clone(),lookAt:true});
- // Two major planets orbit the tower diagonally.
+
+ const cyberMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.32,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
+ const cyberSky=new THREE.Mesh(new THREE.SphereGeometry(406,64,36),cyberMat);
+ cyberSky.position.set(0,72,80);cyberSky.rotation.set(-.05,Math.PI*.18,0);cyberSky.renderOrder=-97;world.add(cyberSky);
+ loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;cyberMat.map=t;cyberMat.needsUpdate=true;});
+ cosmicSkyLayers.push({mesh:cyberSky,type:'sphere',speedY:0.00025,speedX:-0.00006,origin:cyberSky.position.clone()});
+
+ const driftConfigs=[
+  {size:[620,270],pos:[0,176,-255],opacity:.22,rot:[0,0,0],driftX:14,driftY:7,sx:0.00018,sy:0.00011},
+  {size:[520,220],pos:[-160,132,-155],opacity:.26,rot:[0,Math.PI/6.5,0],driftX:10,driftY:6,sx:-0.00014,sy:0.00016},
+  {size:[520,220],pos:[176,146,-120],opacity:.20,rot:[0,-Math.PI/5.9,0],driftX:12,driftY:5,sx:0.00012,sy:-0.00014}
+ ];
+ for(const cfg of driftConfigs){
+  const mat=new THREE.MeshBasicMaterial({transparent:true,opacity:cfg.opacity,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+  const plane=new THREE.Mesh(new THREE.PlaneGeometry(cfg.size[0],cfg.size[1]),mat);
+  plane.position.set(...cfg.pos);plane.rotation.set(...cfg.rot);plane.renderOrder=-96;world.add(plane);
+  loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;mat.map=t;mat.needsUpdate=true;});
+  cosmicSkyLayers.push({mesh:plane,type:'plane',speedY:cfg.sy,speedX:cfg.sx,driftX:cfg.driftX,driftY:cfg.driftY,origin:plane.position.clone(),lookAt:true});
+ }
+
+ // Two real spheres orbit around the whole floating platform, not flat image cards.
  const planetSpecs=[
-  {path:'./reference/cracked-planet-transparent.png',size:252,phase:0,ellipse:[160,44,34],center:new THREE.Vector3(0,166,-168),overlap:new THREE.Vector3(-122,171,-174),offset:new THREE.Vector3(-6,4,0),opacity:1},
-  {path:'./reference/orbit-planet-b.png',size:236,phase:Math.PI,ellipse:[132,58,42],center:new THREE.Vector3(0,176,-150),overlap:new THREE.Vector3(-112,165,-170),offset:new THREE.Vector3(5,-4,-3),opacity:.98}
+  {path:'./reference/cracked-planet-transparent.png',radius:72,phase:0,orbitX:214,orbitZ:178,orbitY:22,baseY:162,overlap:new THREE.Vector3(-18,176,-88),opacity:1,spinY:0.00022,spinX:0.00008,rim:0xb68fff,cover:true},
+  {path:'./reference/orbit-planet-b.png',radius:61,phase:Math.PI*.97,orbitX:186,orbitZ:152,orbitY:26,baseY:168,overlap:new THREE.Vector3(18,170,-92),opacity:.98,spinY:-0.00018,spinX:0.00005,rim:0x72c2ff,cover:false}
  ];
  for(const spec of planetSpecs){
-  const mat=new THREE.MeshBasicMaterial({transparent:true,opacity:spec.opacity,side:THREE.DoubleSide,depthWrite:false,fog:false});
-  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(spec.size,spec.size),mat);
-  mesh.renderOrder=-8;mesh.position.copy(spec.center);world.add(mesh);
-  loader.load(spec.path,t=>{t.colorSpace=THREE.SRGBColorSpace;mat.map=t;mat.needsUpdate=true;});
-  orbitPlanets.push({mesh,mat,...spec,baseSize:spec.size});
+  const group=new THREE.Group();group.position.set(0,spec.baseY,-140);world.add(group);
+  const body=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,64,48),new THREE.MeshBasicMaterial({transparent:true,opacity:spec.opacity,fog:false}));
+  body.rotation.y=Math.PI*.9;group.add(body);
+  const glow=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*1.03,48,36),new THREE.MeshBasicMaterial({color:spec.rim,side:THREE.BackSide,transparent:true,opacity:.22,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));
+  group.add(glow);
+  let cover=null;
+  if(spec.cover){
+   const cMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.24,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+   cover=new THREE.Mesh(new THREE.PlaneGeometry(spec.radius*2.5,spec.radius*.95),cMat);
+   cover.position.set(0,-spec.radius*.48,spec.radius*.98);group.add(cover);
+   loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;cMat.map=t;cMat.needsUpdate=true;});
+  }
+  loader.load(spec.path,t=>{t.colorSpace=THREE.SRGBColorSpace;body.material.map=t;body.material.needsUpdate=true;});
+  orbitPlanets.push({group,body,glow,cover,spec});
  }
- // Corruption sky / smiling face appears only during overlap.
- const glitchPositions=[
-  {p:[0,164,-245],s:[620,360],r:[0,0,0]},
-  {p:[-225,160,-40],s:[420,300],r:[0,Math.PI/2.7,0]},
-  {p:[225,160,-40],s:[420,300],r:[0,-Math.PI/2.7,0]}
- ];
- for(const item of glitchPositions){
-  const mat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
-  const plane=new THREE.Mesh(new THREE.PlaneGeometry(item.s[0],item.s[1]),mat);
-  plane.position.set(...item.p);plane.rotation.set(...item.r);plane.renderOrder=-6;world.add(plane);
-  loader.load('./reference/glitch-overlap.png',t=>{t.colorSpace=THREE.SRGBColorSpace;mat.map=t;mat.needsUpdate=true;});
-  glitchOverlays.push({mesh:plane,mat,basePos:plane.position.clone(),wobble:Math.random()*6.28});
+
+ // Corruption event layers.
+ const tintMat=new THREE.MeshBasicMaterial({color:0x4a158b,transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+ const tintSphere=new THREE.Mesh(new THREE.SphereGeometry(404,40,28),tintMat);
+ tintSphere.position.set(0,72,80);tintSphere.renderOrder=-95;world.add(tintSphere);
+ glitchOverlays.push({type:'tint',mesh:tintSphere,mat:tintMat,basePos:tintSphere.position.clone(),wobble:0});
+
+ const handMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+ const handPlane=new THREE.Mesh(new THREE.PlaneGeometry(260,220),handMat);
+ handPlane.position.set(240,136,110);handPlane.rotation.y=-Math.PI/3.2;handPlane.renderOrder=-5;world.add(handPlane);
+ loader.load('./reference/glitch-hand-right.png',t=>{t.colorSpace=THREE.SRGBColorSpace;handMat.map=t;handMat.needsUpdate=true;});
+ glitchOverlays.push({type:'hand',mesh:handPlane,mat:handMat,start:new THREE.Vector3(242,136,110),end:new THREE.Vector3(146,118,96),basePos:handPlane.position.clone(),wobble:2.7});
+
+ const stormPlaneMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+ const stormPlane=new THREE.Mesh(new THREE.PlaneGeometry(360,230),stormPlaneMat);
+ stormPlane.position.set(140,172,-118);stormPlane.rotation.y=-Math.PI/3.7;stormPlane.renderOrder=-7;world.add(stormPlane);
+ loader.load('./reference/glitch-hand-right.png',t=>{t.colorSpace=THREE.SRGBColorSpace;stormPlaneMat.map=t;stormPlaneMat.needsUpdate=true;});
+ glitchOverlays.push({type:'storm',mesh:stormPlane,mat:stormPlaneMat,basePos:stormPlane.position.clone(),wobble:1.1});
+
+ const shardCount=quality==='low'?10:quality==='medium'?14:20;
+ for(let i=0;i<shardCount;i++){
+  const mat=new THREE.MeshBasicMaterial({color:i%2?0x090c14:0x1b1130,transparent:true,opacity:0,depthWrite:false,fog:false});
+  const shard=new THREE.Mesh(new THREE.BoxGeometry(8+((i*3)%7),3+((i*5)%5),1.4+((i*7)%3)),mat);
+  const ang=i/shardCount*Math.PI*2,rad=110+(i%5)*22;
+  shard.position.set(Math.cos(ang)*rad,96+(i%6)*18,84+Math.sin(ang)*rad);
+  shard.rotation.set(i*.4,i*.7,0);shard.renderOrder=-4;world.add(shard);
+  glitchOverlays.push({type:'shard',mesh:shard,mat,basePos:shard.position.clone(),wobble:i*.6,spin:new THREE.Vector3(.002+(i%3)*.0012,.003+(i%4)*.0008,.0017+(i%5)*.0006)});
  }
+
  const codeTex=codeRainTexture();
- const veilCount=quality==='low'?5:quality==='medium'?8:12;
+ const veilCount=quality==='low'?8:quality==='medium'?12:16;
  for(let i=0;i<veilCount;i++){
   const mat=new THREE.MeshBasicMaterial({map:codeTex.clone(),transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
   mat.map.colorSpace=THREE.SRGBColorSpace;mat.map.wrapT=THREE.RepeatWrapping;
   const w=18+(i%3)*7,h=150+(i%4)*18;
   const veil=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
-  const angle=i/veilCount*Math.PI*2;const radius=95+(i%4)*22;
-  veil.position.set(Math.cos(angle)*radius,88+h*.24,82+Math.sin(angle)*radius);
+  const angle=i/veilCount*Math.PI*2;const radius=96+(i%4)*24;
+  veil.position.set(Math.cos(angle)*radius,92+h*.24,82+Math.sin(angle)*radius);
   veil.rotation.y=-angle+Math.PI/2;veil.renderOrder=-4;world.add(veil);
   codeVeils.push({mesh:veil,mat,scroll:0.12+0.03*(i%3),phase:i*.77});
  }
@@ -644,10 +685,14 @@ function updateCosmicEvent(now){
  if(floor!=='outside')return;
  const local=now%orbitState.cycleMs;
  const overlapWindow=local>=orbitState.triggerMs;
- const enterBlend=overlapWindow?smooth01((local-orbitState.triggerMs)/1800):0;
- const releaseBlend=!overlapWindow?1-smooth01(local/1800):0;
+ const eventNorm=overlapWindow?(local-orbitState.triggerMs)/orbitState.overlapMs:0;
+ const enterBlend=overlapWindow?smooth01(Math.min(1,eventNorm/.18)):0;
+ const releaseBlend=!overlapWindow?1-smooth01(Math.min(1,local/1800)):0;
  const overlapBlend=overlapWindow?enterBlend:releaseBlend;
+ const worldFix=overlapWindow?smooth01(Math.max(0,(eventNorm-.82)/.18)):0;
+ const corruptionBlend=overlapWindow?enterBlend*(1-worldFix*.2):releaseBlend;
  const orbitAngle=now*0.00016;
+ const orbitCenter=new THREE.Vector3(0,164,82);
  for(const layer of cosmicSkyLayers){
   if(layer.type==='sphere'){
    layer.mesh.rotation.y+=layer.speedY;
@@ -661,39 +706,67 @@ function updateCosmicEvent(now){
    if(layer.lookAt)layer.mesh.lookAt(camera.position.x,layer.mesh.position.y,camera.position.z);
   }
  }
- for(const [idx,planet] of orbitPlanets.entries()){
-  const angle=orbitAngle+planet.phase;
+ for(const item of orbitPlanets){
+  const spec=item.spec;
+  const angle=orbitAngle+spec.phase;
   const normal=new THREE.Vector3(
-    planet.center.x+Math.cos(angle)*planet.ellipse[0],
-    planet.center.y+Math.sin(angle*0.9)*planet.ellipse[1],
-    planet.center.z+Math.sin(angle)*planet.ellipse[2]
+    orbitCenter.x+Math.cos(angle)*spec.orbitX,
+    spec.baseY+Math.sin(angle*1.1)*spec.orbitY,
+    orbitCenter.z+Math.sin(angle)*spec.orbitZ
   );
-  const overlapTarget=planet.overlap.clone().add(planet.offset);
-  const pos=normal.lerp(overlapTarget,overlapBlend);
-  planet.mesh.position.copy(pos);
-  planet.mesh.lookAt(camera.position);
-  const sizeFactor=1+(idx===0?.1:.04)*overlapBlend;
-  planet.mesh.scale.set(sizeFactor,sizeFactor,1);
-  planet.mat.opacity=(planet.opacity||1)*(overlapWindow?.94:1);
+  const pos=normal.clone().lerp(spec.overlap,overlapBlend);
+  item.group.position.copy(pos);
+  item.group.rotation.y+=spec.spinY;
+  item.group.rotation.x=Math.sin(now*spec.spinX+spec.phase)*0.08;
+  item.body.rotation.y+=spec.spinY*1.8;
+  item.body.rotation.x+=spec.spinX*1.1;
+  const scale=1+(spec.radius>65?.11:.08)*overlapBlend;
+  item.group.scale.setScalar(scale);
+  item.body.material.opacity=spec.opacity*(overlapWindow?.98:1);
+  item.glow.material.opacity=.20+.18*corruptionBlend;
+  if(item.cover){
+   item.cover.lookAt(camera.position.x,item.cover.position.y,camera.position.z+item.group.position.z);
+   item.cover.rotation.z=Math.sin(now*0.0005+spec.phase)*0.08;
+   item.cover.material.opacity=.19+.08*Math.sin(now*0.0012+spec.phase);
+  }
  }
- const glitchAlpha=(overlapWindow?.82*enterBlend:.82*releaseBlend);
  for(const overlay of glitchOverlays){
-  overlay.mat.opacity=glitchAlpha;
-  overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*0.0012+overlay.wobble)*3.4*glitchAlpha;
-  overlay.mesh.lookAt(camera.position.x,overlay.mesh.position.y,camera.position.z);
+  if(overlay.type==='tint'){
+    overlay.mat.opacity=.24*corruptionBlend;
+    overlay.mesh.rotation.y+=0.0008;
+  }else if(overlay.type==='storm'){
+    overlay.mat.opacity=.34*corruptionBlend*(1-worldFix*.3);
+    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*0.0014+overlay.wobble)*3.8*corruptionBlend;
+    overlay.mesh.lookAt(camera.position.x,overlay.mesh.position.y,camera.position.z);
+  }else if(overlay.type==='hand'){
+    const reach=overlapWindow?smooth01(Math.min(1,eventNorm/.78)):0;
+    const influence=reach*(1-worldFix);
+    overlay.mesh.position.lerpVectors(overlay.start,overlay.end,influence);
+    overlay.mesh.position.y+=Math.sin(now*0.0019+overlay.wobble)*2.2*corruptionBlend;
+    overlay.mesh.lookAt(40,122,98);
+    overlay.mat.opacity=.88*corruptionBlend*(1-worldFix);
+  }else if(overlay.type==='shard'){
+    overlay.mat.opacity=.72*corruptionBlend*(1-worldFix*.2);
+    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*0.0018+overlay.wobble)*6.5*corruptionBlend;
+    overlay.mesh.rotation.x+=overlay.spin.x;
+    overlay.mesh.rotation.y+=overlay.spin.y;
+    overlay.mesh.rotation.z+=overlay.spin.z;
+  }
  }
  for(const veil of codeVeils){
-  veil.mat.opacity=(overlapWindow?.62*enterBlend:.62*releaseBlend);
+  veil.mat.opacity=.78*corruptionBlend*(1-worldFix*.15);
   if(veil.mat.map){veil.mat.map.offset.y=(now*0.00016*veil.scroll+veil.phase)%1;veil.mat.map.needsUpdate=true;}
   veil.mesh.position.y=114+Math.sin(now*0.0011+veil.phase)*10;
   veil.mesh.lookAt(camera.position.x,veil.mesh.position.y,camera.position.z);
  }
  const fogTarget=overlapWindow?0x170720:0x101326;
- scene.fog.color.lerp(new THREE.Color(fogTarget),Math.min(.12,overlapWindow?.08:.04));
- scene.fog.density=overlapWindow?.00195:.00135;
+ scene.fog.color.lerp(new THREE.Color(fogTarget),Math.min(.12,overlapWindow?.09:.04));
+ scene.fog.density=overlapWindow?.00205:.00135;
+ renderer.toneMappingExposure=1.72+corruptionBlend*.12;
 }
 
 function plazaLightReflections(){
+
  // Low-opacity luminous reflection pools on the existing glossy black marble.
  // Kept on the horizontal floor; these are not added structures or raised obstacles.
  const glowTex=document.createElement('canvas');glowTex.width=128;glowTex.height=128;

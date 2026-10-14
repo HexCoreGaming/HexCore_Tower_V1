@@ -1,16 +1,15 @@
-# HexCore Tower V3.2 — Cosmic Motion + Dual-Planet Overlap Test
+# HexCore Tower V3.3 Cosmic Depth
 
-This build adds the current requested exterior-space test package:
+This build adds:
+- stronger mobile-safe animated cosmic background depth
+- more visible living space clouds
+- blended dual-sky treatment using the approved purple scene plus the cyber-blue cloud scene
+- two spherical orbiting planets moving around the whole platform
+- 10-second overlap trigger and 10-second corruption duration
+- corruption world state with code-rain tears, shards, tinting, and a single right-side reaching entity
+- automatic world recovery before the reaching entity touches the platform
 
-- more noticeable animated space clouds
-- moving blended space background using the two provided sky references
-- two large orbiting planets placed diagonally around the tower
-- 10-second normal orbit test phase
-- 10-second overlap / corruption test phase
-- overlap event triggers visible world corruption
-- glitch-sky reveal with code tearing through reality and the laughing face reference
-- preserved mobile controls from previous build
-
-Notes:
-- The overlap cycle is a repeating 20-second test loop: 10 seconds normal orbit, then 10 seconds overlap/corruption.
-- This is a validation build so timing and visual intensity can be tuned after review.
+Next recommended pass:
+1. tune orbit speed / overlap position after visual review
+2. refine tower art pass to match the reference image even closer
+3. expand skybox for future flyable ship distances
