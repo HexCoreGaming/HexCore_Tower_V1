@@ -1,129 +1,129 @@
 {
-  "version": "V3.7",
+  "version": "V3.8",
   "files": [
     {
-      "file": ".nojekyll",
-      "size": 0,
+      "path": ".nojekyll",
+      "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "file": "README.md",
-      "size": 1258,
-      "sha256": "aea9f1d9fe14ad87206e9e8786ac8315bcc917c8ec7ef0b467a975d33bd6d65b"
+      "path": "README.md",
+      "bytes": 1709,
+      "sha256": "dbf196cd6fca5dea969f70fce2bc79371352d0b779b1b63a64a8dcd47de665cd"
     },
     {
-      "file": "data/preservedLegalDialogue.js",
-      "size": 22839,
+      "path": "data/preservedLegalDialogue.js",
+      "bytes": 22839,
       "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
     },
     {
-      "file": "docs/REBUILD_AUDIT.md",
-      "size": 684,
+      "path": "docs/REBUILD_AUDIT.md",
+      "bytes": 684,
       "sha256": "3ca3f25bd326c268c013c75b749f8267f4263cefcac5635a36ac6d9d9a4a8580"
     },
     {
-      "file": "docs/VERSION.json",
-      "size": 1015,
-      "sha256": "ed48758d8344339737aa1fefd9f1ee10f7a0a86d14a836f698062ea166915f06"
+      "path": "docs/VERSION.json",
+      "bytes": 1244,
+      "sha256": "6a6fdcd9011956bfeb0f8f7feb2263d28848c8a735be728dadfd3c3a92fe8bf6"
     },
     {
-      "file": "index.html",
-      "size": 4337,
-      "sha256": "74893d81ef956953ff202c95d433465c1c6df6d8d2aa31b8a2d758e55a975ce2"
+      "path": "index.html",
+      "bytes": 4337,
+      "sha256": "357624dd5f5428006bccaf8d300be9ddd58b6e516b39236e6cfe2112ee78bebc"
     },
     {
-      "file": "reference/approved-lobby.png",
-      "size": 3847405,
+      "path": "reference/approved-lobby.png",
+      "bytes": 3847405,
       "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
     },
     {
-      "file": "reference/approved-tower.png",
-      "size": 3383997,
+      "path": "reference/approved-tower.png",
+      "bytes": 3383997,
       "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
     },
     {
-      "file": "reference/cracked-planet-transparent.png",
-      "size": 2005283,
+      "path": "reference/cracked-planet-transparent.png",
+      "bytes": 2005283,
       "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
     },
     {
-      "file": "reference/entity-echo-laugh.wav",
-      "size": 161008,
+      "path": "reference/entity-echo-laugh.wav",
+      "bytes": 161008,
       "sha256": "a0fa08ffda421f8f155180912f15bb8e6b56b537696bc8db47d31aee1b1beaaf"
     },
     {
-      "file": "reference/entity-face-crop.png",
-      "size": 203919,
+      "path": "reference/entity-face-crop.png",
+      "bytes": 203919,
       "sha256": "ddf0e96887f4ecb24e1fa2c8aabfca674f9bcc4f171bc916ae89bb3abca6e607"
     },
     {
-      "file": "reference/entity-hand-crop.png",
-      "size": 526684,
+      "path": "reference/entity-hand-crop.png",
+      "bytes": 526684,
       "sha256": "2de438a36190482272b2a5bae188ae69a89f0eb69ec55c44efe1c177108bec95"
     },
     {
-      "file": "reference/glitch-hand-right.png",
-      "size": 3940071,
+      "path": "reference/glitch-hand-right.png",
+      "bytes": 3940071,
       "sha256": "77cc57be4dbaa9638a380352f99207b8fc4083cd90c0f1bff8931123e0492319"
     },
     {
-      "file": "reference/glitch-overlap.png",
-      "size": 4002461,
+      "path": "reference/glitch-overlap.png",
+      "bytes": 4002461,
       "sha256": "5d328244a2f948c9afce737e942640d7aab0af59f4c2162e5b6eb6666110201c"
     },
     {
-      "file": "reference/glitch-world-live.png",
-      "size": 3937122,
+      "path": "reference/glitch-world-live.png",
+      "bytes": 3937122,
       "sha256": "2398877814799e3fb4a173bfa0a8c4d19a77fce1d8b3927f4e360d4c28741f7e"
     },
     {
-      "file": "reference/lobby-design.png",
-      "size": 3847405,
+      "path": "reference/lobby-design.png",
+      "bytes": 3847405,
       "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
     },
     {
-      "file": "reference/orbit-planet-b.png",
-      "size": 3469327,
+      "path": "reference/orbit-planet-b.png",
+      "bytes": 3469327,
       "sha256": "a49bc7170ce505ea7e444e244add78b01339bef10ed2a25da703fc3a3777bec1"
     },
     {
-      "file": "reference/planet-cracked-spherical.webp",
-      "size": 386292,
+      "path": "reference/planet-cracked-spherical.webp",
+      "bytes": 386292,
       "sha256": "e82612d6543e555d7a20c95c6a23290789fb628e501934fc9e5366b4f7da855b"
     },
     {
-      "file": "reference/planet-tech-spherical.webp",
-      "size": 304026,
+      "path": "reference/planet-tech-spherical.webp",
+      "bytes": 304026,
       "sha256": "cb2549d2830e1c10273a723ae1d0f4fc49baa5cf8873fdfcaf14bd024b723a59"
     },
     {
-      "file": "reference/space-backdrop-alt.png",
-      "size": 3608107,
+      "path": "reference/space-backdrop-alt.png",
+      "bytes": 3608107,
       "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
     },
     {
-      "file": "reference/space-backdrop-cyber.png",
-      "size": 3608107,
+      "path": "reference/space-backdrop-cyber.png",
+      "bytes": 3608107,
       "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
     },
     {
-      "file": "reference/space-backdrop.webp",
-      "size": 693896,
+      "path": "reference/space-backdrop.webp",
+      "bytes": 693896,
       "sha256": "686cacfb8ea1ba670bd87e9427ad7b96a028f091d3bc2e95b54e4c9ff65658aa"
     },
     {
-      "file": "reference/tower-design.png",
-      "size": 3383997,
+      "path": "reference/tower-design.png",
+      "bytes": 3383997,
       "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
     },
     {
-      "file": "src/main.js",
-      "size": 126313,
-      "sha256": "4837c39a13b2b35ba866112e7210adcb6e02220ff02726c151ad785ff3d4e442"
+      "path": "src/main.js",
+      "bytes": 126003,
+      "sha256": "b7f6a8876c304f059132690f98211a3c7b0b2198893a803b029c15d46f826e8a"
     },
     {
-      "file": "src/style.css",
-      "size": 10341,
+      "path": "src/style.css",
+      "bytes": 10341,
       "sha256": "4f4b8f8ce901a0593713a303d9bd637d2070116845f5162eac784ae4ee5c38c1"
     }
   ]

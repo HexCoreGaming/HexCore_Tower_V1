@@ -1,24 +1,25 @@
 {
-  "version": "V3.7",
-  "codename": "Startup, Corruption Performance & Doorway View Fix",
+  "version": "V3.8",
+  "codename": "Cosmic Stability and Visual Coherence",
   "changes": [
-    "Construct exterior during welcome screen idle so ENTER reuses prepared geometry",
-    "Prepare actual lobby scene ahead of reaching sliding doors; crossing swaps preloaded world without reconstruction",
-    "Correct exterior and lobby doorway preview surfaces so actual opposite scene is visible through opening rather than distant sky",
-    "Throttle and reduce render resolution of live portal previews to limit extra render overhead",
-    "Stop per-frame code-rain canvas uploads that cause severe GPU stalls at overlap"
+    "Use one cohesive purple space panorama instead of three competing full-sky backgrounds",
+    "Replace normal sky with the actual user-provided fractured-world texture while corruption is active",
+    "Hide expensive rifts, code curtains and debris outside the corruption phase",
+    "Share two animated code textures for upward and downward flows rather than many copies",
+    "Reduce cosmic shader cards, fractures, and doorway preview resolution and frequency",
+    "Correct 3D entity yaw and articulated claw direction toward the right platform edge",
+    "Reduce default desktop graphics load for better startup/overlap stability"
   ],
   "preserved": [
-    "10-second overlap cycle",
-    "Planet orbits",
-    "Cosmic entity",
-    "Mobile controls",
-    "Tower geometry",
-    "NPCs",
-    "41 legal Q&A entries"
+    "Outside spawn",
+    "Automatic doors and cached lobby/exterior",
+    "Desktop and mobile controls",
+    "20-second test loop: 10s normal + 10s corrupted",
+    "Original NPC/legal dialogue and department floors"
   ],
-  "limits": [
-    "Door previews are rate-limited render-to-texture views; verify visually after deployment.",
-    "Browser test unavailable in sandbox due browser navigation restrictions."
+  "limitations": [
+    "Browser/device performance and the visual quality of the entity still require live user verification",
+    "The figure is procedural 3D, not a manually sculpted photo-accurate character",
+    "Spaceships/flyable space are not implemented"
   ]
 }

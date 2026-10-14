@@ -1,13 +1,18 @@
-# HexCore Tower V3.7 — Startup / Doorway / Overlap Stability
+# HexCore Tower V3.8 — Cosmic Stability and Visual Coherence
 
-Complete replacement website. Copy the **contents** of this ZIP to the GitHub repository root.
+Extract **the ZIP contents** into your GitHub Pages repository root, replacing previous files.
 
-Changes:
-- Spawn at the front platform edge facing the tower (preserved).
-- Prebuild the exterior world while the welcome screen is displayed so ENTER reuses it rather than constructing two scenes synchronously.
-- Prepare lobby in a deferred task after the first playable frame, then reuse both real scenes when crossing the sliding doors.
-- Fix the doorway render plane being hidden behind tower geometry; preview samples the real opposite world, at a reduced resolution and rate for performance.
-- Stop repeatedly uploading large code-rain texture canvases to the GPU during the corruption event. Texture UV offsets are changed without forcing an expensive texture reupload.
-- Preserve 10-second-to-overlap / 10-second-corruption test, continuous opposite planetary orbits, one entity, existing tower and mobile controls.
+## Implemented
+- Single approved purple space background with procedural blue/violet drifting 3D cloud layers; removed repeated full-image panoramas that made the sky jumbled.
+- During planet overlap, the exact `reference/glitch-world-live.png` art replaces the normal space sky (not an additive image piled over normal nebula paintings). Animated code columns, rifts and fragments exist in front of it.
+- Corruption-related geometry is not rendered in the normal phase; the code uses two shared moving glyph textures instead of many independent uploads.
+- Planet overlap timing remains 10 seconds normal + 10 seconds corrupted.
+- The single procedural 3D entity is oriented to face the platform, has a claw extending forward, additional glowing fissures, and animated mouth/head/arms.
+- Strong reduction in doorway-preview rendering cost: only rendered when within 17 units of the entrance, throttled and skipped during exterior corruption. Automatic door/crossing behavior remains.
+- Default desktop automatic graphics quality is medium to reduce GPU stalls. Visitors can still explicitly select High.
 
-**Testing note:** Doorway preview is a live, rate-limited view of the other world, not a single shared continuous 3D world. On the first visit, background lobby preloading is done asynchronously; visual consistency and performance should be confirmed on the target device.
+## Verification limitation
+JavaScript syntax and archive integrity are checked. Pixel-perfect visual matching and frame-rate stability on real phones and PCs **cannot be guaranteed without device/browser testing**. No separate image was generated.
+
+## Next planned
+After testing V3.8, fix any residual startup/overlap performance bottlenecks and improve the 3D entity silhouette against the approved reference art, before department interiors.

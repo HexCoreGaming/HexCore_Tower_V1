@@ -454,7 +454,7 @@ function waterfall(x,z,width=12,drop=35,rotation=0){
 function skyNebula(){
  // 360-degree sky mapped from the user-supplied space reference: planets, clouds, nebula and stars.
  // Prebuilt in the exterior world; it is not a hallway, screen or physical obstruction.
- const material=new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false});
+ const material=new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,transparent:true,opacity:1});
  const sky=new THREE.Mesh(new THREE.SphereGeometry(420,64,36),material);
  sky.position.set(0,72,80);
  sky.rotation.y=Math.PI;
@@ -512,7 +512,7 @@ function makeSpaceCloudMaterial(){
              +.29*noise(p*8.0-vec2(uTime*.014,uPhase))
              +.17*noise(p*17.1+uPhase);
       float density=smoothstep(.78,.15,r)*smoothstep(.32,.70,n+.16);
-      float transparency=density*uAlpha*.72;
+      float transparency=density*uAlpha*.44;
       if(transparency<.006)discard;
       vec3 col=uColor*mix(.5,1.5,n);
       gl_FragColor=vec4(col,transparency);
@@ -522,22 +522,23 @@ function makeSpaceCloudMaterial(){
 function createLivingSpace(){
  spaceClouds=[];
  const seedFn=()=>{let x=482791;return ()=>{x=(x*1664525+1013904223)>>>0;return x/4294967296}};const rand=seedFn();
- const amount=quality==='low'?18:quality==='medium'?30:44;
+ const amount=quality==='low'?6:quality==='medium'?11:17;
  const palette=[0x8b65ef,0x5f85ff,0x8e72ff,0xb78cff,0x60b9ff];
  const cloudPlane=new THREE.PlaneGeometry(1,1);
  for(let i=0;i<amount;i++){
   const mat=makeSpaceCloudMaterial();
+  mat.forceSinglePass=true;
   mat.uniforms.uPhase.value=rand()*17;
   mat.uniforms.uColor.value.setHex(palette[i%palette.length]);
   const cloud=new THREE.Mesh(cloudPlane,mat);
-  const size=68+rand()*148;cloud.scale.set(size,size*.68,1);
+  const size=43+rand()*84;cloud.scale.set(size,size*.68,1);
   const theta=rand()*6.283;
   const distance=34+rand()*220;
   cloud.position.set(Math.cos(theta)*distance,8+rand()*125,Math.sin(theta)*distance+78);
   // Large distant clouds stay behind most structural details while a few pass through.
   cloud.userData={phase:rand()*6.28,period:75+rand()*120,speed:.35+rand()*1.25,
     origin:cloud.position.clone(),wander:new THREE.Vector3((rand()-.5)*70,(rand()-.5)*16,(rand()-.5)*70)};
-  cloud.renderOrder=2;
+  cloud.renderOrder=-3;
   world.add(cloud);spaceClouds.push(cloud);
  }
  // Additional 3D stellar depth beyond the nearby cloud layer.
@@ -596,9 +597,9 @@ function codeRainTexture(){
 
 // A single, three-dimensional approaching entity. No painted face cards.
 function buildReachingEntity(){
- const form=new THREE.Group();form.position.set(324,-29,85);form.visible=false;world.add(form);
- const coreMat=new THREE.MeshStandardMaterial({color:0x050412,roughness:.55,metalness:.18,emissive:0x2b0b58,emissiveIntensity:.6,transparent:true,opacity:.86,depthWrite:false,side:THREE.DoubleSide});
- const plateMat=new THREE.MeshStandardMaterial({color:0x151033,roughness:.39,metalness:.46,emissive:0x38117a,emissiveIntensity:.85,transparent:true,opacity:.84,depthWrite:false,side:THREE.DoubleSide});
+ const form=new THREE.Group();form.position.set(324,-29,85);form.rotation.y=-Math.PI/2;form.visible=false;world.add(form);
+ const coreMat=new THREE.MeshStandardMaterial({color:0x090817,roughness:.62,metalness:.12,emissive:0x39136b,emissiveIntensity:1.1,transparent:true,opacity:.90,depthWrite:false,side:THREE.DoubleSide});
+ const plateMat=new THREE.MeshStandardMaterial({color:0x1d1040,roughness:.48,metalness:.31,emissive:0x5319ad,emissiveIntensity:1.25,transparent:true,opacity:.89,depthWrite:false,side:THREE.DoubleSide});
  const violet=new THREE.MeshBasicMaterial({color:0xb04bff,transparent:true,opacity:.92,depthWrite:false,blending:THREE.AdditiveBlending});
  const blue=new THREE.MeshBasicMaterial({color:0x57ddff,transparent:true,opacity:.92,depthWrite:false,blending:THREE.AdditiveBlending});
  const darkness=new THREE.MeshBasicMaterial({color:0x020108,transparent:true,opacity:.96,depthWrite:false});
@@ -612,6 +613,25 @@ function buildReachingEntity(){
  const headPivot=new THREE.Group();headPivot.position.set(0,110,8);form.add(headPivot);
  ellipsoid(headPivot,[0,0,0],[27,33,24],coreMat,32);
  ellipsoid(headPivot,[0,8,17],[24,17,10],plateMat,24);
+ // The approved glitch face is mapped onto a curved 3D forehead/eye visor,
+ // not shown as a free-floating rectangular scene card.
+ const faceSurface=new THREE.PlaneGeometry(46,26,14,8);
+ const coords=faceSurface.attributes.position;
+ for(let i=0;i<coords.count;i++){
+  const x=coords.getX(i)/23,y=coords.getY(i)/13;
+  coords.setZ(i,3.8*Math.max(0,1-x*x)*Math.max(0,1-y*y));
+ }
+ faceSurface.computeVertexNormals();
+ const faceInk=new THREE.MeshBasicMaterial({transparent:true,opacity:.84,depthWrite:false,
+   side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
+ faceInk.forceSinglePass=true;
+ const faceMask=new THREE.Mesh(faceSurface,faceInk);
+ faceMask.position.set(0,3,23.8);headPivot.add(faceMask);
+ new THREE.TextureLoader().load('./reference/entity-face-crop.png',tx=>{
+  tx.colorSpace=THREE.SRGBColorSpace;faceInk.map=tx;faceInk.needsUpdate=true;
+  try{renderer.initTexture(tx)}catch{}
+ });
+
  // Eyes, eyebrow ridges, open mouth, and an animated articulated jaw.
  for(const sign of [-1,1]){
   ellipsoid(headPivot,[sign*10,4,23],[8,5,2.8],darkness,14);
@@ -625,20 +645,27 @@ function buildReachingEntity(){
   ellipsoid(headPivot,[k*2.8,-8.3,25],[1.1,3,1.1],blue,10);
   ellipsoid(jaw,[k*3.0,5.4,8.5],[1.2,2.7,1.0],violet,10);
  }
+ // Discontinuous glowing fissures and shards interrupt the silhouette;
+ // these are real scene geometry, not a moving rectangular artwork overlay.
+ for(let i=0;i<13;i++){
+  const xx=Math.sin(i*2.4)*21,yy=-18+(i%7)*8,zz=20+Math.cos(i*3.1)*5;
+  segment(headPivot,[xx,yy,zz],[xx+(i%2?8:-7),yy+7+(i%3)*3,zz+3],.65,.30,i%2?blue:violet);
+ }
  // Long spine and pulsing cracks make the form read from multiple angles.
  for(let i=0;i<10;i++){
   const x=Math.sin(i*2.25)*24,y=13+i*8,z=22-Math.abs(x)*.11;
   segment(form,[x,y,z],[x+Math.cos(i*4.4)*9,y+6,z+1],.33,.50,i%2?blue:violet);
  }
- // Left arm reaches for the platform. Fingertips remain outside the deck edge.
+ // Leading arm extends along the entity's FORWARD axis (+Z local => -X world),
+ // so the claw actually reaches for the right side of the platform.
  const reachArm=new THREE.Group();reachArm.position.set(-38,72,0);form.add(reachArm);
- segment(reachArm,[0,0,0],[-31,-19,10],9,7);
- ellipsoid(reachArm,[-31,-19,10],[9,10,9],coreMat,14);
- segment(reachArm,[-31,-19,10],[-74,-48,19],7,4.6);
- ellipsoid(reachArm,[-83,-55,21],[15,10,7],plateMat,18);
+ segment(reachArm,[0,0,0],[-12,-16,38],9,7);
+ ellipsoid(reachArm,[-12,-16,38],[9,10,10],coreMat,14);
+ segment(reachArm,[-12,-16,38],[-8,-40,96],7.5,5);
+ ellipsoid(reachArm,[-8,-40,113],[17,9,13],plateMat,18);
  for(let j=0;j<5;j++){
-  const z=15+j*4.6;
-  segment(reachArm,[-92,-55,z],[-107-(j%3)*2,-64+(j%2)*4,z+4],2.7,1.05,j%2?violet:plateMat);
+  const xx=-20+j*6;
+  segment(reachArm,[xx,-41,114],[xx+(j-2)*1.5,-55-(j%2)*5,142+(j%3)*2],2.3,.6,j%2?violet:plateMat);
  }
  // The trailing arm adds actual body depth and asymmetrical animation.
  const otherArm=new THREE.Group();otherArm.position.set(37,68,-1);form.add(otherArm);
@@ -647,14 +674,14 @@ function buildReachingEntity(){
  ellipsoid(otherArm,[40,-76,9],[11,14,10],plateMat,16);
  for(let j=0;j<4;j++)segment(otherArm,[34+j*3,-82,12],[34+j*4,-98,15+j*2],2,1,coreMat);
  const aura=new THREE.PointLight(0x8c37ff,0,155,2);aura.position.set(0,78,16);form.add(aura);
- const data={type:'entity3d',mesh:form,materials:mats,headPivot,jaw,mouth,reachArm,otherArm,aura,start:new THREE.Vector3(335,-29,85),end:new THREE.Vector3(262,-29,85)};
+ const data={type:'entity3d',mesh:form,materials:mats,headPivot,jaw,mouth,reachArm,otherArm,aura,start:new THREE.Vector3(350,-29,85),end:new THREE.Vector3(269,-29,85)};
  corruptionEntity=data;glitchOverlays.push(data);
  return data;
 }
 function buildSpatialRifts(){
  // Jagged, glowing cracks are positioned in 3D, at multiple distances/directions.
  let seed=19281;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
- const count=quality==='low'?8:quality==='medium'?13:20;
+ const count=quality==='low'?5:quality==='medium'?8:12;
  for(let i=0;i<count;i++){
   const angle=2*Math.PI*i/count+rand()*.19;
   const radius=132+rand()*135;
@@ -668,39 +695,15 @@ function buildSpatialRifts(){
   }
   const curve=new THREE.CatmullRomCurve3(pts);
   const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,42,.7+i%3*.21,5,false),material);
-  mesh.renderOrder=-2;world.add(mesh);
+  mesh.renderOrder=-2;mesh.visible=false;world.add(mesh);
   glitchOverlays.push({type:'rift3d',mesh,mat:material,basePos:mesh.position.clone(),phase:i*.83});
  }
 }
 
 function buildCosmicEventSystem(){
  const loader=new THREE.TextureLoader();
- // Multiple moving layers so the backdrop reads as a deep surrounding environment.
- const upperMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.44,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
- const upperSky=new THREE.Mesh(new THREE.SphereGeometry(412,64,36),upperMat);
- upperSky.position.set(0,72,80);upperSky.rotation.set(.03,Math.PI*.55,0);upperSky.renderOrder=-98;world.add(upperSky);
- loader.load('./reference/space-backdrop-alt.png',t=>{t.colorSpace=THREE.SRGBColorSpace;upperMat.map=t;upperMat.needsUpdate=true;});
- cosmicSkyLayers.push({mesh:upperSky,type:'sphere',speedY:-0.00042,speedX:0.00005,origin:upperSky.position.clone()});
-
- const cyberMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.34,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
- const cyberSky=new THREE.Mesh(new THREE.SphereGeometry(406,64,36),cyberMat);
- cyberSky.position.set(0,72,80);cyberSky.rotation.set(-.05,Math.PI*.18,0);cyberSky.renderOrder=-97;world.add(cyberSky);
- loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;cyberMat.map=t;cyberMat.needsUpdate=true;});
- cosmicSkyLayers.push({mesh:cyberSky,type:'sphere',speedY:0.00025,speedX:-0.00006,origin:cyberSky.position.clone()});
-
- const driftConfigs=[
-  {size:[620,270],pos:[0,176,-255],opacity:.24,rot:[0,0,0],driftX:14,driftY:7,sx:0.00018,sy:0.00011},
-  {size:[520,220],pos:[-160,132,-155],opacity:.28,rot:[0,Math.PI/6.5,0],driftX:10,driftY:6,sx:-0.00014,sy:0.00016},
-  {size:[520,220],pos:[176,146,-120],opacity:.22,rot:[0,-Math.PI/5.9,0],driftX:12,driftY:5,sx:0.00012,sy:-0.00014}
- ];
- for(const cfg of driftConfigs){
-  const mat=new THREE.MeshBasicMaterial({transparent:true,opacity:cfg.opacity,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
-  const plane=new THREE.Mesh(new THREE.PlaneGeometry(cfg.size[0],cfg.size[1]),mat);
-  plane.position.set(...cfg.pos);plane.rotation.set(...cfg.rot);plane.renderOrder=-96;world.add(plane);
-  loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;mat.map=t;mat.needsUpdate=true;});
-  cosmicSkyLayers.push({mesh:plane,type:'plane',speedY:cfg.sy,speedX:cfg.sx,driftX:cfg.driftX,driftY:cfg.driftY,origin:plane.position.clone(),lookAt:true});
- }
-
+ // V3.8: ONE normal sky. Blue/purple accents come from spatial clouds only;
+ // layering full equirectangular paintings created the doubled/jumbled planets.
  // Two real spheres orbit around the entire platform.
  // The smaller tech planet gets covered by the larger cracked planet during the overlap state.
  // Both planets keep moving continuously, clockwise and counterclockwise.
@@ -716,45 +719,46 @@ function buildCosmicEventSystem(){
   body.rotation.y=Math.PI*.9;group.add(body);
   const glow=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*1.035,quality==='low'?32:48,quality==='low'?20:32),new THREE.MeshBasicMaterial({color:spec.rim,side:THREE.BackSide,transparent:true,opacity:.28,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));
   group.add(glow);
-  loader.load(spec.path,t=>{t.colorSpace=THREE.SRGBColorSpace;body.material.map=t;body.material.needsUpdate=true;});
+  loader.load(spec.path,t=>{t.colorSpace=THREE.SRGBColorSpace;body.material.map=t;body.material.needsUpdate=true;try{renderer.initTexture(t)}catch{}});
   orbitPlanets.push({group,body,glow,spec});
  }
 
  // Corruption event layers.
- const tintMat=new THREE.MeshBasicMaterial({color:0x4a158b,transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+ const tintMat=new THREE.MeshBasicMaterial({color:0x12081e,transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,fog:false,blending:THREE.NormalBlending});
  const tintSphere=new THREE.Mesh(new THREE.SphereGeometry(404,40,28),tintMat);
- tintSphere.position.set(0,72,80);tintSphere.renderOrder=-95;world.add(tintSphere);
+ tintSphere.position.set(0,72,80);tintSphere.renderOrder=-95;tintSphere.visible=false;world.add(tintSphere);
  glitchOverlays.push({type:'tint',mesh:tintSphere,mat:tintMat,basePos:tintSphere.position.clone(),wobble:0});
 
- const breakSkyMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
- const breakSky=new THREE.Mesh(new THREE.SphereGeometry(400,56,30),breakSkyMat);
- breakSky.position.set(0,72,80);breakSky.rotation.y=Math.PI*.2;breakSky.renderOrder=-94;world.add(breakSky);
- loader.load('./reference/glitch-world-live.png',t=>{t.colorSpace=THREE.SRGBColorSpace;breakSkyMat.map=t;breakSkyMat.needsUpdate=true;});
+ const breakSkyMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,depthTest:false,fog:false,blending:THREE.NormalBlending});
+ const breakSky=new THREE.Mesh(new THREE.SphereGeometry(398,40,24),breakSkyMat);
+ breakSky.position.set(0,72,80);breakSky.rotation.y=Math.PI*.25;breakSky.renderOrder=-94;breakSky.visible=false;world.add(breakSky);
+ loader.load('./reference/glitch-world-live.png',t=>{t.colorSpace=THREE.SRGBColorSpace;breakSkyMat.map=t;breakSkyMat.needsUpdate=true;try{renderer.initTexture(t)}catch{}});
  glitchOverlays.push({type:'breakSky',mesh:breakSky,mat:breakSkyMat,basePos:breakSky.position.clone(),wobble:0});
 
  buildReachingEntity();
  buildSpatialRifts();
 
- const shardCount=quality==='low'?12:quality==='medium'?18:24;
+ const shardCount=quality==='low'?5:quality==='medium'?9:13;
  for(let i=0;i<shardCount;i++){
   const mat=new THREE.MeshBasicMaterial({color:i%2?0x090c14:0x1b1130,transparent:true,opacity:0,depthWrite:false,fog:false});
   const shard=new THREE.Mesh(new THREE.BoxGeometry(8+((i*3)%7),3+((i*5)%5),1.4+((i*7)%3)),mat);
   const ang=i/shardCount*Math.PI*2,rad=110+(i%5)*26;
   shard.position.set(Math.cos(ang)*rad,90+(i%6)*18,84+Math.sin(ang)*rad);
-  shard.rotation.set(i*.4,i*.7,0);shard.renderOrder=-4;world.add(shard);
+  shard.rotation.set(i*.4,i*.7,0);shard.renderOrder=-4;shard.visible=false;world.add(shard);
   glitchOverlays.push({type:'shard',mesh:shard,mat,basePos:shard.position.clone(),wobble:i*.6,spin:new THREE.Vector3(.002+(i%3)*.0012,.003+(i%4)*.0008,.0017+(i%5)*.0006)});
  }
 
- const codeTex=codeRainTexture();
- const veilCount=quality==='low'?14:quality==='medium'?24:32;
+ const codeTex=codeRainTexture();const codeTexReverse=codeRainTexture();
+ try{renderer.initTexture(codeTex);renderer.initTexture(codeTexReverse)}catch{}
+ const veilCount=quality==='low'?6:quality==='medium'?10:14;
  for(let i=0;i<veilCount;i++){
-  const mat=new THREE.MeshBasicMaterial({map:codeTex.clone(),transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
-  mat.map.colorSpace=THREE.SRGBColorSpace;mat.map.wrapT=THREE.RepeatWrapping;
+  const mat=new THREE.MeshBasicMaterial({map:i%2?codeTexReverse:codeTex,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+  mat.forceSinglePass=true;
   const w=18+(i%3)*8,h=170+(i%4)*22;
   const veil=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
   const angle=i/veilCount*Math.PI*2;const radius=108+(i%4)*28;
   veil.position.set(Math.cos(angle)*radius,92+h*.24,82+Math.sin(angle)*radius);
-  veil.rotation.y=-angle+Math.PI/2;veil.renderOrder=-4;world.add(veil);
+  veil.rotation.y=-angle+Math.PI/2;veil.renderOrder=-4;veil.visible=false;world.add(veil);
   codeVeils.push({mesh:veil,mat,scroll:0.16+0.035*(i%3),phase:i*.77,direction:i%2===0?1:-1});
  }
 }
@@ -798,10 +802,10 @@ function updateCosmicEvent(now,previewOnly=false){
  }
  for(const overlay of glitchOverlays){
   if(overlay.type==='tint'){
-   overlay.mat.opacity=.27*power;
+   overlay.mesh.visible=power>.012;overlay.mat.opacity=.10*power;
    overlay.mesh.rotation.y+=.00045;
   }else if(overlay.type==='breakSky'){
-   overlay.mat.opacity=.93*power;
+   overlay.mesh.visible=power>.008;overlay.mat.opacity=Math.min(1,power*1.22);
    overlay.mesh.rotation.y+=.00050;
    overlay.mesh.rotation.x=Math.sin(now*.00024)*.029;
   }else if(overlay.type==='entity3d'){
@@ -810,7 +814,7 @@ function updateCosmicEvent(now,previewOnly=false){
    const approach=smooth01(Math.min(1,eventNorm/.79));
    e.mesh.position.lerpVectors(e.start,e.end,approach);
    e.mesh.position.y+=Math.sin(now*.0016)*2.4*power;
-   e.mesh.rotation.y=-.15+Math.sin(now*.0008)*.045;
+   e.mesh.rotation.y=-Math.PI/2+Math.sin(now*.0008)*.035;
    e.mesh.scale.setScalar(.91+.10*approach);
    // Anatomical animation: shoulders, forearm, head and mouth move independently.
    const laugh=Math.sin(now*.016)+.45*Math.sin(now*.027);
@@ -818,34 +822,37 @@ function updateCosmicEvent(now,previewOnly=false){
    e.headPivot.rotation.y=Math.sin(now*.004)*.11;
    e.jaw.position.y=-23-3.3*Math.max(0,laugh);
    e.mouth.scale.y=11+4.0*Math.max(0,laugh);
-   e.reachArm.rotation.z= -.12*approach+Math.sin(now*.0033)*.022;
+   e.reachArm.rotation.x=-.18*approach+Math.sin(now*.0033)*.025;
    e.reachArm.rotation.y=Math.sin(now*.0024)*.056;
    e.otherArm.rotation.z=Math.sin(now*.0022)*.10;
-   e.aura.intensity=65*power*(.78+.22*Math.sin(now*.009));
+   e.aura.intensity=25*power*(.78+.22*Math.sin(now*.009));
    for(const m of e.materials){
-    const base=m===e.materials[0]?.86:m===e.materials[1]?.84:m===e.materials[4]?.96:.92;
+    const base=m===e.materials[0]?.90:m===e.materials[1]?.89:m===e.materials[4]?.96:.92;
     m.opacity=base*power;
    }
   }else if(overlay.type==='shard'){
-   overlay.mat.opacity=.82*power;
+   overlay.mesh.visible=power>.02;overlay.mat.opacity=.65*power;
    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*.0018+overlay.wobble)*10*power;
    overlay.mesh.rotation.x+=overlay.spin.x;
    overlay.mesh.rotation.y+=overlay.spin.y;
    overlay.mesh.rotation.z+=overlay.spin.z;
   }else if(overlay.type==='rift3d'){
-   overlay.mat.opacity=(.54+.25*Math.sin(now*.005+overlay.phase)**2)*power;
+   overlay.mesh.visible=power>.025;overlay.mat.opacity=(.54+.25*Math.sin(now*.005+overlay.phase)**2)*power;
   }
  }
+ // Only two texture matrices are animated (up and down). Material instances share
+ // those two maps, avoiding dozens of unique GPU updates during overlap.
+ if(codeVeils.length){
+  const sharedUp=codeVeils[0].mat.map,sharedDown=(codeVeils[1]||codeVeils[0]).mat.map;
+  sharedUp.offset.y=(now*.00020)%1;
+  sharedDown.offset.y=(1-(now*.00024)%1)%1;
+ }
  for(const veil of codeVeils){
-  veil.mat.opacity=.86*power;
-  if(veil.mat.map){
-   let offset=(now*.00034*veil.scroll*veil.direction+veil.phase)%1;
-   if(offset<0)offset+=1;
-   veil.mat.map.offset.y=offset;
-   // Offset changes update the UV transform automatically; do NOT upload the entire canvas every frame.
-  }
-  veil.mesh.position.y=117+Math.sin(now*.0011+veil.phase)*10;
-  veil.mesh.lookAt(camera.position.x,veil.mesh.position.y,camera.position.z);
+  veil.mesh.visible=power>.02;
+  if(!veil.mesh.visible)continue;
+  veil.mat.opacity=.76*power;
+  veil.mesh.position.y=117+Math.sin(now*.0007+veil.phase)*9;
+  // No per-frame plane lookAt or individual texture/UV mutation.
  }
  scene.fog.color.lerp(new THREE.Color(0x101326).lerp(new THREE.Color(0x210829),power),.10);
  scene.fog.density=.00135+power*.00105;
@@ -1523,7 +1530,7 @@ function installDoorWorld(data){
 }
 function previewSize(){
  const ratio=innerWidth/Math.max(1,innerHeight);
- const width=(mobile||quality==='low')?384:quality==='medium'?512:640;
+ const width=(mobile||quality==='low')?256:quality==='medium'?320:384;
  return [width,Math.max(200,Math.round(width/ratio))];
 }
 function makeDoorwayPreview(data,which){
@@ -1578,14 +1585,14 @@ function updateDoorPreview(now,dt){
  // The opposite REAL world should be visible through even closed transparent glass.
  // Far away we keep an occasional cached snapshot; close up it refreshes live.
  const distanceToDoor=Math.abs(pos.z-DOOR_Z);
- const nearDoor=distanceToDoor<(floor==='outside'?162:48)&&Math.abs(pos.x)<20;
+ const nearDoor=distanceToDoor<17&&Math.abs(pos.x)<12;
  const openness=activeData.animatedDoors[0]?.open||0;
  preview.surface.visible=nearDoor;
  // A slightly translucent base keeps the glass doors legible while closed.
  preview.material.uniforms.uAlpha.value=.85+Math.min(.15,openness*.15);
  if(!preview.surface.visible)return;
- const cadence=distanceToDoor>46?2200:(mobile||quality==='low'?330:quality==='medium'?230:190);
- if(now-preview.last<cadence)return;
+ const cadence=(mobile||quality==='low'?1800:quality==='medium'?1100:850);
+ if(now-preview.last<cadence||(floor==='outside'&&cosmicElapsedMs%20000>=9950))return;
  preview.last=now;
  const savedFogDensity=scene.fog.density,savedFogColor=scene.fog.color.clone(),savedExposure=renderer.toneMappingExposure;
  const savedFloor=floor;
@@ -1777,7 +1784,7 @@ function representative(x,z,index){
 function openElevator(){setPanel(`<div class="eyebrow">HEXCORE TOWER / PORTAL TRANSIT</div><h2>PORTAL TRANSIT</h2><p>Use the in-world portal gates in the lobby to travel directly to each floor without leaving mouse-look.</p><button id="transitClose">UNDERSTOOD</button>`);$('transitClose').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})}}
 function openAdmin(){let html=`<div class="eyebrow">HEXCORE / PRIVATE OFFICE</div><h2>CONTENT MANAGEMENT</h2><p class="subtle">FREE LOCAL EDITOR: edits are saved in this browser. Export JSON to publish manually. This is not secure public-server administration.</p><label>DEPARTMENT</label><select id="editDept">${floors.filter(f=>f.id!=='admin').map(f=>`<option value="${f.id}">${esc(f.label)}</option>`).join('')}</select><label>HEADLINE</label><input id="editHeadline"><label>DESCRIPTION</label><textarea id="editDesc"></textarea><label>UPDATES / DISPLAY CONTENT</label><textarea id="editUpdates"></textarea><div class="actions"><button id="saveEdit">SAVE LOCALLY</button><button id="exportEdit">EXPORT CHANGES</button><button id="importEdit">IMPORT CHANGES</button></div><input type="file" id="importFile" accept="application/json" class="hidden"><p id="editStatus" class="status"></p><p class="small">Admin publication to GitHub, asset uploads, permanent multiplayer state and secure identity checks are not implemented in this build. Existing Q&A is protected from edits in this interface.</p>`;setPanel(html);function loadFields(){let id=$('editDept').value,c=content(id);$('editHeadline').value=c.headline;$('editDesc').value=c.description;$('editUpdates').value=c.updates};$('editDept').onchange=loadFields;loadFields();$('saveEdit').onclick=()=>{let id=$('editDept').value;edits[id]={headline:$('editHeadline').value,description:$('editDesc').value,updates:$('editUpdates').value};localStorage.setItem('hexcore_edits_v1',JSON.stringify(edits));$('editStatus').textContent='Saved locally on this device.'};$('exportEdit').onclick=()=>{let blob=new Blob([JSON.stringify({format:'hexcore-content-v1',edits},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hexcore-content.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};$('importEdit').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{let d=JSON.parse(await e.target.files[0].text());if(d.format!=='hexcore-content-v1')throw Error('Unknown format');edits=d.edits||{};localStorage.setItem('hexcore_edits_v1',JSON.stringify(edits));loadFields();$('editStatus').textContent='Imported and saved locally.'}catch(err){$('editStatus').textContent='Import failed: '+err.message}}}
 $('closePanel').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('closeNav').onclick=()=>{$('nav').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('menuBtn').onclick=()=>{hideAll();$('nav').classList.remove('hidden')};$('settingsBtn').onclick=()=>{hideAll();setPanel(`<h2>GRAPHICS & CONTROLS</h2><p>Adaptive rendering supports mobile and desktop devices.</p><select id="liveQuality"><option value="low">LOW / MOBILE</option><option value="medium">BALANCED</option><option value="high">HIGH</option></select><button id="applyQuality">APPLY</button><p>Desktop: WASD, mouse, Shift, E. Mobile: MOVE and LOOK joysticks, INTERACT and RUN.</p>`);$('liveQuality').value=quality;$('applyQuality').onclick=()=>{quality=$('liveQuality').value;resizeRenderer();$('panel').classList.add('hidden')}};$('returnLobby').onclick=()=>travel('lobby');$('floorButtons').innerHTML=floors.map(f=>`<div class="directory-item">${esc(f.label)}</div>`).join('')+'<div class="directory-item">OUTSIDE • EXIT THROUGH LOBBY</div>';
-function resizeRenderer(){let dpr=quality==='low'?Math.min(devicePixelRatio,1):quality==='medium'?Math.min(devicePixelRatio,1.35):Math.min(devicePixelRatio,1.7);renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}window.addEventListener('resize',resizeRenderer);
+function resizeRenderer(){let dpr=quality==='low'?Math.min(devicePixelRatio,1):quality==='medium'?Math.min(devicePixelRatio,1.35):Math.min(devicePixelRatio,1.4);renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}window.addEventListener('resize',resizeRenderer);
 let prev=performance.now(),movePad={x:0,y:0},lookPad={x:0,y:0},running=false,mobile=matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints>0 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function initPad(id,target){
  const el=$(id),nub=el.querySelector('.nub');let activeId=null;
@@ -1819,7 +1826,7 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
 $('enter').onclick=()=>{
- const requestedQuality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;
+ const requestedQuality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;
  quality=requestedQuality;
  resizeRenderer();
  if(!initialWorldReady){warmInitialExterior();}
@@ -1839,7 +1846,7 @@ resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.remov
 // Idle preparation keeps expensive world construction out of the ENTER button's click handler.
 setTimeout(()=>{
  if(!active){
-  quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;
+  quality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;
   warmInitialExterior();
   // Let the entrance menu paint first; prepare the lobby while visitors choose settings.
   setTimeout(()=>{if(!active&&initialWorldReady&&!doorCache){prebuildDoorWorlds();}},650);
