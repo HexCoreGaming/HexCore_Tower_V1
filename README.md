@@ -1,15 +1,21 @@
-# HexCore Tower V3.3 Cosmic Depth
+# HexCore Tower V3.4 - Cosmic Event Refinement
 
-This build adds:
-- stronger mobile-safe animated cosmic background depth
-- more visible living space clouds
-- blended dual-sky treatment using the approved purple scene plus the cyber-blue cloud scene
-- two spherical orbiting planets moving around the whole platform
-- 10-second overlap trigger and 10-second corruption duration
-- corruption world state with code-rain tears, shards, tinting, and a single right-side reaching entity
-- automatic world recovery before the reaching entity touches the platform
+This build focuses specifically on the exterior cosmic event behavior.
 
-Next recommended pass:
-1. tune orbit speed / overlap position after visual review
-2. refine tower art pass to match the reference image even closer
-3. expand skybox for future flyable ship distances
+## Included in V3.4
+- Corrected the second orbiting planet so it remains a real textured sphere.
+- Enlarged both planets and lowered them so they sit much deeper relative to the platform.
+- Set the planets to orbit the full exterior platform in opposite directions.
+- Kept the test timing at 10 seconds until overlap, with the overlap / corruption state lasting 10 seconds.
+- Reworked the overlap state so the entire exterior world shifts into a deeper live glitch / code-break look.
+- Added a stronger right-side entity approach during the overlap sequence using separate face / hand visual layers.
+- Preserved the GitHub-ready standalone structure.
+
+## Files
+- `index.html`
+- `src/main.js`
+- `src/style.css`
+- `reference/*`
+
+## Publish
+Upload all contents of this folder to your GitHub Pages repository root.

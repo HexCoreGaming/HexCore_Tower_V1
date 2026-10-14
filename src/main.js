@@ -599,16 +599,16 @@ function buildCosmicEventSystem(){
  loader.load('./reference/space-backdrop-alt.png',t=>{t.colorSpace=THREE.SRGBColorSpace;upperMat.map=t;upperMat.needsUpdate=true;});
  cosmicSkyLayers.push({mesh:upperSky,type:'sphere',speedY:-0.00042,speedX:0.00005,origin:upperSky.position.clone()});
 
- const cyberMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.32,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
+ const cyberMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.34,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
  const cyberSky=new THREE.Mesh(new THREE.SphereGeometry(406,64,36),cyberMat);
  cyberSky.position.set(0,72,80);cyberSky.rotation.set(-.05,Math.PI*.18,0);cyberSky.renderOrder=-97;world.add(cyberSky);
  loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;cyberMat.map=t;cyberMat.needsUpdate=true;});
  cosmicSkyLayers.push({mesh:cyberSky,type:'sphere',speedY:0.00025,speedX:-0.00006,origin:cyberSky.position.clone()});
 
  const driftConfigs=[
-  {size:[620,270],pos:[0,176,-255],opacity:.22,rot:[0,0,0],driftX:14,driftY:7,sx:0.00018,sy:0.00011},
-  {size:[520,220],pos:[-160,132,-155],opacity:.26,rot:[0,Math.PI/6.5,0],driftX:10,driftY:6,sx:-0.00014,sy:0.00016},
-  {size:[520,220],pos:[176,146,-120],opacity:.20,rot:[0,-Math.PI/5.9,0],driftX:12,driftY:5,sx:0.00012,sy:-0.00014}
+  {size:[620,270],pos:[0,176,-255],opacity:.24,rot:[0,0,0],driftX:14,driftY:7,sx:0.00018,sy:0.00011},
+  {size:[520,220],pos:[-160,132,-155],opacity:.28,rot:[0,Math.PI/6.5,0],driftX:10,driftY:6,sx:-0.00014,sy:0.00016},
+  {size:[520,220],pos:[176,146,-120],opacity:.22,rot:[0,-Math.PI/5.9,0],driftX:12,driftY:5,sx:0.00012,sy:-0.00014}
  ];
  for(const cfg of driftConfigs){
   const mat=new THREE.MeshBasicMaterial({transparent:true,opacity:cfg.opacity,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
@@ -618,22 +618,23 @@ function buildCosmicEventSystem(){
   cosmicSkyLayers.push({mesh:plane,type:'plane',speedY:cfg.sy,speedX:cfg.sx,driftX:cfg.driftX,driftY:cfg.driftY,origin:plane.position.clone(),lookAt:true});
  }
 
- // Two real spheres orbit around the whole floating platform, not flat image cards.
+ // Two real spheres orbit around the entire platform.
+ // The smaller tech planet gets covered by the larger cracked planet during the overlap state.
  const planetSpecs=[
-  {path:'./reference/cracked-planet-transparent.png',radius:72,phase:0,orbitX:214,orbitZ:178,orbitY:22,baseY:162,overlap:new THREE.Vector3(-18,176,-88),opacity:1,spinY:0.00022,spinX:0.00008,rim:0xb68fff,cover:true},
-  {path:'./reference/orbit-planet-b.png',radius:61,phase:Math.PI*.97,orbitX:186,orbitZ:152,orbitY:26,baseY:168,overlap:new THREE.Vector3(18,170,-92),opacity:.98,spinY:-0.00018,spinX:0.00005,rim:0x72c2ff,cover:false}
+  {path:'./reference/cracked-planet-transparent.png',radius:110,startAngle:Math.PI,dir:1,orbitX:258,orbitZ:236,orbitY:8,planeY:22,opacity:1,spinY:0.00021,spinX:0.00008,rim:0xb68fff,cover:true,frontBias:6,pulse:.08},
+  {path:'./reference/orbit-planet-b.png',radius:86,startAngle:0,dir:-1,orbitX:242,orbitZ:220,orbitY:8,planeY:17.2,opacity:.98,spinY:-0.00018,spinX:0.00005,rim:0x72c2ff,cover:false,frontBias:-7,pulse:.06}
  ];
  for(const spec of planetSpecs){
-  const group=new THREE.Group();group.position.set(0,spec.baseY,-140);world.add(group);
-  const body=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,64,48),new THREE.MeshBasicMaterial({transparent:true,opacity:spec.opacity,fog:false}));
+  const group=new THREE.Group();group.position.set(0,spec.planeY,-140);world.add(group);
+  const body=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,72,52),new THREE.MeshBasicMaterial({transparent:true,opacity:spec.opacity,fog:false}));
   body.rotation.y=Math.PI*.9;group.add(body);
-  const glow=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*1.03,48,36),new THREE.MeshBasicMaterial({color:spec.rim,side:THREE.BackSide,transparent:true,opacity:.22,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));
+  const glow=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*1.03,48,36),new THREE.MeshBasicMaterial({color:spec.rim,side:THREE.BackSide,transparent:true,opacity:.24,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));
   group.add(glow);
   let cover=null;
   if(spec.cover){
-   const cMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.24,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
-   cover=new THREE.Mesh(new THREE.PlaneGeometry(spec.radius*2.5,spec.radius*.95),cMat);
-   cover.position.set(0,-spec.radius*.48,spec.radius*.98);group.add(cover);
+   const cMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.26,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+   cover=new THREE.Mesh(new THREE.PlaneGeometry(spec.radius*2.55,spec.radius*.98),cMat);
+   cover.position.set(0,-spec.radius*.50,spec.radius*.96);group.add(cover);
    loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;cMat.map=t;cMat.needsUpdate=true;});
   }
   loader.load(spec.path,t=>{t.colorSpace=THREE.SRGBColorSpace;body.material.map=t;body.material.needsUpdate=true;});
@@ -646,39 +647,45 @@ function buildCosmicEventSystem(){
  tintSphere.position.set(0,72,80);tintSphere.renderOrder=-95;world.add(tintSphere);
  glitchOverlays.push({type:'tint',mesh:tintSphere,mat:tintMat,basePos:tintSphere.position.clone(),wobble:0});
 
+ const breakSkyMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,blending:THREE.AdditiveBlending});
+ const breakSky=new THREE.Mesh(new THREE.SphereGeometry(400,56,30),breakSkyMat);
+ breakSky.position.set(0,72,80);breakSky.rotation.y=Math.PI*.2;breakSky.renderOrder=-94;world.add(breakSky);
+ loader.load('./reference/glitch-world-live.png',t=>{t.colorSpace=THREE.SRGBColorSpace;breakSkyMat.map=t;breakSkyMat.needsUpdate=true;});
+ glitchOverlays.push({type:'breakSky',mesh:breakSky,mat:breakSkyMat,basePos:breakSky.position.clone(),wobble:0});
+
+ const faceMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
+ const facePlane=new THREE.Mesh(new THREE.PlaneGeometry(116,72),faceMat);
+ facePlane.position.set(186,104,122);facePlane.rotation.y=-Math.PI/3.4;facePlane.renderOrder=-6;world.add(facePlane);
+ loader.load('./reference/entity-face-crop.png',t=>{t.colorSpace=THREE.SRGBColorSpace;faceMat.map=t;faceMat.needsUpdate=true;});
+ glitchOverlays.push({type:'entityFace',mesh:facePlane,mat:faceMat,start:new THREE.Vector3(186,104,122),end:new THREE.Vector3(72,76,96),basePos:facePlane.position.clone(),wobble:1.9});
+
  const handMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
- const handPlane=new THREE.Mesh(new THREE.PlaneGeometry(260,220),handMat);
- handPlane.position.set(240,136,110);handPlane.rotation.y=-Math.PI/3.2;handPlane.renderOrder=-5;world.add(handPlane);
- loader.load('./reference/glitch-hand-right.png',t=>{t.colorSpace=THREE.SRGBColorSpace;handMat.map=t;handMat.needsUpdate=true;});
- glitchOverlays.push({type:'hand',mesh:handPlane,mat:handMat,start:new THREE.Vector3(242,136,110),end:new THREE.Vector3(146,118,96),basePos:handPlane.position.clone(),wobble:2.7});
+ const handPlane=new THREE.Mesh(new THREE.PlaneGeometry(136,106),handMat);
+ handPlane.position.set(156,64,120);handPlane.rotation.y=-Math.PI/3.2;handPlane.renderOrder=-5;world.add(handPlane);
+ loader.load('./reference/entity-hand-crop.png',t=>{t.colorSpace=THREE.SRGBColorSpace;handMat.map=t;handMat.needsUpdate=true;});
+ glitchOverlays.push({type:'entityHand',mesh:handPlane,mat:handMat,start:new THREE.Vector3(156,64,120),end:new THREE.Vector3(42,36,96),basePos:handPlane.position.clone(),wobble:2.7});
 
- const stormPlaneMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
- const stormPlane=new THREE.Mesh(new THREE.PlaneGeometry(360,230),stormPlaneMat);
- stormPlane.position.set(140,172,-118);stormPlane.rotation.y=-Math.PI/3.7;stormPlane.renderOrder=-7;world.add(stormPlane);
- loader.load('./reference/glitch-hand-right.png',t=>{t.colorSpace=THREE.SRGBColorSpace;stormPlaneMat.map=t;stormPlaneMat.needsUpdate=true;});
- glitchOverlays.push({type:'storm',mesh:stormPlane,mat:stormPlaneMat,basePos:stormPlane.position.clone(),wobble:1.1});
-
- const shardCount=quality==='low'?10:quality==='medium'?14:20;
+ const shardCount=quality==='low'?12:quality==='medium'?18:24;
  for(let i=0;i<shardCount;i++){
   const mat=new THREE.MeshBasicMaterial({color:i%2?0x090c14:0x1b1130,transparent:true,opacity:0,depthWrite:false,fog:false});
   const shard=new THREE.Mesh(new THREE.BoxGeometry(8+((i*3)%7),3+((i*5)%5),1.4+((i*7)%3)),mat);
-  const ang=i/shardCount*Math.PI*2,rad=110+(i%5)*22;
-  shard.position.set(Math.cos(ang)*rad,96+(i%6)*18,84+Math.sin(ang)*rad);
+  const ang=i/shardCount*Math.PI*2,rad=110+(i%5)*26;
+  shard.position.set(Math.cos(ang)*rad,90+(i%6)*18,84+Math.sin(ang)*rad);
   shard.rotation.set(i*.4,i*.7,0);shard.renderOrder=-4;world.add(shard);
   glitchOverlays.push({type:'shard',mesh:shard,mat,basePos:shard.position.clone(),wobble:i*.6,spin:new THREE.Vector3(.002+(i%3)*.0012,.003+(i%4)*.0008,.0017+(i%5)*.0006)});
  }
 
  const codeTex=codeRainTexture();
- const veilCount=quality==='low'?8:quality==='medium'?12:16;
+ const veilCount=quality==='low'?12:quality==='medium'?18:24;
  for(let i=0;i<veilCount;i++){
   const mat=new THREE.MeshBasicMaterial({map:codeTex.clone(),transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
   mat.map.colorSpace=THREE.SRGBColorSpace;mat.map.wrapT=THREE.RepeatWrapping;
-  const w=18+(i%3)*7,h=150+(i%4)*18;
+  const w=18+(i%3)*8,h=170+(i%4)*22;
   const veil=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
-  const angle=i/veilCount*Math.PI*2;const radius=96+(i%4)*24;
+  const angle=i/veilCount*Math.PI*2;const radius=108+(i%4)*28;
   veil.position.set(Math.cos(angle)*radius,92+h*.24,82+Math.sin(angle)*radius);
   veil.rotation.y=-angle+Math.PI/2;veil.renderOrder=-4;world.add(veil);
-  codeVeils.push({mesh:veil,mat,scroll:0.12+0.03*(i%3),phase:i*.77});
+  codeVeils.push({mesh:veil,mat,scroll:0.16+0.035*(i%3),phase:i*.77,direction:i%2===0?1:-1});
  }
 }
 function updateCosmicEvent(now){
@@ -688,11 +695,11 @@ function updateCosmicEvent(now){
  const eventNorm=overlapWindow?(local-orbitState.triggerMs)/orbitState.overlapMs:0;
  const enterBlend=overlapWindow?smooth01(Math.min(1,eventNorm/.18)):0;
  const releaseBlend=!overlapWindow?1-smooth01(Math.min(1,local/1800)):0;
- const overlapBlend=overlapWindow?enterBlend:releaseBlend;
  const worldFix=overlapWindow?smooth01(Math.max(0,(eventNorm-.82)/.18)):0;
- const corruptionBlend=overlapWindow?enterBlend*(1-worldFix*.2):releaseBlend;
- const orbitAngle=now*0.00016;
- const orbitCenter=new THREE.Vector3(0,164,82);
+ const corruptionBlend=overlapWindow?enterBlend*(1-worldFix*.15):releaseBlend;
+ const orbitCenter=new THREE.Vector3(0,0,81);
+ const orbitOmega=Math.PI/(2*orbitState.triggerMs); // each planet travels 90 degrees in 10s and meets naturally
+ const orbitTravel=Math.min(local,orbitState.triggerMs)*orbitOmega;
  for(const layer of cosmicSkyLayers){
   if(layer.type==='sphere'){
    layer.mesh.rotation.y+=layer.speedY;
@@ -708,61 +715,83 @@ function updateCosmicEvent(now){
  }
  for(const item of orbitPlanets){
   const spec=item.spec;
-  const angle=orbitAngle+spec.phase;
-  const normal=new THREE.Vector3(
-    orbitCenter.x+Math.cos(angle)*spec.orbitX,
-    spec.baseY+Math.sin(angle*1.1)*spec.orbitY,
-    orbitCenter.z+Math.sin(angle)*spec.orbitZ
+  const liveAngle=spec.startAngle + spec.dir*orbitTravel;
+  const livePos=new THREE.Vector3(
+    orbitCenter.x+Math.cos(liveAngle)*spec.orbitX,
+    spec.planeY+Math.sin(liveAngle*1.15+spec.startAngle)*spec.orbitY,
+    orbitCenter.z+Math.sin(liveAngle)*spec.orbitZ
   );
-  const pos=normal.clone().lerp(spec.overlap,overlapBlend);
+  const meetAngle=spec.startAngle + spec.dir*(Math.PI/2);
+  const overlapPos=new THREE.Vector3(
+    orbitCenter.x+Math.cos(meetAngle)*spec.orbitX,
+    spec.planeY+Math.sin(now*0.0017+spec.startAngle)*3.6,
+    orbitCenter.z+Math.sin(meetAngle)*spec.orbitZ + spec.frontBias
+  );
+  const pos=overlapWindow?livePos.clone().lerp(overlapPos,enterBlend):livePos;
   item.group.position.copy(pos);
   item.group.rotation.y+=spec.spinY;
-  item.group.rotation.x=Math.sin(now*spec.spinX+spec.phase)*0.08;
+  item.group.rotation.x=Math.sin(now*spec.spinX+spec.startAngle)*0.09;
   item.body.rotation.y+=spec.spinY*1.8;
   item.body.rotation.x+=spec.spinX*1.1;
-  const scale=1+(spec.radius>65?.11:.08)*overlapBlend;
-  item.group.scale.setScalar(scale);
-  item.body.material.opacity=spec.opacity*(overlapWindow?.98:1);
-  item.glow.material.opacity=.20+.18*corruptionBlend;
+  const pulse=overlapWindow?1+spec.pulse*enterBlend+Math.sin(now*0.003+spec.startAngle)*0.012:1;
+  item.group.scale.setScalar(pulse);
+  item.body.material.opacity=spec.opacity*(overlapWindow?.985:1);
+  item.glow.material.opacity=.24+.18*corruptionBlend;
   if(item.cover){
    item.cover.lookAt(camera.position.x,item.cover.position.y,camera.position.z+item.group.position.z);
-   item.cover.rotation.z=Math.sin(now*0.0005+spec.phase)*0.08;
-   item.cover.material.opacity=.19+.08*Math.sin(now*0.0012+spec.phase);
+   item.cover.rotation.z=Math.sin(now*0.0005+spec.startAngle)*0.08;
+   item.cover.material.opacity=.22+.08*Math.sin(now*0.0012+spec.startAngle);
   }
  }
  for(const overlay of glitchOverlays){
   if(overlay.type==='tint'){
-    overlay.mat.opacity=.24*corruptionBlend;
+    overlay.mat.opacity=.18*corruptionBlend;
     overlay.mesh.rotation.y+=0.0008;
-  }else if(overlay.type==='storm'){
-    overlay.mat.opacity=.34*corruptionBlend*(1-worldFix*.3);
-    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*0.0014+overlay.wobble)*3.8*corruptionBlend;
-    overlay.mesh.lookAt(camera.position.x,overlay.mesh.position.y,camera.position.z);
-  }else if(overlay.type==='hand'){
+  }else if(overlay.type==='breakSky'){
+    overlay.mat.opacity=.74*corruptionBlend*(1-worldFix*.25);
+    overlay.mesh.rotation.y+=0.00055;
+    overlay.mesh.rotation.x=Math.sin(now*0.00028)*0.035;
+  }else if(overlay.type==='entityFace'){
+    const reach=overlapWindow?smooth01(Math.min(1,eventNorm/.82)):0;
+    const influence=reach*(1-worldFix);
+    overlay.mesh.position.lerpVectors(overlay.start,overlay.end,influence);
+    overlay.mesh.position.y+=Math.sin(now*0.0021+overlay.wobble)*2.6*corruptionBlend;
+    overlay.mesh.lookAt(26,62,94);
+    const s=1+influence*.32;
+    overlay.mesh.scale.setScalar(s);
+    overlay.mat.opacity=.94*corruptionBlend*(1-worldFix);
+  }else if(overlay.type==='entityHand'){
     const reach=overlapWindow?smooth01(Math.min(1,eventNorm/.78)):0;
     const influence=reach*(1-worldFix);
     overlay.mesh.position.lerpVectors(overlay.start,overlay.end,influence);
     overlay.mesh.position.y+=Math.sin(now*0.0019+overlay.wobble)*2.2*corruptionBlend;
-    overlay.mesh.lookAt(40,122,98);
-    overlay.mat.opacity=.88*corruptionBlend*(1-worldFix);
+    overlay.mesh.lookAt(20,34,96);
+    const s=1+influence*.36;
+    overlay.mesh.scale.setScalar(s);
+    overlay.mat.opacity=.90*corruptionBlend*(1-worldFix);
   }else if(overlay.type==='shard'){
-    overlay.mat.opacity=.72*corruptionBlend*(1-worldFix*.2);
-    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*0.0018+overlay.wobble)*6.5*corruptionBlend;
+    overlay.mat.opacity=.78*corruptionBlend*(1-worldFix*.18);
+    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*0.0018+overlay.wobble)*8.5*corruptionBlend;
     overlay.mesh.rotation.x+=overlay.spin.x;
     overlay.mesh.rotation.y+=overlay.spin.y;
     overlay.mesh.rotation.z+=overlay.spin.z;
   }
  }
  for(const veil of codeVeils){
-  veil.mat.opacity=.78*corruptionBlend*(1-worldFix*.15);
-  if(veil.mat.map){veil.mat.map.offset.y=(now*0.00016*veil.scroll+veil.phase)%1;veil.mat.map.needsUpdate=true;}
-  veil.mesh.position.y=114+Math.sin(now*0.0011+veil.phase)*10;
+  veil.mat.opacity=.82*corruptionBlend*(1-worldFix*.12);
+  if(veil.mat.map){
+   let offset=(now*0.00018*veil.scroll*veil.direction+veil.phase)%1;
+   if(offset<0)offset+=1;
+   veil.mat.map.offset.y=offset;
+   veil.mat.map.needsUpdate=true;
+  }
+  veil.mesh.position.y=118+Math.sin(now*0.0011+veil.phase)*12;
   veil.mesh.lookAt(camera.position.x,veil.mesh.position.y,camera.position.z);
  }
- const fogTarget=overlapWindow?0x170720:0x101326;
+ const fogTarget=overlapWindow?0x14051d:0x101326;
  scene.fog.color.lerp(new THREE.Color(fogTarget),Math.min(.12,overlapWindow?.09:.04));
- scene.fog.density=overlapWindow?.00205:.00135;
- renderer.toneMappingExposure=1.72+corruptionBlend*.12;
+ scene.fog.density=overlapWindow?.00235:.00135;
+ renderer.toneMappingExposure=1.72+corruptionBlend*.16;
 }
 
 function plazaLightReflections(){
