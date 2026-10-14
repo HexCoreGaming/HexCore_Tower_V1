@@ -1,15 +1,14 @@
 {
-  "version": "V3.3",
-  "codename": "Living Space Environment",
-  "changes": [
-    "Animated exterior-only cosmic cloud volumes that fade, drift and reform on varying timers",
-    "Black-void sky sectors with soft transition from the existing nebula background",
-    "Additional spatially distributed star particles for 3D depth",
-    "Lower cloud and particle counts in lower graphics quality",
-    "Existing mobile controls, tower and interiors preserved"
+  "version": "V3.5",
+  "codename": "Cosmic Event Motion and 3D Entity Polish",
+  "included": [
+    "Two textured spherical planets, unequal radius (120 and 85), with approximately 40 percent below platform-level silhouette",
+    "Continuous clockwise and counter-clockwise full-platform orbits; 10-second approach and 10-second corruption test",
+    "Smaller tech planet behind the larger cracked planet at conjunction",
+    "A single modeled 3D reaching entity on right side, with articulated jaw, face, arms, fingers and procedural chuckle audio",
+    "Multiple 3D rift meshes and ascending and descending code-stream layers",
+    "World repair and entity disappearance in last two seconds before reaching the platform",
+    "Existing sky artwork, building, departments, mobile controls and legal dialogue preserved"
   ],
-  "limitations": [
-    "Planet and far sky remain rendered scenery; no space flight yet",
-    "WebGL shader cloud cards simulate volume rather than raymarched 3D volumetric fog"
-  ]
+  "validation": "JavaScript syntax, asset integrity and archive validation; browser rendering to be checked where available"
 }

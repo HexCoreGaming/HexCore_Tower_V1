@@ -1,5 +1,5 @@
 {
-  "version": "V4",
+  "version": "V3.5",
   "files": [
     {
       "file": ".nojekyll",
@@ -8,8 +8,8 @@
     },
     {
       "file": "README.md",
-      "size": 1414,
-      "sha256": "2fd598b3dae75b64ce4930959d2c0e183aac55666b0f28cd2cfb484f3c7817c7"
+      "size": 1327,
+      "sha256": "a4bfd0087e6f331cd0c4c7d866d1dba49ec685bfacc731a3a53768a120f25811"
     },
     {
       "file": "data/preservedLegalDialogue.js",
@@ -18,23 +18,18 @@
     },
     {
       "file": "docs/REBUILD_AUDIT.md",
-      "size": 885,
-      "sha256": "44ac8516609bee78c4d9c614f80e29574f6564039cf01ebd5abb7ff5b4b0daba"
+      "size": 684,
+      "sha256": "3ca3f25bd326c268c013c75b749f8267f4263cefcac5635a36ac6d9d9a4a8580"
     },
     {
       "file": "docs/VERSION.json",
-      "size": 265,
-      "sha256": "f14a791aba95e3ad7d74252429f96b3e5400d7cf4418c97be2250750e09fb9ac"
-    },
-    {
-      "file": "docs/file-manifest.json",
-      "size": 1739,
-      "sha256": "80997e7e61859178d4aaede42063301c14ed8f10a4d5079d857a59f9e08f32a2"
+      "size": 952,
+      "sha256": "03b865bda13fe82dd426ed2ea0eaf8adaae064f9b34998940238f407881ae08c"
     },
     {
       "file": "index.html",
-      "size": 4160,
-      "sha256": "abadcf63db1d78f11f49a49a47fd702159e185ad188bc93b60164321da252d31"
+      "size": 4337,
+      "sha256": "2dd58464d57bef3604af03624574aec87e0d9bba7e600514211390992a59da09"
     },
     {
       "file": "reference/approved-lobby.png",
@@ -47,9 +42,74 @@
       "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
     },
     {
+      "file": "reference/cracked-planet-transparent.png",
+      "size": 2005283,
+      "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
+    },
+    {
+      "file": "reference/entity-echo-laugh.wav",
+      "size": 161008,
+      "sha256": "a0fa08ffda421f8f155180912f15bb8e6b56b537696bc8db47d31aee1b1beaaf"
+    },
+    {
+      "file": "reference/entity-face-crop.png",
+      "size": 203919,
+      "sha256": "ddf0e96887f4ecb24e1fa2c8aabfca674f9bcc4f171bc916ae89bb3abca6e607"
+    },
+    {
+      "file": "reference/entity-hand-crop.png",
+      "size": 526684,
+      "sha256": "2de438a36190482272b2a5bae188ae69a89f0eb69ec55c44efe1c177108bec95"
+    },
+    {
+      "file": "reference/glitch-hand-right.png",
+      "size": 3940071,
+      "sha256": "77cc57be4dbaa9638a380352f99207b8fc4083cd90c0f1bff8931123e0492319"
+    },
+    {
+      "file": "reference/glitch-overlap.png",
+      "size": 4002461,
+      "sha256": "5d328244a2f948c9afce737e942640d7aab0af59f4c2162e5b6eb6666110201c"
+    },
+    {
+      "file": "reference/glitch-world-live.png",
+      "size": 3937122,
+      "sha256": "2398877814799e3fb4a173bfa0a8c4d19a77fce1d8b3927f4e360d4c28741f7e"
+    },
+    {
       "file": "reference/lobby-design.png",
       "size": 3847405,
       "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    {
+      "file": "reference/orbit-planet-b.png",
+      "size": 3469327,
+      "sha256": "a49bc7170ce505ea7e444e244add78b01339bef10ed2a25da703fc3a3777bec1"
+    },
+    {
+      "file": "reference/planet-cracked-spherical.webp",
+      "size": 386292,
+      "sha256": "e82612d6543e555d7a20c95c6a23290789fb628e501934fc9e5366b4f7da855b"
+    },
+    {
+      "file": "reference/planet-tech-spherical.webp",
+      "size": 304026,
+      "sha256": "cb2549d2830e1c10273a723ae1d0f4fc49baa5cf8873fdfcaf14bd024b723a59"
+    },
+    {
+      "file": "reference/space-backdrop-alt.png",
+      "size": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    {
+      "file": "reference/space-backdrop-cyber.png",
+      "size": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    {
+      "file": "reference/space-backdrop.webp",
+      "size": 693896,
+      "sha256": "686cacfb8ea1ba670bd87e9427ad7b96a028f091d3bc2e95b54e4c9ff65658aa"
     },
     {
       "file": "reference/tower-design.png",
@@ -58,13 +118,13 @@
     },
     {
       "file": "src/main.js",
-      "size": 35025,
-      "sha256": "8be2d442884a93c0016115161774d8c15fb24d9e8ebbdd900b844ce108ff6d15"
+      "size": 119829,
+      "sha256": "115a59745569cbc502e45efa6b43efad9429a953ef344b8632d55aa68d702453"
     },
     {
       "file": "src/style.css",
-      "size": 6884,
-      "sha256": "2f2d34ed31158b11662d88d4e60e6104abdcaaa6f62f8fc06ee007e0c6011e0f"
+      "size": 10341,
+      "sha256": "4f4b8f8ce901a0593713a303d9bd637d2070116845f5162eac784ae4ee5c38c1"
     }
   ]
 }

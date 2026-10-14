@@ -60,7 +60,11 @@ const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,rough
 let world=new THREE.Group();scene.add(world);let entities=[],colliders=[],animatedDoors=[],staffActors=[];
 let spaceClouds=[]; // Active only for the exterior world; other floors have no cosmic cloud meshes.
 let cosmicSkyLayers=[],orbitPlanets=[],glitchOverlays=[],codeVeils=[];
-const orbitState={cycleMs:20000,triggerMs:10000,overlapMs:10000};
+let corruptionEntity=null;
+const echoLaugh = new Audio('./reference/entity-echo-laugh.wav'); echoLaugh.preload='auto'; echoLaugh.volume=.30;
+let previousCorruptionWindow=false;
+let cosmicElapsedMs=0;
+const orbitState={cycleMs:20000,triggerMs:10000,overlapMs:10000,orbitQuarterMs:10000};
 const box=(p,s,m,parent=world)=>{let o=new THREE.Mesh(new THREE.BoxGeometry(...s),m);o.position.set(...p);parent.add(o);return o};
 const cyl=(p,rTop,rBottom,h,m,parent=world,n=12)=>{let o=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,h,n),m);o.position.set(...p);parent.add(o);return o};
 const sphere=(p,r,m,parent=world,n=16)=>{let o=new THREE.Mesh(new THREE.SphereGeometry(r,n,12),m);o.position.set(...p);parent.add(o);return o};
@@ -590,6 +594,85 @@ function codeRainTexture(){
  const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapT=THREE.RepeatWrapping;return tx;
 }
 
+// A single, three-dimensional approaching entity. No painted face cards.
+function buildReachingEntity(){
+ const form=new THREE.Group();form.position.set(324,-29,85);form.visible=false;world.add(form);
+ const coreMat=new THREE.MeshStandardMaterial({color:0x050412,roughness:.55,metalness:.18,emissive:0x2b0b58,emissiveIntensity:.6,transparent:true,opacity:.86,depthWrite:false,side:THREE.DoubleSide});
+ const plateMat=new THREE.MeshStandardMaterial({color:0x151033,roughness:.39,metalness:.46,emissive:0x38117a,emissiveIntensity:.85,transparent:true,opacity:.84,depthWrite:false,side:THREE.DoubleSide});
+ const violet=new THREE.MeshBasicMaterial({color:0xb04bff,transparent:true,opacity:.92,depthWrite:false,blending:THREE.AdditiveBlending});
+ const blue=new THREE.MeshBasicMaterial({color:0x57ddff,transparent:true,opacity:.92,depthWrite:false,blending:THREE.AdditiveBlending});
+ const darkness=new THREE.MeshBasicMaterial({color:0x020108,transparent:true,opacity:.96,depthWrite:false});
+ const mats=[coreMat,plateMat,violet,blue,darkness];
+ function ellipsoid(parent,p,sz,mat=coreMat,n=16){const o=new THREE.Mesh(new THREE.SphereGeometry(1,n,Math.max(12,n-4)),mat);o.position.set(...p);o.scale.set(...sz);parent.add(o);return o}
+ function segment(parent,a,b,r1,r2,mat=plateMat){const av=new THREE.Vector3(...a),bv=new THREE.Vector3(...b),d=bv.clone().sub(av);const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),12),mat);m.position.copy(av).add(bv).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
+ ellipsoid(form,[0,44,0],[40,60,22],coreMat,24);
+ ellipsoid(form,[0,54,11],[31,42,15],plateMat,24);
+ ellipsoid(form,[-40,70,0],[16,18,17],coreMat,18);
+ ellipsoid(form,[40,70,0],[16,18,17],coreMat,18);
+ const headPivot=new THREE.Group();headPivot.position.set(0,110,8);form.add(headPivot);
+ ellipsoid(headPivot,[0,0,0],[27,33,24],coreMat,32);
+ ellipsoid(headPivot,[0,8,17],[24,17,10],plateMat,24);
+ // Eyes, eyebrow ridges, open mouth, and an animated articulated jaw.
+ for(const sign of [-1,1]){
+  ellipsoid(headPivot,[sign*10,4,23],[8,5,2.8],darkness,14);
+  ellipsoid(headPivot,[sign*10,4,25.1],[4.8,2.5,1.7],blue,14);
+  segment(headPivot,[sign*3,12,23],[sign*19,14,19],1.9,2.1,violet);
+ }
+ const mouth=ellipsoid(headPivot,[0,-15,22],[14,11,3],darkness,20);
+ const jaw=new THREE.Group();jaw.position.set(0,-23,18);headPivot.add(jaw);
+ ellipsoid(jaw,[0,0,0],[20,8.6,11],plateMat,20);
+ for(let k=-4;k<=4;k++){
+  ellipsoid(headPivot,[k*2.8,-8.3,25],[1.1,3,1.1],blue,10);
+  ellipsoid(jaw,[k*3.0,5.4,8.5],[1.2,2.7,1.0],violet,10);
+ }
+ // Long spine and pulsing cracks make the form read from multiple angles.
+ for(let i=0;i<10;i++){
+  const x=Math.sin(i*2.25)*24,y=13+i*8,z=22-Math.abs(x)*.11;
+  segment(form,[x,y,z],[x+Math.cos(i*4.4)*9,y+6,z+1],.33,.50,i%2?blue:violet);
+ }
+ // Left arm reaches for the platform. Fingertips remain outside the deck edge.
+ const reachArm=new THREE.Group();reachArm.position.set(-38,72,0);form.add(reachArm);
+ segment(reachArm,[0,0,0],[-31,-19,10],9,7);
+ ellipsoid(reachArm,[-31,-19,10],[9,10,9],coreMat,14);
+ segment(reachArm,[-31,-19,10],[-74,-48,19],7,4.6);
+ ellipsoid(reachArm,[-83,-55,21],[15,10,7],plateMat,18);
+ for(let j=0;j<5;j++){
+  const z=15+j*4.6;
+  segment(reachArm,[-92,-55,z],[-107-(j%3)*2,-64+(j%2)*4,z+4],2.7,1.05,j%2?violet:plateMat);
+ }
+ // The trailing arm adds actual body depth and asymmetrical animation.
+ const otherArm=new THREE.Group();otherArm.position.set(37,68,-1);form.add(otherArm);
+ segment(otherArm,[0,0,0],[31,-28,0],9,7);
+ segment(otherArm,[31,-28,0],[40,-70,9],6.8,4.5);
+ ellipsoid(otherArm,[40,-76,9],[11,14,10],plateMat,16);
+ for(let j=0;j<4;j++)segment(otherArm,[34+j*3,-82,12],[34+j*4,-98,15+j*2],2,1,coreMat);
+ const aura=new THREE.PointLight(0x8c37ff,0,155,2);aura.position.set(0,78,16);form.add(aura);
+ const data={type:'entity3d',mesh:form,materials:mats,headPivot,jaw,mouth,reachArm,otherArm,aura,start:new THREE.Vector3(335,-29,85),end:new THREE.Vector3(262,-29,85)};
+ corruptionEntity=data;glitchOverlays.push(data);
+ return data;
+}
+function buildSpatialRifts(){
+ // Jagged, glowing cracks are positioned in 3D, at multiple distances/directions.
+ let seed=19281;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ const count=quality==='low'?8:quality==='medium'?13:20;
+ for(let i=0;i<count;i++){
+  const angle=2*Math.PI*i/count+rand()*.19;
+  const radius=132+rand()*135;
+  const x=Math.cos(angle)*radius,z=81+Math.sin(angle)*radius;
+  const height=72+rand()*165;
+  const material=new THREE.MeshBasicMaterial({color:i%2?0xb25dff:0x56cfff,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false});
+  const pts=[];
+  for(let k=0;k<15;k++){
+   const v=k/14;
+   pts.push(new THREE.Vector3(x+Math.sin(v*13+i)*4.8+rand()*1.2,-21+height*v,z+Math.cos(v*11+i)*5.5));
+  }
+  const curve=new THREE.CatmullRomCurve3(pts);
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,42,.7+i%3*.21,5,false),material);
+  mesh.renderOrder=-2;world.add(mesh);
+  glitchOverlays.push({type:'rift3d',mesh,mat:material,basePos:mesh.position.clone(),phase:i*.83});
+ }
+}
+
 function buildCosmicEventSystem(){
  const loader=new THREE.TextureLoader();
  // Multiple moving layers so the backdrop reads as a deep surrounding environment.
@@ -620,25 +703,21 @@ function buildCosmicEventSystem(){
 
  // Two real spheres orbit around the entire platform.
  // The smaller tech planet gets covered by the larger cracked planet during the overlap state.
+ // Both planets keep moving continuously, clockwise and counterclockwise.
+ // Every 20s they reach apparent conjunction, with the first at 10s.
+ // Big cracked planet remains in front of the smaller tech planet at conjunction.
  const planetSpecs=[
-  {path:'./reference/cracked-planet-transparent.png',radius:110,startAngle:Math.PI,dir:1,orbitX:258,orbitZ:236,orbitY:8,planeY:22,opacity:1,spinY:0.00021,spinX:0.00008,rim:0xb68fff,cover:true,frontBias:6,pulse:.08},
-  {path:'./reference/orbit-planet-b.png',radius:86,startAngle:0,dir:-1,orbitX:242,orbitZ:220,orbitY:8,planeY:17.2,opacity:.98,spinY:-0.00018,spinX:0.00005,rim:0x72c2ff,cover:false,frontBias:-7,pulse:.06}
+  {path:'./reference/planet-cracked-spherical.webp',radius:120,startAngle:-Math.PI*.75,dir:1,orbitX:261,orbitZ:272,planeY:24,opacity:1,spinY:0.00013,spinX:0.00005,rim:0xb68fff},
+  {path:'./reference/planet-tech-spherical.webp',radius:85,startAngle:Math.PI*.25,dir:-1,orbitX:324,orbitZ:305,planeY:17,opacity:1,spinY:-0.00015,spinX:0.00005,rim:0x72c2ff}
  ];
  for(const spec of planetSpecs){
-  const group=new THREE.Group();group.position.set(0,spec.planeY,-140);world.add(group);
-  const body=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,72,52),new THREE.MeshBasicMaterial({transparent:true,opacity:spec.opacity,fog:false}));
+  const group=new THREE.Group();group.position.set(0,spec.planeY,81);world.add(group);
+  const body=new THREE.Mesh(new THREE.SphereGeometry(spec.radius,quality==='low'?36:64,quality==='low'?24:40),new THREE.MeshBasicMaterial({fog:false,color:0xffffff}));
   body.rotation.y=Math.PI*.9;group.add(body);
-  const glow=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*1.03,48,36),new THREE.MeshBasicMaterial({color:spec.rim,side:THREE.BackSide,transparent:true,opacity:.24,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));
+  const glow=new THREE.Mesh(new THREE.SphereGeometry(spec.radius*1.035,quality==='low'?32:48,quality==='low'?20:32),new THREE.MeshBasicMaterial({color:spec.rim,side:THREE.BackSide,transparent:true,opacity:.28,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));
   group.add(glow);
-  let cover=null;
-  if(spec.cover){
-   const cMat=new THREE.MeshBasicMaterial({transparent:true,opacity:.26,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
-   cover=new THREE.Mesh(new THREE.PlaneGeometry(spec.radius*2.55,spec.radius*.98),cMat);
-   cover.position.set(0,-spec.radius*.50,spec.radius*.96);group.add(cover);
-   loader.load('./reference/space-backdrop-cyber.png',t=>{t.colorSpace=THREE.SRGBColorSpace;cMat.map=t;cMat.needsUpdate=true;});
-  }
   loader.load(spec.path,t=>{t.colorSpace=THREE.SRGBColorSpace;body.material.map=t;body.material.needsUpdate=true;});
-  orbitPlanets.push({group,body,glow,cover,spec});
+  orbitPlanets.push({group,body,glow,spec});
  }
 
  // Corruption event layers.
@@ -653,17 +732,8 @@ function buildCosmicEventSystem(){
  loader.load('./reference/glitch-world-live.png',t=>{t.colorSpace=THREE.SRGBColorSpace;breakSkyMat.map=t;breakSkyMat.needsUpdate=true;});
  glitchOverlays.push({type:'breakSky',mesh:breakSky,mat:breakSkyMat,basePos:breakSky.position.clone(),wobble:0});
 
- const faceMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
- const facePlane=new THREE.Mesh(new THREE.PlaneGeometry(116,72),faceMat);
- facePlane.position.set(186,104,122);facePlane.rotation.y=-Math.PI/3.4;facePlane.renderOrder=-6;world.add(facePlane);
- loader.load('./reference/entity-face-crop.png',t=>{t.colorSpace=THREE.SRGBColorSpace;faceMat.map=t;faceMat.needsUpdate=true;});
- glitchOverlays.push({type:'entityFace',mesh:facePlane,mat:faceMat,start:new THREE.Vector3(186,104,122),end:new THREE.Vector3(72,76,96),basePos:facePlane.position.clone(),wobble:1.9});
-
- const handMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false,blending:THREE.AdditiveBlending});
- const handPlane=new THREE.Mesh(new THREE.PlaneGeometry(136,106),handMat);
- handPlane.position.set(156,64,120);handPlane.rotation.y=-Math.PI/3.2;handPlane.renderOrder=-5;world.add(handPlane);
- loader.load('./reference/entity-hand-crop.png',t=>{t.colorSpace=THREE.SRGBColorSpace;handMat.map=t;handMat.needsUpdate=true;});
- glitchOverlays.push({type:'entityHand',mesh:handPlane,mat:handMat,start:new THREE.Vector3(156,64,120),end:new THREE.Vector3(42,36,96),basePos:handPlane.position.clone(),wobble:2.7});
+ buildReachingEntity();
+ buildSpatialRifts();
 
  const shardCount=quality==='low'?12:quality==='medium'?18:24;
  for(let i=0;i<shardCount;i++){
@@ -676,7 +746,7 @@ function buildCosmicEventSystem(){
  }
 
  const codeTex=codeRainTexture();
- const veilCount=quality==='low'?12:quality==='medium'?18:24;
+ const veilCount=quality==='low'?14:quality==='medium'?24:32;
  for(let i=0;i<veilCount;i++){
   const mat=new THREE.MeshBasicMaterial({map:codeTex.clone(),transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
   mat.map.colorSpace=THREE.SRGBColorSpace;mat.map.wrapT=THREE.RepeatWrapping;
@@ -690,108 +760,96 @@ function buildCosmicEventSystem(){
 }
 function updateCosmicEvent(now){
  if(floor!=='outside')return;
- const local=now%orbitState.cycleMs;
- const overlapWindow=local>=orbitState.triggerMs;
- const eventNorm=overlapWindow?(local-orbitState.triggerMs)/orbitState.overlapMs:0;
- const enterBlend=overlapWindow?smooth01(Math.min(1,eventNorm/.18)):0;
- const releaseBlend=!overlapWindow?1-smooth01(Math.min(1,local/1800)):0;
- const worldFix=overlapWindow?smooth01(Math.max(0,(eventNorm-.82)/.18)):0;
- const corruptionBlend=overlapWindow?enterBlend*(1-worldFix*.15):releaseBlend;
- const orbitCenter=new THREE.Vector3(0,0,81);
- const orbitOmega=Math.PI/(2*orbitState.triggerMs); // each planet travels 90 degrees in 10s and meets naturally
- const orbitTravel=Math.min(local,orbitState.triggerMs)*orbitOmega;
+ const cycle=cosmicElapsedMs%orbitState.cycleMs;
+ const overlapWindow=cycle>=orbitState.triggerMs;
+ const eventNorm=overlapWindow?(cycle-orbitState.triggerMs)/orbitState.overlapMs:0;
+ // 10s clear -> 10s corrupted, with the final 2s repairing the world BEFORE contact.
+ const enter=overlapWindow?smooth01(eventNorm/.13):0;
+ const repair=overlapWindow?smooth01((eventNorm-.80)/.20):0;
+ const power=enter*(1-repair);
+ if(overlapWindow&&!previousCorruptionWindow){
+  try{echoLaugh.currentTime=0;echoLaugh.play().catch(()=>{});}catch{}
+ }
+ if(!overlapWindow&&previousCorruptionWindow){try{echoLaugh.pause();}catch{}}
+ previousCorruptionWindow=overlapWindow;
  for(const layer of cosmicSkyLayers){
   if(layer.type==='sphere'){
    layer.mesh.rotation.y+=layer.speedY;
-   layer.mesh.rotation.x=Math.sin(now*layer.speedX)*0.035;
+   layer.mesh.rotation.x=Math.sin(now*layer.speedX)*.035;
   }else if(layer.type==='plane'){
-   layer.mesh.position.set(
-     layer.origin.x+Math.sin(now*layer.speedX)*layer.driftX,
-     layer.origin.y+Math.cos(now*layer.speedY)*layer.driftY,
-     layer.origin.z
-   );
+   layer.mesh.position.set(layer.origin.x+Math.sin(now*layer.speedX)*layer.driftX,
+     layer.origin.y+Math.cos(now*layer.speedY)*layer.driftY,layer.origin.z);
    if(layer.lookAt)layer.mesh.lookAt(camera.position.x,layer.mesh.position.y,camera.position.z);
   }
  }
+ // No stop or forced snap at overlap: angles advance at a constant speed for the entire cycle.
+ const motion=cosmicElapsedMs*Math.PI/(2*orbitState.orbitQuarterMs);
  for(const item of orbitPlanets){
-  const spec=item.spec;
-  const liveAngle=spec.startAngle + spec.dir*orbitTravel;
-  const livePos=new THREE.Vector3(
-    orbitCenter.x+Math.cos(liveAngle)*spec.orbitX,
-    spec.planeY+Math.sin(liveAngle*1.15+spec.startAngle)*spec.orbitY,
-    orbitCenter.z+Math.sin(liveAngle)*spec.orbitZ
+  const sp=item.spec,theta=sp.startAngle+sp.dir*motion;
+  item.group.position.set(
+    Math.cos(theta)*sp.orbitX,
+    sp.planeY+Math.sin(theta*2.5)*1.6,
+    81+Math.sin(theta)*sp.orbitZ
   );
-  const meetAngle=spec.startAngle + spec.dir*(Math.PI/2);
-  const overlapPos=new THREE.Vector3(
-    orbitCenter.x+Math.cos(meetAngle)*spec.orbitX,
-    spec.planeY+Math.sin(now*0.0017+spec.startAngle)*3.6,
-    orbitCenter.z+Math.sin(meetAngle)*spec.orbitZ + spec.frontBias
-  );
-  const pos=overlapWindow?livePos.clone().lerp(overlapPos,enterBlend):livePos;
-  item.group.position.copy(pos);
-  item.group.rotation.y+=spec.spinY;
-  item.group.rotation.x=Math.sin(now*spec.spinX+spec.startAngle)*0.09;
-  item.body.rotation.y+=spec.spinY*1.8;
-  item.body.rotation.x+=spec.spinX*1.1;
-  const pulse=overlapWindow?1+spec.pulse*enterBlend+Math.sin(now*0.003+spec.startAngle)*0.012:1;
-  item.group.scale.setScalar(pulse);
-  item.body.material.opacity=spec.opacity*(overlapWindow?.985:1);
-  item.glow.material.opacity=.24+.18*corruptionBlend;
-  if(item.cover){
-   item.cover.lookAt(camera.position.x,item.cover.position.y,camera.position.z+item.group.position.z);
-   item.cover.rotation.z=Math.sin(now*0.0005+spec.startAngle)*0.08;
-   item.cover.material.opacity=.22+.08*Math.sin(now*0.0012+spec.startAngle);
-  }
+  // Slow body rotation stays independent of the platform-wide orbital motion.
+  item.body.rotation.y+=sp.spinY;
+  item.body.rotation.x=Math.sin(now*sp.spinX+sp.startAngle)*.065;
+  item.glow.material.opacity=.24+.15*power;
  }
  for(const overlay of glitchOverlays){
   if(overlay.type==='tint'){
-    overlay.mat.opacity=.18*corruptionBlend;
-    overlay.mesh.rotation.y+=0.0008;
+   overlay.mat.opacity=.27*power;
+   overlay.mesh.rotation.y+=.00045;
   }else if(overlay.type==='breakSky'){
-    overlay.mat.opacity=.74*corruptionBlend*(1-worldFix*.25);
-    overlay.mesh.rotation.y+=0.00055;
-    overlay.mesh.rotation.x=Math.sin(now*0.00028)*0.035;
-  }else if(overlay.type==='entityFace'){
-    const reach=overlapWindow?smooth01(Math.min(1,eventNorm/.82)):0;
-    const influence=reach*(1-worldFix);
-    overlay.mesh.position.lerpVectors(overlay.start,overlay.end,influence);
-    overlay.mesh.position.y+=Math.sin(now*0.0021+overlay.wobble)*2.6*corruptionBlend;
-    overlay.mesh.lookAt(26,62,94);
-    const s=1+influence*.32;
-    overlay.mesh.scale.setScalar(s);
-    overlay.mat.opacity=.94*corruptionBlend*(1-worldFix);
-  }else if(overlay.type==='entityHand'){
-    const reach=overlapWindow?smooth01(Math.min(1,eventNorm/.78)):0;
-    const influence=reach*(1-worldFix);
-    overlay.mesh.position.lerpVectors(overlay.start,overlay.end,influence);
-    overlay.mesh.position.y+=Math.sin(now*0.0019+overlay.wobble)*2.2*corruptionBlend;
-    overlay.mesh.lookAt(20,34,96);
-    const s=1+influence*.36;
-    overlay.mesh.scale.setScalar(s);
-    overlay.mat.opacity=.90*corruptionBlend*(1-worldFix);
+   overlay.mat.opacity=.93*power;
+   overlay.mesh.rotation.y+=.00050;
+   overlay.mesh.rotation.x=Math.sin(now*.00024)*.029;
+  }else if(overlay.type==='entity3d'){
+   const e=overlay;
+   e.mesh.visible=power>.004;
+   const approach=smooth01(Math.min(1,eventNorm/.79));
+   e.mesh.position.lerpVectors(e.start,e.end,approach);
+   e.mesh.position.y+=Math.sin(now*.0016)*2.4*power;
+   e.mesh.rotation.y=-.15+Math.sin(now*.0008)*.045;
+   e.mesh.scale.setScalar(.91+.10*approach);
+   // Anatomical animation: shoulders, forearm, head and mouth move independently.
+   const laugh=Math.sin(now*.016)+.45*Math.sin(now*.027);
+   e.headPivot.rotation.x=-.08+Math.sin(now*.006)*.09;
+   e.headPivot.rotation.y=Math.sin(now*.004)*.11;
+   e.jaw.position.y=-23-3.3*Math.max(0,laugh);
+   e.mouth.scale.y=11+4.0*Math.max(0,laugh);
+   e.reachArm.rotation.z= -.12*approach+Math.sin(now*.0033)*.022;
+   e.reachArm.rotation.y=Math.sin(now*.0024)*.056;
+   e.otherArm.rotation.z=Math.sin(now*.0022)*.10;
+   e.aura.intensity=65*power*(.78+.22*Math.sin(now*.009));
+   for(const m of e.materials){
+    const base=m===e.materials[0]?.86:m===e.materials[1]?.84:m===e.materials[4]?.96:.92;
+    m.opacity=base*power;
+   }
   }else if(overlay.type==='shard'){
-    overlay.mat.opacity=.78*corruptionBlend*(1-worldFix*.18);
-    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*0.0018+overlay.wobble)*8.5*corruptionBlend;
-    overlay.mesh.rotation.x+=overlay.spin.x;
-    overlay.mesh.rotation.y+=overlay.spin.y;
-    overlay.mesh.rotation.z+=overlay.spin.z;
+   overlay.mat.opacity=.82*power;
+   overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*.0018+overlay.wobble)*10*power;
+   overlay.mesh.rotation.x+=overlay.spin.x;
+   overlay.mesh.rotation.y+=overlay.spin.y;
+   overlay.mesh.rotation.z+=overlay.spin.z;
+  }else if(overlay.type==='rift3d'){
+   overlay.mat.opacity=(.54+.25*Math.sin(now*.005+overlay.phase)**2)*power;
   }
  }
  for(const veil of codeVeils){
-  veil.mat.opacity=.82*corruptionBlend*(1-worldFix*.12);
+  veil.mat.opacity=.86*power;
   if(veil.mat.map){
-   let offset=(now*0.00018*veil.scroll*veil.direction+veil.phase)%1;
+   let offset=(now*.00034*veil.scroll*veil.direction+veil.phase)%1;
    if(offset<0)offset+=1;
    veil.mat.map.offset.y=offset;
    veil.mat.map.needsUpdate=true;
   }
-  veil.mesh.position.y=118+Math.sin(now*0.0011+veil.phase)*12;
+  veil.mesh.position.y=117+Math.sin(now*.0011+veil.phase)*10;
   veil.mesh.lookAt(camera.position.x,veil.mesh.position.y,camera.position.z);
  }
- const fogTarget=overlapWindow?0x14051d:0x101326;
- scene.fog.color.lerp(new THREE.Color(fogTarget),Math.min(.12,overlapWindow?.09:.04));
- scene.fog.density=overlapWindow?.00235:.00135;
- renderer.toneMappingExposure=1.72+corruptionBlend*.16;
+ scene.fog.color.lerp(new THREE.Color(0x101326).lerp(new THREE.Color(0x210829),power),.10);
+ scene.fog.density=.00135+power*.00105;
+ renderer.toneMappingExposure=1.72+power*.18;
 }
 
 function plazaLightReflections(){
@@ -1449,7 +1507,7 @@ function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),tr
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
 function exterior(){continuousPlaza();createLivingSpace()} // Exterior-only nebula volumes.
 
-function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];glitchOverlays=[];codeVeils=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
+function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];glitchOverlays=[];codeVeils=[];corruptionEntity=null;previousCorruptionWindow=false;try{echoLaugh.pause();echoLaugh.currentTime=0;}catch{} npcConversationPulse.lastBeat=-1;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
 let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,21),active=false,nearest=null,quality='low',transitionCooldown=0;
 let doorCache=null;
 function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors,spaceClouds,cosmicSkyLayers,orbitPlanets,glitchOverlays,codeVeils}}
@@ -1467,6 +1525,7 @@ function prebuildDoorWorlds(){
 }
 function crossDoor(target){
  if(!doorCache)return;
+ if(target!=='outside'){try{echoLaugh.pause();echoLaugh.currentTime=0;}catch{} previousCorruptionWindow=false; renderer.toneMappingExposure=1.72; scene.fog.color.setHex(0x101326);} else {cosmicElapsedMs=0;}
  const previous=pos.clone();
  installDoorWorld(doorCache[target]);floor=target;
  // Aligned entrance axes, unchanged input, yaw, pitch and cursor lock.
@@ -1475,7 +1534,7 @@ function crossDoor(target){
  camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
  transitionCooldown=.32;
 }
-function travel(id,spawn='default'){if((spawn==='fromLobby'||spawn==='fromOutside')&&doorCache){crossDoor(id);return;}doorCache=null;const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,35.0)}else{pos.set(0,EYE_HEIGHT,118);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,30.6)}else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;if(id==='lobby')prebuildDoorWorlds();}
+function travel(id,spawn='default'){if((spawn==='fromLobby'||spawn==='fromOutside')&&doorCache){crossDoor(id);return;}doorCache=null;const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){cosmicElapsedMs=0;exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,35.0)}else{pos.set(0,EYE_HEIGHT,118);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,30.6)}else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;if(id==='lobby')prebuildDoorWorlds();}
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1603,7 +1662,7 @@ window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code)
 function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-23,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(34.0,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
-npcConversationPulse(now);updateLivingSpace(now);updateCosmicEvent(now);
+npcConversationPulse(now);updateLivingSpace(now);if(floor==='outside')cosmicElapsedMs+=dt*1000;updateCosmicEvent(now);
 for(const g of staffActors){if(g.userData.tag)g.userData.tag.rotation.y=yaw;if(g.userData.speech)g.userData.speech.rotation.y=yaw;const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;if(!g.userData.speech?.visible)g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
  if(g.userData.walkPath){const t=now*.001*g.userData.speed+ph;
  g.position.x=g.userData.homeX+Math.sin(t)*g.userData.range;
