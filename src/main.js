@@ -758,7 +758,7 @@ function buildCosmicEventSystem(){
   codeVeils.push({mesh:veil,mat,scroll:0.16+0.035*(i%3),phase:i*.77,direction:i%2===0?1:-1});
  }
 }
-function updateCosmicEvent(now){
+function updateCosmicEvent(now,previewOnly=false){
  if(floor!=='outside')return;
  const cycle=cosmicElapsedMs%orbitState.cycleMs;
  const overlapWindow=cycle>=orbitState.triggerMs;
@@ -767,10 +767,10 @@ function updateCosmicEvent(now){
  const enter=overlapWindow?smooth01(eventNorm/.13):0;
  const repair=overlapWindow?smooth01((eventNorm-.80)/.20):0;
  const power=enter*(1-repair);
- if(overlapWindow&&!previousCorruptionWindow){
+ if(!previewOnly&&overlapWindow&&!previousCorruptionWindow){
   try{echoLaugh.currentTime=0;echoLaugh.play().catch(()=>{});}catch{}
  }
- if(!overlapWindow&&previousCorruptionWindow){try{echoLaugh.pause();}catch{}}
+ if(!previewOnly&&!overlapWindow&&previousCorruptionWindow){try{echoLaugh.pause();}catch{}}
  previousCorruptionWindow=overlapWindow;
  for(const layer of cosmicSkyLayers){
   if(layer.type==='sphere'){
@@ -1044,7 +1044,7 @@ function towerV16(){
  panel([0,24,27.5],[21,1.3,4],silver);
  panel([0,25.0,30],[22,.12,.4],M.violet);
  automaticEntrance(0,32);
- exteriorLobbySlice();
+ // The live doorway portal renders the actual lobby; no fake lobby slice.
  // Glass architecture above entrance: distinct from the doorway so passage remains open.
  for(const y of [12,18,23]){panel([0,y,26],[16,.15,.16],y===18?M.blue:M.violet)}
 }
@@ -1491,7 +1491,7 @@ function lobby(){
  // All department information belongs on its respective floor, never the lobby.
  floorPortalNexus(true);
  lobbyEntranceAirlock();
- lobbyExteriorVista();
+ // The live doorway portal renders the actual exterior; no fake outside scenery.
  for(let x of [-25,25]){let lamp=new THREE.PointLight(0x8f65ff,34,24,2);lamp.position.set(x,7,-8);world.add(lamp)}
  for(let x of [-18,18]){let uplight=new THREE.PointLight(0xaebfff,10,12,2);uplight.position.set(x,.8,18);world.add(uplight)}
  guard(-9,25,210,false);guard(9,25,211,false);guard(-23,-3,212,true);guard(23,-3,213,true);
@@ -1508,33 +1508,147 @@ function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),tr
 function exterior(){continuousPlaza();createLivingSpace()} // Exterior-only nebula volumes.
 
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];glitchOverlays=[];codeVeils=[];corruptionEntity=null;previousCorruptionWindow=false;try{echoLaugh.pause();echoLaugh.currentTime=0;}catch{} npcConversationPulse.lastBeat=-1;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
-let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,21),active=false,nearest=null,quality='low',transitionCooldown=0;
-let doorCache=null;
-function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors,spaceClouds,cosmicSkyLayers,orbitPlanets,glitchOverlays,codeVeils}}
+let floor='outside',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,181),active=false,nearest=null,quality='low',transitionCooldown=0;
+// Two scenes are constructed ONCE per visit: the actual exterior and the actual lobby.
+// When the doors open, each draws a live, screen-projected view of the OTHER scene.
+// Crossing z=32 does not rebuild geometry, reorient the camera, or load another webpage.
+let doorCache=null,doorPortalFrames=0;
+const DOOR_Z=32;
+function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors,spaceClouds,cosmicSkyLayers,orbitPlanets,glitchOverlays,codeVeils,preview:null}}
 function installDoorWorld(data){
- scene.remove(world);world=data.world;entities=data.entities;animatedDoors=data.animatedDoors;staffActors=data.staffActors;spaceClouds=data.spaceClouds||[];cosmicSkyLayers=data.cosmicSkyLayers||[];orbitPlanets=data.orbitPlanets||[];glitchOverlays=data.glitchOverlays||[];codeVeils=data.codeVeils||[];scene.add(world);
+ scene.remove(world);world=data.world;entities=data.entities;animatedDoors=data.animatedDoors;
+ staffActors=data.staffActors;spaceClouds=data.spaceClouds||[];cosmicSkyLayers=data.cosmicSkyLayers||[];
+ orbitPlanets=data.orbitPlanets||[];glitchOverlays=data.glitchOverlays||[];codeVeils=data.codeVeils||[];
+ scene.add(world);
+}
+function previewSize(){
+ const ratio=innerWidth/Math.max(1,innerHeight);
+ const width=(mobile||quality==='low')?512:quality==='medium'?768:1024;
+ return [width,Math.max(200,Math.round(width/ratio))];
+}
+function makeDoorwayPreview(data,which){
+ const [w,h]=previewSize();
+ const rt=new THREE.WebGLRenderTarget(w,h,{depthBuffer:true,stencilBuffer:false});
+ rt.texture.colorSpace=THREE.SRGBColorSpace;
+ const material=new THREE.ShaderMaterial({transparent:true,depthTest:true,depthWrite:false,
+  side:THREE.DoubleSide,uniforms:{uMap:{value:rt.texture},uResolution:{value:new THREE.Vector2(1,1)},uAlpha:{value:0}},
+  vertexShader:'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'uniform sampler2D uMap;uniform vec2 uResolution;uniform float uAlpha;void main(){vec2 uv=gl_FragCoord.xy/uResolution;gl_FragColor=vec4(texture2D(uMap,uv).rgb,uAlpha);}'
+ });
+ const surface=new THREE.Mesh(new THREE.PlaneGeometry(10.85,7.20),material);
+ // Place the preview BEHIND the sliding panels in the viewer's current world.
+ surface.position.set(0,3.60,which==='outside'?31.96:32.11);
+ surface.visible=false;surface.renderOrder=3;data.world.add(surface);
+ data.preview={surface,material,rt,last:-1000};
 }
 function prebuildDoorWorlds(){
- if(doorCache||floor!=='lobby')return;
- const lobbySnapshot=snapshotDoorWorld();
- world=new THREE.Group();entities=[];animatedDoors=[];staffActors=[];
- exterior();const outsideSnapshot=snapshotDoorWorld();scene.remove(world);
- doorCache={lobby:lobbySnapshot,outside:outsideSnapshot};
- world=lobbySnapshot.world;entities=lobbySnapshot.entities;animatedDoors=lobbySnapshot.animatedDoors;staffActors=lobbySnapshot.staffActors;spaceClouds=lobbySnapshot.spaceClouds||[];cosmicSkyLayers=lobbySnapshot.cosmicSkyLayers||[];orbitPlanets=lobbySnapshot.orbitPlanets||[];glitchOverlays=lobbySnapshot.glitchOverlays||[];codeVeils=lobbySnapshot.codeVeils||[];scene.add(world);
- scene.fog.density=.0031;
+ if(doorCache||(floor!=='lobby'&&floor!=='outside'))return;
+ const originalFloor=floor;
+ const current=snapshotDoorWorld();
+ scene.remove(world);
+ world=new THREE.Group();entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];
+ cosmicSkyLayers=[];orbitPlanets=[];glitchOverlays=[];codeVeils=[];
+ if(originalFloor==='outside')lobby();else exterior();
+ const opposite=snapshotDoorWorld();scene.remove(world);
+ doorCache=originalFloor==='outside'?{outside:current,lobby:opposite}:{outside:opposite,lobby:current};
+ makeDoorwayPreview(doorCache.outside,'outside');
+ makeDoorwayPreview(doorCache.lobby,'lobby');
+ installDoorWorld(current);
+ floor=originalFloor;
+ scene.fog.density=originalFloor==='outside'?.00135:.0031;
+ scene.fog.color.setHex(0x101326);
+}
+function syncDoorOpenings(data,dt){
+ for(const door of data.animatedDoors){
+  const near=Math.hypot(pos.x-door.center.x,pos.z-door.center.z);
+  const openTarget=near<10.5?1:0;
+  door.open+=(openTarget-door.open)*Math.min(1,dt*8.5);
+  door.left.position.x=-(door.rest||1.55)-door.open*door.travel;
+  door.right.position.x=(door.rest||1.55)+door.open*door.travel;
+ }
+}
+function updateDoorPreview(now,dt){
+ if(!doorCache||(floor!=='outside'&&floor!=='lobby'))return;
+ const activeData=doorCache[floor];
+ const inactiveData=doorCache[floor==='outside'?'lobby':'outside'];
+ syncDoorOpenings(activeData,dt);syncDoorOpenings(inactiveData,dt);
+ const preview=activeData.preview;
+ if(!preview)return;
+ const nearDoor=Math.abs(pos.z-DOOR_Z)<34&&Math.abs(pos.x)<21;
+ const openness=activeData.animatedDoors[0]?.open||0;
+ preview.surface.visible=nearDoor&&openness>.09;
+ preview.material.uniforms.uAlpha.value=Math.min(.985,Math.max(0,(openness-.09)*1.7));
+ if(!preview.surface.visible)return;
+ // Updating the live view is expensive: reduce extra passes on phones.
+ const cadence=mobile||quality==='low'?95:quality==='medium'?58:36;
+ if(now-preview.last<cadence)return;
+ preview.last=now;
+ const savedFogDensity=scene.fog.density,savedFogColor=scene.fog.color.clone(),savedExposure=renderer.toneMappingExposure;
+ const savedFloor=floor;
+ const saved={spaceClouds,cosmicSkyLayers,orbitPlanets,glitchOverlays,codeVeils,previousCorruptionWindow};
+ // The exterior's clouds, stars, planets and simulated fractures stay animated
+ // while someone is inside looking through the door, without playing audio indoors.
+ if(savedFloor==='lobby'){
+  spaceClouds=inactiveData.spaceClouds;cosmicSkyLayers=inactiveData.cosmicSkyLayers;
+  orbitPlanets=inactiveData.orbitPlanets;glitchOverlays=inactiveData.glitchOverlays;
+  codeVeils=inactiveData.codeVeils;
+  floor='outside';
+  updateLivingSpace(now);
+  updateCosmicEvent(now,true);
+  floor=savedFloor;
+  spaceClouds=saved.spaceClouds;cosmicSkyLayers=saved.cosmicSkyLayers;
+  orbitPlanets=saved.orbitPlanets;glitchOverlays=saved.glitchOverlays;codeVeils=saved.codeVeils;
+  previousCorruptionWindow=saved.previousCorruptionWindow;
+  scene.fog.density=.00135;
+ }
+ scene.remove(world);scene.add(inactiveData.world);
+ // Never draw the preview plane into itself.
+ inactiveData.preview.surface.visible=false;
+ const drawingSize=renderer.getDrawingBufferSize(new THREE.Vector2());
+ preview.material.uniforms.uResolution.value.copy(drawingSize);
+ const [w,h]=previewSize();if(preview.rt.width!==w||preview.rt.height!==h)preview.rt.setSize(w,h);
+ renderer.setRenderTarget(preview.rt);
+ renderer.clear();renderer.render(scene,camera);
+ renderer.setRenderTarget(null);
+ scene.remove(inactiveData.world);scene.add(world);
+ scene.fog.density=savedFogDensity;scene.fog.color.copy(savedFogColor);
+ renderer.toneMappingExposure=savedExposure;
 }
 function crossDoor(target){
- if(!doorCache)return;
- if(target!=='outside'){try{echoLaugh.pause();echoLaugh.currentTime=0;}catch{} previousCorruptionWindow=false; renderer.toneMappingExposure=1.72; scene.fog.color.setHex(0x101326);} else {cosmicElapsedMs=0;}
- const previous=pos.clone();
+ if(!doorCache||!doorCache[target]||floor===target)return;
+ if(target==='lobby'){
+  try{echoLaugh.pause();echoLaugh.currentTime=0;}catch{}
+  renderer.toneMappingExposure=1.72;scene.fog.color.setHex(0x101326);
+ }
+ const existing=pos.clone();
+ // Preserve the EXACT position, yaw and pitch: no snap or camera reset.
  installDoorWorld(doorCache[target]);floor=target;
- // Aligned entrance axes, unchanged input, yaw, pitch and cursor lock.
- // Short movement along the crossing direction, with no loading or world reconstruction.
- pos.set(Math.max(-5.5,Math.min(5.5,previous.x)),EYE_HEIGHT,target==='outside'?32.35:31.65);
+ pos.set(existing.x,EYE_HEIGHT,existing.z);
  camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
- transitionCooldown=.32;
+ scene.fog.density=target==='outside'?.00135:.0031;
+ transitionCooldown=.18;
 }
-function travel(id,spawn='default'){if((spawn==='fromLobby'||spawn==='fromOutside')&&doorCache){crossDoor(id);return;}doorCache=null;const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;closePortalSelector();floor=id;resetWorld();if(id==='outside'){cosmicElapsedMs=0;exterior();if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,35.0)}else{pos.set(0,EYE_HEIGHT,118);yaw=0;pitch=0}}else if(id==='lobby'){lobby();if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,30.6)}else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}}else{floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0}if(spawn==='fromLobby'||spawn==='fromOutside'){yaw=oldYaw;pitch=oldPitch}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);$('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();hideAll();transitionCooldown=.45;if(id==='lobby')prebuildDoorWorlds();}
+function travel(id,spawn='default'){
+ if((spawn==='fromLobby'||spawn==='fromOutside')&&doorCache){crossDoor(id);return;}
+ doorCache=null;
+ const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;
+ closePortalSelector();floor=id;resetWorld();
+ if(id==='outside'){
+  cosmicElapsedMs=0;exterior();
+  if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,32.12);yaw=oldYaw;pitch=oldPitch;}
+  else{pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;}
+ }else if(id==='lobby'){
+  lobby();
+  if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,31.88);yaw=oldYaw;pitch=oldPitch;}
+  else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0;}
+ }else{
+  floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0;
+ }
+ camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
+ $('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();
+ hideAll();transitionCooldown=.18;
+ if(id==='lobby'||id==='outside')prebuildDoorWorlds();
+}
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1662,20 +1776,20 @@ window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code)
 function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-23,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(34.0,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
-npcConversationPulse(now);updateLivingSpace(now);if(floor==='outside')cosmicElapsedMs+=dt*1000;updateCosmicEvent(now);
+npcConversationPulse(now);if(floor==='outside'||floor==='lobby')cosmicElapsedMs+=dt*1000;updateLivingSpace(now);updateCosmicEvent(now);
 for(const g of staffActors){if(g.userData.tag)g.userData.tag.rotation.y=yaw;if(g.userData.speech)g.userData.speech.rotation.y=yaw;const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;if(!g.userData.speech?.visible)g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
  if(g.userData.walkPath){const t=now*.001*g.userData.speed+ph;
  g.position.x=g.userData.homeX+Math.sin(t)*g.userData.range;
  g.position.z=g.userData.homeZ+Math.cos(t)*g.userData.range*.65;
  g.rotation.y=Math.atan2(Math.cos(t),-Math.sin(t));}
 }
-for(const d0 of animatedDoors){const dist=pos.distanceTo(d0.center),target=dist<8.2?1:0;d0.open+= (target-d0.open)*Math.min(1,dt*4.8);d0.left.position.x=-(d0.rest||1.55)-d0.open*d0.travel; d0.right.position.x=(d0.rest||1.55)+d0.open*d0.travel;}
+updateDoorPreview(now,dt);
 if(transitionCooldown>0)transitionCooldown-=dt;
-if(transitionCooldown<=0){
- if(floor==='lobby'&&Math.abs(pos.x)<5.8&&pos.z>31.55){travel('outside','fromLobby');return}
- if(floor==='outside'&&Math.abs(pos.x)<5.8&&pos.z<32.45){travel('lobby','fromOutside');return}
+if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
+ if(floor==='lobby'&&pos.z>=32.02)crossDoor('outside');
+ else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
-$('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}active=true;travel('lobby');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
+$('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}active=true;travel('outside');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
 try{Object.assign(selected,JSON.parse(localStorage.getItem('hexcore_character')||'{}'));for(let name of ['species','body']){let match=$(name).querySelector(`[data-value="${selected[name]}"]`);if(match)match.click()}}catch{}
 resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.remove('hidden');

@@ -1,17 +1,14 @@
-# HexCore Tower V3.5 — Cosmic Event Polish
+# HexCore Tower V3.6 — Seamless Entrance and Exterior Spawn
 
-Replace your repository contents with the files in this archive root (not an extra enclosing folder), commit, and push.
+Full GitHub Pages website replacement. Extract **the ZIP contents directly to repository root** and commit/push.
 
-## What changed
-- Two genuine 3D spherical planets with artwork isolated from the original sky image (not rectangular photos)
-- A larger cracked planet and smaller technology planet that orbit the entire platform in opposite directions without stopping at overlap
-- 10 seconds to conjunction, then a 10-second corruption test; smooth continuous orbit, 20-second event cycle
-- One actual 3D modeled reaching figure on the right, animated mouth/jaw and reach, dark glowing face, and synthesized eerie chuckle
-- Three-dimensional simulation rifts and animated streams of ascending/descending code, with full surrounding corrupted-sky state
-- Final two seconds repair the simulation and retract/fade the entity before it reaches the platform
+Changes from V3.5:
+- Start at (0, eye height, 181) on the exterior platform facing toward the tower, near the outer edge.
+- Build the actual exterior and lobby scene at initial entry, with cached geometry for both directions.
+- Removed false lobby/exterior stand-in scenery from the opposite side of sliding glass doors.
+- Real-world doorway projection: near the doors, preview the *other preloaded scene* as a live perspective-correct WebGL render, including moving cosmic effects when viewing outside from the lobby.
+- Door panels in both scene versions animate together; walking across the opening switches instantly at z=32 without reloading, rebuilding, yaw change, or moving the camera.
+- Live doorway previews are rendered only when near the entrance, and the extra render pass runs at a lower refresh rate on phones.
+- Existing mobile MOVE/LOOK, INTERACT, RUN, NPCs, Legal content, tower, landscaping and V3.5 cosmic overlap/event remain intact.
 
-## Preserved
-Existing tower architecture, mobile/desktop controls, NPC systems, the detailed background, departments and 41 legal Q&A entries.
-
-## Limitations
-The being is a stylized procedural 3D model; it is not a rigged photorealistic character. Far nebula layers remain distant textured geometry enhanced by spatial clouds; no spacecraft movement is implemented yet. Real-device visual inspection is still necessary.
+Reality check: previews use an additional WebGL render target and are visually accurate to the current destination scene. They are not a shared physical 3D building; overlap and performance need browser/device testing. Rendering of live previews consumes GPU time only while near the doorway.

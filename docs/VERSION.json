@@ -1,14 +1,15 @@
 {
-  "version": "V3.5",
-  "codename": "Cosmic Event Motion and 3D Entity Polish",
-  "included": [
-    "Two textured spherical planets, unequal radius (120 and 85), with approximately 40 percent below platform-level silhouette",
-    "Continuous clockwise and counter-clockwise full-platform orbits; 10-second approach and 10-second corruption test",
-    "Smaller tech planet behind the larger cracked planet at conjunction",
-    "A single modeled 3D reaching entity on right side, with articulated jaw, face, arms, fingers and procedural chuckle audio",
-    "Multiple 3D rift meshes and ascending and descending code-stream layers",
-    "World repair and entity disappearance in last two seconds before reaching the platform",
-    "Existing sky artwork, building, departments, mobile controls and legal dialogue preserved"
+  "version": "V3.6",
+  "codename": "Seamless Entrance + Exterior Spawn",
+  "changes": [
+    "Spawn near exterior platform edge facing tower",
+    "Preload real lobby and exterior together before exploration",
+    "Live perspective-correct doorway previews of opposite scene replace fake scene slices",
+    "Cross-door transitions preserve camera location, yaw, pitch and movement",
+    "Shared automatic door opening and mobile-friendly preview cadence"
   ],
-  "validation": "JavaScript syntax, asset integrity and archive validation; browser rendering to be checked where available"
+  "preserved": [
+    "Existing NPCs, dialogue, mobile controls, planet orbits, corruption event, exterior design"
+  ],
+  "testing": "JavaScript / archive tests, plus browser testing where available"
 }
