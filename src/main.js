@@ -738,6 +738,72 @@ function exteriorExperienceV27(){
   }
  }
 }
+// V3.0 architecture pass: spatial fixtures, not floating screen decals.
+function monumentalApproachV30(){
+ const polished=new THREE.MeshPhysicalMaterial({color:0x0b1020,metalness:.68,roughness:.17,clearcoat:1,clearcoatRoughness:.08});
+ const brushed=new THREE.MeshStandardMaterial({color:0x434e69,metalness:.8,roughness:.21});
+ const water=new THREE.MeshPhysicalMaterial({color:0x62bbf5,roughness:.12,metalness:.26,transparent:true,opacity:.68,side:THREE.DoubleSide,depthWrite:false,clearcoat:1});
+ const plantMats=[new THREE.MeshStandardMaterial({color:0x251943,emissive:0x6416b3,emissiveIntensity:1.4,roughness:.7}),new THREE.MeshStandardMaterial({color:0x172c51,emissive:0x257ae9,emissiveIntensity:1.2,roughness:.65})];
+ const flowers=[new THREE.MeshBasicMaterial({color:0xc890ff}),new THREE.MeshBasicMaterial({color:0x83e9ff})];
+ const w=18; // Unobstructed center lane; side fixtures begin outside +/-19 units.
+ for(const side of [-1,1]){
+  for(const z of [51,76,101,126,151]){
+   const x=side*26;
+   // Channeled water basin, black metal rim, and a real three-dimensional waterfall edge.
+   panel([x,.36,z],[12,.69,14],polished);
+   panel([x,.74,z],[12.5,.10,14.4],brushed);
+   panel([x,.83,z],[11.4,.045,13.2],water);
+   for(const dx of [-5.5,5.5])panel([x+dx,.93,z],[.38,.23,13.4],polished);
+   for(const dz of [-6.4,6.4])panel([x,.93,z+dz],[11,.23,.30],polished);
+   // Water pours from the far outer rim, never across the walking path.
+   const curtain=new THREE.Mesh(new THREE.PlaneGeometry(11.25,2.3),new THREE.MeshBasicMaterial({color:0x7ccfff,transparent:true,opacity:.58,side:THREE.DoubleSide,depthWrite:false}));
+   curtain.rotation.y=side<0?-Math.PI/2:Math.PI/2;
+   curtain.position.set(x+side*6.25,-.39,z);world.add(curtain);
+   // Sculptural black planters with flowering, bioluminescent shrubs.
+   for(const k of [-1,0,1]){
+    const zz=z+k*3.9;
+    panel([x+side*3,1.15,zz],[3.0,.7,3.0],polished);
+    const stem=new THREE.Group();stem.position.set(x+side*3,1.45,zz);world.add(stem);
+    cyl([0,.62,0],.14,.21,1.25,brushed,stem,7);
+    for(let j=0;j<5;j++){
+     const a=j*Math.PI*2/5;
+     const px=Math.cos(a)*.65,pz=Math.sin(a)*.65;
+     sphere([px,1.30+(j%2)*.24,pz],.55,plantMats[(j+k+4)%2],stem,9);
+     sphere([px*1.35,1.68+(j%2)*.24,pz*1.35],.13,flowers[(j+k+4)%2],stem,8);
+    }
+   }
+   const fixture=box([side*19.5,.44,z],[.85,.82,2.8],polished);
+   panel([side*19.5,.88,z],[.7,.05,2.6],side<0?M.violet:M.blue);
+   const light=new THREE.PointLight(side<0?0x9752ff:0x50adff,11,20,2);light.position.set(side*24,2.7,z);world.add(light);
+  }
+  // Roadside architectural needle lanterns and visible ornamental illuminated life.
+  for(const z of [40,62,87,112,137,160]){
+   const x=side*38;
+   panel([x,2.4,z],[1.1,4.8,1.1],polished);
+   panel([x,4.9,z],[1.1,.15,1.1],brushed);
+   panel([x-side*.58,3.6,z+.57],[.10,2.8,.12],side<0?M.violet:M.blue);
+   sphere([x,5.3,z],.3,side<0?M.violet:M.blue,world,10);
+  }
+ }
+ // Ground light stations aimed at the facade, using actual spotlights (not uniformly lit surfaces).
+ for(const x of [-44,-31,-18,-8,8,18,31,44]){
+  const l=new THREE.SpotLight(x<0?0xa271ff:0x70bdff,200,190,Math.PI/7,.72,1.4);
+  l.position.set(x,1.0,54);l.target.position.set(x*.55,95,9);
+  world.add(l);world.add(l.target);
+  panel([x,.12,54],[1.4,.17,1.5],polished);
+  panel([x,.22,54],[1.1,.055,1.1],x<0?M.violet:M.blue);
+ }
+ // The logo's emissive polygon remains readable; halo lighting gives it architectural presence.
+ const halo=new THREE.PointLight(0xb490ff,115,90,1.9);halo.position.set(0,91,39);world.add(halo);
+ const logoBack=new THREE.Mesh(new THREE.RingGeometry(13.6,15.8,6),new THREE.MeshBasicMaterial({color:0x925eff,transparent:true,opacity:.35,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
+ logoBack.rotation.z=Math.PI/6;logoBack.position.set(0,90,25.42);world.add(logoBack);
+ // Additional bright core and soft corona for the already-existing roof energy beam.
+ const beamCore=new THREE.Mesh(new THREE.CylinderGeometry(.28,.43,230,14,1,true),new THREE.MeshBasicMaterial({color:0xf1efff,transparent:true,opacity:.81,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}));
+ beamCore.position.set(0,169+115,-8);world.add(beamCore);
+ const beamHalo=new THREE.Mesh(new THREE.CylinderGeometry(3.3,2.2,230,24,1,true),new THREE.MeshBasicMaterial({color:0x8b5fff,transparent:true,opacity:.09,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}));
+ beamHalo.position.copy(beamCore.position);world.add(beamHalo);
+ // Eye-level design reference: 2.7-unit player, 3.4-unit security NPC, 7.3-unit automatic doors.
+}
 function continuousPlaza(){
  scene.fog.density=.00135;
  skyNebula(); towerBackgroundPlanet(); // Distinct 3D planet behind the tower.
@@ -780,6 +846,7 @@ function continuousPlaza(){
  towerV16();
  towerFinishing();
  exteriorExperienceV27();
+ monumentalApproachV30();
  plazaLightReflections();
  // Distant surrounding spires to sell the wider floating mega-structure cityscape.
  for(const side of [-1,1]){
