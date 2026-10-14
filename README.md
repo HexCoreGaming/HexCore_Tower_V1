@@ -1,9 +1,7 @@
-HexCore Tower V2.7 — Mobile Controls & Exterior Experience
+HEXCORE TOWER V2.8 — MOBILE CONTROLS ONLY
 
-Extract the contents directly into the root of the GitHub Pages repository, replace old files, commit and push.
+Replace the contents of your GitHub Pages repository with the contents of this ZIP; commit and push.
 
-Mobile: responsive dual analog pads, hold-to-run, tap USE, floor portal selection by touch, accessible menu, device-sensitive graphics quality. Desktop controls unchanged.
+Changes only to phone/tablet input overlay, touch controls and labels; exterior/interiors/desktop world unchanged.
 
-Exterior: ground-level architectural uplights, energy beam above the tower, brighter logo halo, decorative overflowing water features and bioluminescent planting along the sides of the walkway. Original tower silhouette, doors, floors and legal Q&A preserved.
-
-Browser visual test remains recommended.
+Controls: left joystick MOVE, right joystick LOOK, INTERACT, hold RUN, menu in upper right.

@@ -27,3 +27,18 @@
 @media (pointer:coarse){.touch-mode .crosshair{opacity:.45}.touch-mode #menuBtn{padding:12px;min-width:67px;touch-action:manipulation}}
 @media (max-width:700px){.touch-mode #mobileUI .pad{width:114px;height:114px;bottom:max(36px,env(safe-area-inset-bottom))}.touch-mode #mobileUI .pad .nub{left:33px;top:33px}.touch-mode .touch-action{right:18px;bottom:max(169px,calc(env(safe-area-inset-bottom) + 157px))}.touch-mode .touch-run{right:85px;bottom:max(154px,calc(env(safe-area-inset-bottom) + 143px))}}
 @media(max-height:500px) and (orientation:landscape){.touch-mode #mobileUI .pad{width:90px;height:90px;bottom:12px}.touch-mode #mobileUI .pad .nub{left:21px;top:21px}.touch-mode .touch-action{bottom:110px}.touch-mode .touch-run{bottom:96px}}
+
+/* V2.8: reliable dual-stick touch overlay above the WebGL canvas, including landscape phones. */
+#mobileUI:not(.hidden){position:fixed;inset:0;z-index:8;pointer-events:none;display:block}
+#mobileUI .pad,#mobileUI .touch-action,#mobileUI .touch-run{z-index:9;pointer-events:auto;touch-action:none;-webkit-user-select:none;user-select:none}
+#mobileUI .pad{bottom:max(48px,env(safe-area-inset-bottom));width:clamp(94px,26vw,132px);height:clamp(94px,26vw,132px);border-width:2px}
+#mobileUI #movePad{left:max(16px,env(safe-area-inset-left));right:auto}
+#mobileUI #lookPad{right:max(16px,env(safe-area-inset-right));left:auto}
+#mobileUI .pad .nub{position:absolute;left:50%;top:50%;width:40%;height:40%;margin-left:-20%;margin-top:-20%}
+#mobileUI .touch-action{right:max(14px,env(safe-area-inset-right));bottom:max(204px,calc(env(safe-area-inset-bottom) + 185px));height:64px;min-width:100px;width:100px;border-radius:34px;font-size:11px;padding:6px}
+#mobileUI .touch-run{right:max(126px,calc(env(safe-area-inset-right) + 113px));bottom:max(204px,calc(env(safe-area-inset-bottom) + 185px));height:60px;width:60px;border-radius:50%;font-size:11px}
+@media (max-height:520px) and (orientation:landscape){
+ #mobileUI .pad{width:94px;height:94px;bottom:12px}
+ #mobileUI .touch-action{right:14px;bottom:120px;min-width:90px;width:90px;height:50px}
+ #mobileUI .touch-run{right:112px;bottom:118px;width:50px;height:50px}
+}
