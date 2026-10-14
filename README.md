@@ -1,11 +1,16 @@
-HexCore Tower V3.1 — Living Space Environment
-Full replacement website package for GitHub Pages. Extract contents into the repository root, commit and push.
+# HexCore Tower V3.2 — Cosmic Motion + Dual-Planet Overlap Test
 
-Included:
-- Animated transparent, nebula-like clouds in the EXTERIOR world only; clouds slowly drift, appear, and dissipate.
-- Distant black-void sky sectors while preserving the approved background toward the tower.
-- Extra distant star particles for spatial parallax.
-- Low quality uses fewer effects for mobile.
-- Original lobby/department geometry, player controls, tower, and legal dialogue retained.
+This build adds the current requested exterior-space test package:
 
-Visual presentation and interaction must still be confirmed on real devices. No spaceship gameplay in this release.
+- more noticeable animated space clouds
+- moving blended space background using the two provided sky references
+- two large orbiting planets placed diagonally around the tower
+- 10-second normal orbit test phase
+- 10-second overlap / corruption test phase
+- overlap event triggers visible world corruption
+- glitch-sky reveal with code tearing through reality and the laughing face reference
+- preserved mobile controls from previous build
+
+Notes:
+- The overlap cycle is a repeating 20-second test loop: 10 seconds normal orbit, then 10 seconds overlap/corruption.
+- This is a validation build so timing and visual intensity can be tuned after review.
