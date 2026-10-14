@@ -1,19 +1,20 @@
 {
-  "version": "V3.9",
-  "codename": "Sky Fracture / Fluid Planet Overlap",
+  "version": "V4.1",
+  "codename": "Peaceful Living Space",
   "changes": [
-    "Continuous opposing orbits without stopping at 10-second overlap",
-    "Only sky reveals the user-approved fracture art through moving jagged procedural rifts",
-    "GPU-only flowing code up and down with no per-frame texture uploads",
-    "Reduced event geometry and precompiled transparent event meshes",
-    "Single organic 3D articulated entity facing and reaching for right-hand platform",
-    "Restored clear visibility of tower and platform during corruption",
-    "Preserved mobile controls and existing entrance mechanics"
+    "Removed the timed overlap and corruption event completely",
+    "Two slow continuous opposite-direction 3D planet orbits; both rotate on their axes",
+    "Kept both planets low in the environment",
+    "Added three subtle 3D star/dust depth layers, soft distant glints and gently drifting background",
+    "Preserved tower, mobile controls, NPCs, doors and Legal Q&A"
   ],
-  "timing": {
-    "normal_seconds": 10,
-    "corruption_seconds": 10,
-    "repair_in_final_seconds": 2
+  "planet_orbit_seconds": {
+    "cracked": 195,
+    "technology": 225
   },
-  "validation": "Static and archive checks; visual/device behavior must be tested in browser"
+  "planet_spin_seconds": {
+    "cracked": 132,
+    "technology": 157
+  },
+  "visual_validation": "Browser/device testing still required"
 }

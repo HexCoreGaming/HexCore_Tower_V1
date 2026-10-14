@@ -1,5 +1,6 @@
 {
-  "version": "V3.8",
+  "version": "V4.1",
+  "note": "Manifest excludes itself to avoid recursive hash",
   "files": [
     {
       "path": ".nojekyll",
@@ -8,8 +9,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 1709,
-      "sha256": "dbf196cd6fca5dea969f70fce2bc79371352d0b779b1b63a64a8dcd47de665cd"
+      "bytes": 1513,
+      "sha256": "9a37534af76f5ad62c9ddb4ae555b2c18841cae790973407fd1fd42410a92ff1"
     },
     {
       "path": "data/preservedLegalDialogue.js",
@@ -18,18 +19,18 @@
     },
     {
       "path": "docs/REBUILD_AUDIT.md",
-      "bytes": 684,
-      "sha256": "3ca3f25bd326c268c013c75b749f8267f4263cefcac5635a36ac6d9d9a4a8580"
+      "bytes": 886,
+      "sha256": "6ff6b7f32bfdd95a123a7526cfb04718d00c24adac1e4f08b76712945d80221a"
     },
     {
       "path": "docs/VERSION.json",
-      "bytes": 1244,
-      "sha256": "6a6fdcd9011956bfeb0f8f7feb2263d28848c8a735be728dadfd3c3a92fe8bf6"
+      "bytes": 668,
+      "sha256": "260d60ec4801af1d5afe859dacf2b534798e118db5278c3f6b537715964af3e8"
     },
     {
       "path": "index.html",
       "bytes": 4337,
-      "sha256": "357624dd5f5428006bccaf8d300be9ddd58b6e516b39236e6cfe2112ee78bebc"
+      "sha256": "e4b6860c8ddf4ef3d57ed21aaf07f5ff66ecae34f8b825ac3e5583204567ffdc"
     },
     {
       "path": "reference/approved-lobby.png",
@@ -45,36 +46,6 @@
       "path": "reference/cracked-planet-transparent.png",
       "bytes": 2005283,
       "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
-    },
-    {
-      "path": "reference/entity-echo-laugh.wav",
-      "bytes": 161008,
-      "sha256": "a0fa08ffda421f8f155180912f15bb8e6b56b537696bc8db47d31aee1b1beaaf"
-    },
-    {
-      "path": "reference/entity-face-crop.png",
-      "bytes": 203919,
-      "sha256": "ddf0e96887f4ecb24e1fa2c8aabfca674f9bcc4f171bc916ae89bb3abca6e607"
-    },
-    {
-      "path": "reference/entity-hand-crop.png",
-      "bytes": 526684,
-      "sha256": "2de438a36190482272b2a5bae188ae69a89f0eb69ec55c44efe1c177108bec95"
-    },
-    {
-      "path": "reference/glitch-hand-right.png",
-      "bytes": 3940071,
-      "sha256": "77cc57be4dbaa9638a380352f99207b8fc4083cd90c0f1bff8931123e0492319"
-    },
-    {
-      "path": "reference/glitch-overlap.png",
-      "bytes": 4002461,
-      "sha256": "5d328244a2f948c9afce737e942640d7aab0af59f4c2162e5b6eb6666110201c"
-    },
-    {
-      "path": "reference/glitch-world-live.png",
-      "bytes": 3937122,
-      "sha256": "2398877814799e3fb4a173bfa0a8c4d19a77fce1d8b3927f4e360d4c28741f7e"
     },
     {
       "path": "reference/lobby-design.png",
@@ -118,8 +89,8 @@
     },
     {
       "path": "src/main.js",
-      "bytes": 126003,
-      "sha256": "b7f6a8876c304f059132690f98211a3c7b0b2198893a803b029c15d46f826e8a"
+      "bytes": 113081,
+      "sha256": "c9ee57608b66a06e25abe4eda2962e52ad3ad8c0b4ba4b308df7db43fc9d2847"
     },
     {
       "path": "src/style.css",
