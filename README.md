@@ -1,18 +1,19 @@
-# HexCore Tower V3.8 — Cosmic Stability and Visual Coherence
+# HexCore Tower V3.9 — Sky Fracture / Smooth Overlap
 
-Extract **the ZIP contents** into your GitHub Pages repository root, replacing previous files.
+## Fixes
+- **No forced stop or snap during planet conjunction**: the larger cracked planet and smaller tech planet continue orbiting in opposite directions at constant speed. 10 seconds normal, 10 seconds corrupted for testing.
+- **Corruption is SKY ONLY**: your supplied purple/cyan fractured-world artwork appears through animated jagged rifts in a sky shader; the tower, platform, and walkway remain in the scene.
+- **Upward/downward code**: transparent code columns move using GPU time uniforms, with no CPU texture reuploads during overlap.
+- **Reduced event rendering spikes**: entity and rift geometry is created before play, shaders stay in the render graph, and expensive effects have fewer draw calls.
+- **One organic 3D apparition**: a curved, articulated head, grinning jaw, torso, flowing mantle, long reaching claw, and animated motion. Faces the platform from its right edge. It remains an in-browser procedural interpretation, *not* an exact professional character sculpt.
+- Restores normal sky in the final two seconds before the figure arrives.
+- Existing mobile controls, departments, legal answers, NPCs and entry doors preserved.
 
-## Implemented
-- Single approved purple space background with procedural blue/violet drifting 3D cloud layers; removed repeated full-image panoramas that made the sky jumbled.
-- During planet overlap, the exact `reference/glitch-world-live.png` art replaces the normal space sky (not an additive image piled over normal nebula paintings). Animated code columns, rifts and fragments exist in front of it.
-- Corruption-related geometry is not rendered in the normal phase; the code uses two shared moving glyph textures instead of many independent uploads.
-- Planet overlap timing remains 10 seconds normal + 10 seconds corrupted.
-- The single procedural 3D entity is oriented to face the platform, has a claw extending forward, additional glowing fissures, and animated mouth/head/arms.
-- Strong reduction in doorway-preview rendering cost: only rendered when within 17 units of the entrance, throttled and skipped during exterior corruption. Automatic door/crossing behavior remains.
-- Default desktop automatic graphics quality is medium to reduce GPU stalls. Visitors can still explicitly select High.
+## Install
+Extract the **contents** of this ZIP directly to the root of your `HexCore_Tower_V1` GitHub repository, replacing older files. Commit and Push Origin.
 
-## Verification limitation
-JavaScript syntax and archive integrity are checked. Pixel-perfect visual matching and frame-rate stability on real phones and PCs **cannot be guaranteed without device/browser testing**. No separate image was generated.
+## Testing
+A syntax and ZIP integrity check cannot guarantee visual quality or device-specific framerate. Confirm in the deployed browser. For best performance, use Low quality on mobile.
 
-## Next planned
-After testing V3.8, fix any residual startup/overlap performance bottlenecks and improve the 3D entity silhouette against the approved reference art, before department interiors.
+## Next
+Based on your visual feedback, refine 3D apparition modelling and performance, then department interiors.

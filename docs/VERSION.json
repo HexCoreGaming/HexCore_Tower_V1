@@ -1,25 +1,19 @@
 {
-  "version": "V3.8",
-  "codename": "Cosmic Stability and Visual Coherence",
+  "version": "V3.9",
+  "codename": "Sky Fracture / Fluid Planet Overlap",
   "changes": [
-    "Use one cohesive purple space panorama instead of three competing full-sky backgrounds",
-    "Replace normal sky with the actual user-provided fractured-world texture while corruption is active",
-    "Hide expensive rifts, code curtains and debris outside the corruption phase",
-    "Share two animated code textures for upward and downward flows rather than many copies",
-    "Reduce cosmic shader cards, fractures, and doorway preview resolution and frequency",
-    "Correct 3D entity yaw and articulated claw direction toward the right platform edge",
-    "Reduce default desktop graphics load for better startup/overlap stability"
+    "Continuous opposing orbits without stopping at 10-second overlap",
+    "Only sky reveals the user-approved fracture art through moving jagged procedural rifts",
+    "GPU-only flowing code up and down with no per-frame texture uploads",
+    "Reduced event geometry and precompiled transparent event meshes",
+    "Single organic 3D articulated entity facing and reaching for right-hand platform",
+    "Restored clear visibility of tower and platform during corruption",
+    "Preserved mobile controls and existing entrance mechanics"
   ],
-  "preserved": [
-    "Outside spawn",
-    "Automatic doors and cached lobby/exterior",
-    "Desktop and mobile controls",
-    "20-second test loop: 10s normal + 10s corrupted",
-    "Original NPC/legal dialogue and department floors"
-  ],
-  "limitations": [
-    "Browser/device performance and the visual quality of the entity still require live user verification",
-    "The figure is procedural 3D, not a manually sculpted photo-accurate character",
-    "Spaceships/flyable space are not implemented"
-  ]
+  "timing": {
+    "normal_seconds": 10,
+    "corruption_seconds": 10,
+    "repair_in_final_seconds": 2
+  },
+  "validation": "Static and archive checks; visual/device behavior must be tested in browser"
 }

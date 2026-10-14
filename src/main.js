@@ -595,93 +595,97 @@ function codeRainTexture(){
  const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapT=THREE.RepeatWrapping;return tx;
 }
 
-// A single, three-dimensional approaching entity. No painted face cards.
+// V3.9: ONE rig-like 3D apparition on the right side of the floating platform.
+// No giant flat backdrop or moving picture. The appearance uses curved surface
+// geometry, a sculpted laughing jaw and procedural electric fissures.
 function buildReachingEntity(){
- const form=new THREE.Group();form.position.set(324,-29,85);form.rotation.y=-Math.PI/2;form.visible=false;world.add(form);
- const coreMat=new THREE.MeshStandardMaterial({color:0x090817,roughness:.62,metalness:.12,emissive:0x39136b,emissiveIntensity:1.1,transparent:true,opacity:.90,depthWrite:false,side:THREE.DoubleSide});
- const plateMat=new THREE.MeshStandardMaterial({color:0x1d1040,roughness:.48,metalness:.31,emissive:0x5319ad,emissiveIntensity:1.25,transparent:true,opacity:.89,depthWrite:false,side:THREE.DoubleSide});
- const violet=new THREE.MeshBasicMaterial({color:0xb04bff,transparent:true,opacity:.92,depthWrite:false,blending:THREE.AdditiveBlending});
- const blue=new THREE.MeshBasicMaterial({color:0x57ddff,transparent:true,opacity:.92,depthWrite:false,blending:THREE.AdditiveBlending});
- const darkness=new THREE.MeshBasicMaterial({color:0x020108,transparent:true,opacity:.96,depthWrite:false});
- const mats=[coreMat,plateMat,violet,blue,darkness];
- function ellipsoid(parent,p,sz,mat=coreMat,n=16){const o=new THREE.Mesh(new THREE.SphereGeometry(1,n,Math.max(12,n-4)),mat);o.position.set(...p);o.scale.set(...sz);parent.add(o);return o}
- function segment(parent,a,b,r1,r2,mat=plateMat){const av=new THREE.Vector3(...a),bv=new THREE.Vector3(...b),d=bv.clone().sub(av);const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),12),mat);m.position.copy(av).add(bv).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
- ellipsoid(form,[0,44,0],[40,60,22],coreMat,24);
- ellipsoid(form,[0,54,11],[31,42,15],plateMat,24);
- ellipsoid(form,[-40,70,0],[16,18,17],coreMat,18);
- ellipsoid(form,[40,70,0],[16,18,17],coreMat,18);
- const headPivot=new THREE.Group();headPivot.position.set(0,110,8);form.add(headPivot);
- ellipsoid(headPivot,[0,0,0],[27,33,24],coreMat,32);
- ellipsoid(headPivot,[0,8,17],[24,17,10],plateMat,24);
- // The approved glitch face is mapped onto a curved 3D forehead/eye visor,
- // not shown as a free-floating rectangular scene card.
- const faceSurface=new THREE.PlaneGeometry(46,26,14,8);
- const coords=faceSurface.attributes.position;
- for(let i=0;i<coords.count;i++){
-  const x=coords.getX(i)/23,y=coords.getY(i)/13;
-  coords.setZ(i,3.8*Math.max(0,1-x*x)*Math.max(0,1-y*y));
+ const form=new THREE.Group();form.position.set(340,-26,89);form.visible=true;world.add(form);
+ // Forward of model is +Z; yaw -PI/2 points toward platform on world -X.
+ form.rotation.y=-Math.PI/2;
+ const torso=new THREE.MeshStandardMaterial({color:0x080713,emissive:0x3a147a,emissiveIntensity:.44,
+  roughness:.53,metalness:.24,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide});
+ const armor=new THREE.MeshStandardMaterial({color:0x130d2c,emissive:0x7d27cb,emissiveIntensity:.82,
+  roughness:.34,metalness:.44,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide});
+ const purple=new THREE.MeshBasicMaterial({color:0xb751ff,transparent:true,opacity:0,
+  depthWrite:false,blending:THREE.AdditiveBlending});
+ const cyan=new THREE.MeshBasicMaterial({color:0x64d8ff,transparent:true,opacity:0,
+  depthWrite:false,blending:THREE.AdditiveBlending});
+ const black=new THREE.MeshBasicMaterial({color:0x020009,transparent:true,opacity:0,depthWrite:false});
+ const mats=[torso,armor,purple,cyan,black];
+ const makeMesh=(geo,mat,parent=form,p=[0,0,0])=>{const mesh=new THREE.Mesh(geo,mat);mesh.position.set(...p);parent.add(mesh);return mesh};
+ const organic=(parent,p,scale,mat,n=28)=>{let geo=new THREE.SphereGeometry(1,n,Math.round(n*.74));
+   const attr=geo.attributes.position;
+   for(let j=0;j<attr.count;j++){
+     const x=attr.getX(j),y=attr.getY(j),z=attr.getZ(j);
+     const r=1+.045*Math.sin(x*13+y*9+z*7)+.034*Math.sin(x*17-z*8);
+     attr.setXYZ(j,x*r,y*r,z*r);
+   }
+   geo.computeVertexNormals();const o=makeMesh(geo,mat,parent,p);o.scale.set(...scale);return o};
+ function bone(parent,a,b,ra,rb,mat=torso){
+   const p=new THREE.Vector3(...a),q=new THREE.Vector3(...b),dir=q.clone().sub(p);
+   const m=makeMesh(new THREE.CylinderGeometry(rb,ra,dir.length(),12,1),mat,parent);
+   m.position.copy(p).add(q).multiplyScalar(.5);
+   m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());return m;
  }
- faceSurface.computeVertexNormals();
- const faceInk=new THREE.MeshBasicMaterial({transparent:true,opacity:.84,depthWrite:false,
-   side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
- faceInk.forceSinglePass=true;
- const faceMask=new THREE.Mesh(faceSurface,faceInk);
- faceMask.position.set(0,3,23.8);headPivot.add(faceMask);
- new THREE.TextureLoader().load('./reference/entity-face-crop.png',tx=>{
-  tx.colorSpace=THREE.SRGBColorSpace;faceInk.map=tx;faceInk.needsUpdate=true;
-  try{renderer.initTexture(tx)}catch{}
- });
-
- // Eyes, eyebrow ridges, open mouth, and an animated articulated jaw.
- for(const sign of [-1,1]){
-  ellipsoid(headPivot,[sign*10,4,23],[8,5,2.8],darkness,14);
-  ellipsoid(headPivot,[sign*10,4,25.1],[4.8,2.5,1.7],blue,14);
-  segment(headPivot,[sign*3,12,23],[sign*19,14,19],1.9,2.1,violet);
+ // Tapering, ghostlike torso: deform an organic sphere into the shape of a swept cloak.
+ organic(form,[0,46,0],[21,52,17],torso,48);
+ organic(form,[0,68,11],[20,31,13],armor,36);
+ organic(form,[-22,70,0],[13,13,16],torso);organic(form,[22,70,0],[13,13,16],torso);
+ // Ragged torn mantle edges, with soft shapes rather than boxy plates.
+ for(let i=0;i<8;i++){
+   let a=i/8*Math.PI*2;
+   bone(form,[Math.cos(a)*16,42,Math.sin(a)*12],
+     [Math.cos(a)*23+(i%3-1)*8,-19-(i%3)*10,Math.sin(a)*19],3.4,.05,torso);
  }
- const mouth=ellipsoid(headPivot,[0,-15,22],[14,11,3],darkness,20);
- const jaw=new THREE.Group();jaw.position.set(0,-23,18);headPivot.add(jaw);
- ellipsoid(jaw,[0,0,0],[20,8.6,11],plateMat,20);
- for(let k=-4;k<=4;k++){
-  ellipsoid(headPivot,[k*2.8,-8.3,25],[1.1,3,1.1],blue,10);
-  ellipsoid(jaw,[k*3.0,5.4,8.5],[1.2,2.7,1.0],violet,10);
+ // Floating fractured crystalline segments give silhouette depth.
+ for(let i=0;i<11;i++){
+   const x=Math.sin(i*1.99)*17,y=15+(i%6)*15,z=14+Math.cos(i*2.55)*6;
+   bone(form,[x,y,z],[x+Math.cos(i*2.7)*9,y+4+Math.sin(i),z+3],.3,.66,i%2?purple:cyan);
  }
- // Discontinuous glowing fissures and shards interrupt the silhouette;
- // these are real scene geometry, not a moving rectangular artwork overlay.
- for(let i=0;i<13;i++){
-  const xx=Math.sin(i*2.4)*21,yy=-18+(i%7)*8,zz=20+Math.cos(i*3.1)*5;
-  segment(headPivot,[xx,yy,zz],[xx+(i%2?8:-7),yy+7+(i%3)*3,zz+3],.65,.30,i%2?blue:violet);
+ // Detailed expressive elongated face; the moving jaw opens into an unnatural grin.
+ const headPivot=new THREE.Group();headPivot.position.set(0,112,6);form.add(headPivot);
+ organic(headPivot,[0,0,0],[25,33,23],torso,48);
+ organic(headPivot,[0,8,13],[22,19,16],armor,36);
+ for(const side of [-1,1]){
+   organic(headPivot,[side*10,5,23],[8.5,5,4],black,24);
+   organic(headPivot,[side*10,5.5,26],[5.1,2.1,2.6],cyan,18);
+   bone(headPivot,[side*3,15,23],[side*20,17,15],1.2,1.9,purple);
+   organic(headPivot,[side*21,-6,10],[5,11,6],torso,18);
  }
- // Long spine and pulsing cracks make the form read from multiple angles.
- for(let i=0;i<10;i++){
-  const x=Math.sin(i*2.25)*24,y=13+i*8,z=22-Math.abs(x)*.11;
-  segment(form,[x,y,z],[x+Math.cos(i*4.4)*9,y+6,z+1],.33,.50,i%2?blue:violet);
+ const mouth=organic(headPivot,[0,-14,21],[15,12,4],black,28);
+ const jaw=new THREE.Group();jaw.position.set(0,-22,12);headPivot.add(jaw);
+ organic(jaw,[0,0,2],[20,9,12],armor,32);
+ for(let i=-5;i<=5;i++){
+   const x=i*2.5, edge=1.8*Math.cos(i*.45);
+   bone(headPivot,[x,-7.5,24],[x,-13-edge,23.7],.8,1.2,cyan);
+   bone(jaw,[x*1.05,5,13],[x*1.05,9+edge,14.5],1.1,.65,purple);
  }
- // Leading arm extends along the entity's FORWARD axis (+Z local => -X world),
- // so the claw actually reaches for the right side of the platform.
- const reachArm=new THREE.Group();reachArm.position.set(-38,72,0);form.add(reachArm);
- segment(reachArm,[0,0,0],[-12,-16,38],9,7);
- ellipsoid(reachArm,[-12,-16,38],[9,10,10],coreMat,14);
- segment(reachArm,[-12,-16,38],[-8,-40,96],7.5,5);
- ellipsoid(reachArm,[-8,-40,113],[17,9,13],plateMat,18);
+ // Actual articulated reaching arm and claw geometry.
+ const reachArm=new THREE.Group();reachArm.position.set(-24,73,0);form.add(reachArm);
+ bone(reachArm,[0,0,0],[-13,-12,39],10.8,8,torso);
+ organic(reachArm,[-13,-12,39],[10,12,10],armor,20);
+ bone(reachArm,[-13,-12,39],[-7,-28,91],8.5,5.5,armor);
+ organic(reachArm,[-7,-28,92],[16,7.5,12],torso,24);
  for(let j=0;j<5;j++){
-  const xx=-20+j*6;
-  segment(reachArm,[xx,-41,114],[xx+(j-2)*1.5,-55-(j%2)*5,142+(j%3)*2],2.3,.6,j%2?violet:plateMat);
+  const x=-18+j*5.4;
+  bone(reachArm,[x,-30,94],[x+(j-2)*1.8,-39-(j%2)*6,117],2.8,1.35,armor);
+  bone(reachArm,[x+(j-2)*1.8,-39-(j%2)*6,117],[x+(j-2)*3,-48-(j%2)*6,140],1.25,.02,j%2?cyan:purple);
  }
- // The trailing arm adds actual body depth and asymmetrical animation.
- const otherArm=new THREE.Group();otherArm.position.set(37,68,-1);form.add(otherArm);
- segment(otherArm,[0,0,0],[31,-28,0],9,7);
- segment(otherArm,[31,-28,0],[40,-70,9],6.8,4.5);
- ellipsoid(otherArm,[40,-76,9],[11,14,10],plateMat,16);
- for(let j=0;j<4;j++)segment(otherArm,[34+j*3,-82,12],[34+j*4,-98,15+j*2],2,1,coreMat);
- const aura=new THREE.PointLight(0x8c37ff,0,155,2);aura.position.set(0,78,16);form.add(aura);
- const data={type:'entity3d',mesh:form,materials:mats,headPivot,jaw,mouth,reachArm,otherArm,aura,start:new THREE.Vector3(350,-29,85),end:new THREE.Vector3(269,-29,85)};
- corruptionEntity=data;glitchOverlays.push(data);
- return data;
+ const otherArm=new THREE.Group();otherArm.position.set(25,69,0);form.add(otherArm);
+ bone(otherArm,[0,0,0],[18,-26,2],10,6.6,torso);
+ bone(otherArm,[18,-26,2],[24,-69,19],7,4.4,armor);
+ organic(otherArm,[24,-69,19],[9,14,7],torso,18);
+ for(let j=0;j<4;j++)bone(otherArm,[19+j*3,-78,22],[22+j*4,-97,25+j*2],2,.06,purple);
+ const aura=new THREE.PointLight(0x8d43ff,0,146,2);aura.position.set(0,94,24);form.add(aura);
+ // Position stays beyond the right-hand platform edge (edge is x=110).
+ const data={type:'entity3d',mesh:form,materials:mats,headPivot,jaw,mouth,reachArm,otherArm,aura,
+   start:new THREE.Vector3(340,-26,89),end:new THREE.Vector3(255,-26,89)};
+ corruptionEntity=data;glitchOverlays.push(data);return data;
 }
 function buildSpatialRifts(){
  // Jagged, glowing cracks are positioned in 3D, at multiple distances/directions.
  let seed=19281;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
- const count=quality==='low'?5:quality==='medium'?8:12;
+ const count=quality==='low'?4:quality==='medium'?6:8;
  for(let i=0;i<count;i++){
   const angle=2*Math.PI*i/count+rand()*.19;
   const radius=132+rand()*135;
@@ -695,7 +699,7 @@ function buildSpatialRifts(){
   }
   const curve=new THREE.CatmullRomCurve3(pts);
   const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,42,.7+i%3*.21,5,false),material);
-  mesh.renderOrder=-2;mesh.visible=false;world.add(mesh);
+  mesh.renderOrder=-2;world.add(mesh);
   glitchOverlays.push({type:'rift3d',mesh,mat:material,basePos:mesh.position.clone(),phase:i*.83});
  }
 }
@@ -726,41 +730,90 @@ function buildCosmicEventSystem(){
  // Corruption event layers.
  const tintMat=new THREE.MeshBasicMaterial({color:0x12081e,transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,fog:false,blending:THREE.NormalBlending});
  const tintSphere=new THREE.Mesh(new THREE.SphereGeometry(404,40,28),tintMat);
- tintSphere.position.set(0,72,80);tintSphere.renderOrder=-95;tintSphere.visible=false;world.add(tintSphere);
+ tintSphere.position.set(0,72,80);tintSphere.renderOrder=-95;world.add(tintSphere);
  glitchOverlays.push({type:'tint',mesh:tintSphere,mat:tintMat,basePos:tintSphere.position.clone(),wobble:0});
 
- const breakSkyMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.BackSide,depthWrite:false,depthTest:false,fog:false,blending:THREE.NormalBlending});
- const breakSky=new THREE.Mesh(new THREE.SphereGeometry(398,40,24),breakSkyMat);
- breakSky.position.set(0,72,80);breakSky.rotation.y=Math.PI*.25;breakSky.renderOrder=-94;breakSky.visible=false;world.add(breakSky);
- loader.load('./reference/glitch-world-live.png',t=>{t.colorSpace=THREE.SRGBColorSpace;breakSkyMat.map=t;breakSkyMat.needsUpdate=true;try{renderer.initTexture(t)}catch{}});
- glitchOverlays.push({type:'breakSky',mesh:breakSky,mat:breakSkyMat,basePos:breakSky.position.clone(),wobble:0});
+ // Sky-only animated rift shader. The supplied fractured-world reference shows
+ // THROUGH moving jagged tears; normal cosmos survives between the openings.
+ // The tower, platform, gardens and gameplay geometry are never swapped or hidden.
+ const breakSkyMat=new THREE.ShaderMaterial({
+   transparent:true,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,
+   uniforms:{uArt:{value:null},uTime:{value:0},uPower:{value:0}},
+   vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+   fragmentShader:`varying vec2 vUv;uniform sampler2D uArt;uniform float uTime,uPower;
+     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+     float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+       return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),
+                  mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+     void main(){
+       vec2 uv=vUv;
+       float y=uv.y, x=uv.x;
+       // Broken, branching diagonal fissures rather than an entire replacement picture.
+       float drift=uTime*.008;
+       float crack=sin((y-x*.48+noise(vec2(x*10.,y*7.+drift))*.16+drift*.10)*19.);
+       float crack2=sin((y+x*.76+noise(vec2(x*13.+drift,y*8.))*.09)*29.);
+       float field=abs(crack)*.6+abs(crack2)*.4;
+       float tear=(1.-smoothstep(.08,.56,field));
+       float branch=1.-smoothstep(.12,.47,abs(sin((x*.68+y*.91+noise(uv*13.)*.18)*26.)));
+       tear=max(tear,branch*.57);
+       float masks=smoothstep(.22,.62,noise(vec2(x*4.2,y*3.6+drift*.34)))*.66+.34;
+       float alpha=tear*masks*uPower*.94;
+       if(alpha<.005)discard;
+       vec3 art=texture2D(uArt,uv+vec2(sin(y*33.+uTime*.25)*.004,cos(x*27.-uTime*.31)*.003)).rgb;
+       vec3 edge=mix(art,art*1.20+vec3(.20,.10,.30),.4);
+       gl_FragColor=vec4(edge,alpha);
+     }`
+ });
+ const breakSky=new THREE.Mesh(new THREE.SphereGeometry(395,56,32),breakSkyMat);
+ breakSky.position.set(0,72,80);breakSky.rotation.y=Math.PI*.25;breakSky.renderOrder=-94;
+ world.add(breakSky); // Always compiled during first exterior frame, alpha=0 until event.
+ loader.load('./reference/glitch-world-live.png',t=>{t.colorSpace=THREE.SRGBColorSpace;
+   breakSkyMat.uniforms.uArt.value=t;breakSkyMat.needsUpdate=true;try{renderer.initTexture(t)}catch{}});
+ glitchOverlays.push({type:'breakSky',mesh:breakSky,mat:breakSkyMat});
 
  buildReachingEntity();
  buildSpatialRifts();
 
- const shardCount=quality==='low'?5:quality==='medium'?9:13;
+ const shardCount=quality==='low'?3:quality==='medium'?5:8;
  for(let i=0;i<shardCount;i++){
   const mat=new THREE.MeshBasicMaterial({color:i%2?0x090c14:0x1b1130,transparent:true,opacity:0,depthWrite:false,fog:false});
   const shard=new THREE.Mesh(new THREE.BoxGeometry(8+((i*3)%7),3+((i*5)%5),1.4+((i*7)%3)),mat);
   const ang=i/shardCount*Math.PI*2,rad=110+(i%5)*26;
   shard.position.set(Math.cos(ang)*rad,90+(i%6)*18,84+Math.sin(ang)*rad);
-  shard.rotation.set(i*.4,i*.7,0);shard.renderOrder=-4;shard.visible=false;world.add(shard);
+  shard.rotation.set(i*.4,i*.7,0);shard.renderOrder=-4;world.add(shard);
   glitchOverlays.push({type:'shard',mesh:shard,mat,basePos:shard.position.clone(),wobble:i*.6,spin:new THREE.Vector3(.002+(i%3)*.0012,.003+(i%4)*.0008,.0017+(i%5)*.0006)});
  }
 
- const codeTex=codeRainTexture();const codeTexReverse=codeRainTexture();
- try{renderer.initTexture(codeTex);renderer.initTexture(codeTexReverse)}catch{}
- const veilCount=quality==='low'?6:quality==='medium'?10:14;
+ const codeTex=codeRainTexture();
+ const makeCodeMaterial=(direction)=>new THREE.ShaderMaterial({
+  transparent:true,depthWrite:false,side:THREE.DoubleSide,fog:false,
+  blending:THREE.AdditiveBlending,uniforms:{uMap:{value:codeTex},uTime:{value:0},uPower:{value:0},uDir:{value:direction}},
+  vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`varying vec2 vUv;uniform sampler2D uMap;uniform float uTime,uPower,uDir;
+   void main(){vec2 uv=vec2(vUv.x,fract(vUv.y*1.6+uTime*uDir*.13));
+    vec3 pix=texture2D(uMap,uv).rgb;
+    float luminous=max(pix.r,max(pix.g,pix.b));
+    float edge=smoothstep(0.,.13,vUv.x)*smoothstep(0.,.13,1.-vUv.x);
+    float fade=smoothstep(0.,.18,vUv.y)*smoothstep(0.,.18,1.-vUv.y);
+    float opacity=luminous*uPower*.86*edge*fade;
+    if(opacity<.005)discard;
+    gl_FragColor=vec4(pix*vec3(1.0,1.3,1.5),opacity);
+   }`
+ });
+ const codeUp=makeCodeMaterial(1),codeDown=makeCodeMaterial(-1);
+ const veilCount=quality==='low'?6:quality==='medium'?8:12;
  for(let i=0;i<veilCount;i++){
-  const mat=new THREE.MeshBasicMaterial({map:i%2?codeTexReverse:codeTex,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
-  mat.forceSinglePass=true;
-  const w=18+(i%3)*8,h=170+(i%4)*22;
-  const veil=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
-  const angle=i/veilCount*Math.PI*2;const radius=108+(i%4)*28;
-  veil.position.set(Math.cos(angle)*radius,92+h*.24,82+Math.sin(angle)*radius);
-  veil.rotation.y=-angle+Math.PI/2;veil.renderOrder=-4;veil.visible=false;world.add(veil);
-  codeVeils.push({mesh:veil,mat,scroll:0.16+0.035*(i%3),phase:i*.77,direction:i%2===0?1:-1});
+   const mat=i%2?codeDown:codeUp;
+   const w=20+(i%3)*8,h=150+(i%4)*28;
+   const veil=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
+   const angle=i/veilCount*Math.PI*2;const radius=278+(i%4)*25;
+   veil.position.set(Math.cos(angle)*radius,80+h*.32,81+Math.sin(angle)*radius);
+   veil.rotation.y=-angle+Math.PI/2;veil.renderOrder=-4;
+   world.add(veil);codeVeils.push({mesh:veil,mat,phase:i*.77,direction:i%2===0?1:-1});
  }
+ // The shaders, including both code directions, are present from frame one.
+ // Increasing their uPower doesn't create new WebGL programs at second 10.
+
 }
 function updateCosmicEvent(now,previewOnly=false){
  if(floor!=='outside')return;
@@ -805,12 +858,13 @@ function updateCosmicEvent(now,previewOnly=false){
    overlay.mesh.visible=power>.012;overlay.mat.opacity=.10*power;
    overlay.mesh.rotation.y+=.00045;
   }else if(overlay.type==='breakSky'){
-   overlay.mesh.visible=power>.008;overlay.mat.opacity=Math.min(1,power*1.22);
-   overlay.mesh.rotation.y+=.00050;
+   overlay.mat.uniforms.uTime.value=cosmicElapsedMs*.001;
+   overlay.mat.uniforms.uPower.value=power;
+   overlay.mesh.rotation.y+=.00012;
    overlay.mesh.rotation.x=Math.sin(now*.00024)*.029;
   }else if(overlay.type==='entity3d'){
    const e=overlay;
-   e.mesh.visible=power>.004;
+   // The meshes stay in the scene; transparent materials fade instead of late-compiling on trigger.
    const approach=smooth01(Math.min(1,eventNorm/.79));
    e.mesh.position.lerpVectors(e.start,e.end,approach);
    e.mesh.position.y+=Math.sin(now*.0016)*2.4*power;
@@ -827,35 +881,29 @@ function updateCosmicEvent(now,previewOnly=false){
    e.otherArm.rotation.z=Math.sin(now*.0022)*.10;
    e.aura.intensity=25*power*(.78+.22*Math.sin(now*.009));
    for(const m of e.materials){
-    const base=m===e.materials[0]?.90:m===e.materials[1]?.89:m===e.materials[4]?.96:.92;
+    const base=m===e.materials[0]?.89:m===e.materials[1]?.90:m===e.materials[4]?.98:.91;
     m.opacity=base*power;
    }
   }else if(overlay.type==='shard'){
-   overlay.mesh.visible=power>.02;overlay.mat.opacity=.65*power;
+   overlay.mat.opacity=.65*power;
    overlay.mesh.position.y=overlay.basePos.y+Math.sin(now*.0018+overlay.wobble)*10*power;
    overlay.mesh.rotation.x+=overlay.spin.x;
    overlay.mesh.rotation.y+=overlay.spin.y;
    overlay.mesh.rotation.z+=overlay.spin.z;
   }else if(overlay.type==='rift3d'){
-   overlay.mesh.visible=power>.025;overlay.mat.opacity=(.54+.25*Math.sin(now*.005+overlay.phase)**2)*power;
+   overlay.mat.opacity=(.54+.25*Math.sin(now*.005+overlay.phase)**2)*power;
   }
  }
- // Only two texture matrices are animated (up and down). Material instances share
- // those two maps, avoiding dozens of unique GPU updates during overlap.
+ // Code texture remains permanently uploaded; shader UVs flow up/down on GPU.
  if(codeVeils.length){
-  const sharedUp=codeVeils[0].mat.map,sharedDown=(codeVeils[1]||codeVeils[0]).mat.map;
-  sharedUp.offset.y=(now*.00020)%1;
-  sharedDown.offset.y=(1-(now*.00024)%1)%1;
- }
- for(const veil of codeVeils){
-  veil.mesh.visible=power>.02;
-  if(!veil.mesh.visible)continue;
-  veil.mat.opacity=.76*power;
-  veil.mesh.position.y=117+Math.sin(now*.0007+veil.phase)*9;
-  // No per-frame plane lookAt or individual texture/UV mutation.
+  const up=codeVeils[0].mat,down=(codeVeils[1]||codeVeils[0]).mat;
+  up.uniforms.uTime.value=cosmicElapsedMs*.001;
+  down.uniforms.uTime.value=cosmicElapsedMs*.001;
+  up.uniforms.uPower.value=power;
+  down.uniforms.uPower.value=power;
  }
  scene.fog.color.lerp(new THREE.Color(0x101326).lerp(new THREE.Color(0x210829),power),.10);
- scene.fog.density=.00135+power*.00105;
+ scene.fog.density=.00135+power*.00012;
  renderer.toneMappingExposure=1.72+power*.18;
 }
 
@@ -1592,7 +1640,7 @@ function updateDoorPreview(now,dt){
  preview.material.uniforms.uAlpha.value=.85+Math.min(.15,openness*.15);
  if(!preview.surface.visible)return;
  const cadence=(mobile||quality==='low'?1800:quality==='medium'?1100:850);
- if(now-preview.last<cadence||(floor==='outside'&&cosmicElapsedMs%20000>=9950))return;
+ if(now-preview.last<cadence||(floor==='outside'&&cosmicElapsedMs%orbitState.cycleMs>=9000))return;
  preview.last=now;
  const savedFogDensity=scene.fog.density,savedFogColor=scene.fog.color.clone(),savedExposure=renderer.toneMappingExposure;
  const savedFloor=floor;
@@ -1830,6 +1878,7 @@ $('enter').onclick=()=>{
  quality=requestedQuality;
  resizeRenderer();
  if(!initialWorldReady){warmInitialExterior();}
+ if(!initialWorldReady){$('loading').classList.remove('hidden');$('loading').querySelector('p').textContent='Could not prepare the 3D world. Reload and try again.';return;}
  $('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');
  if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}
  active=true;
