@@ -584,6 +584,63 @@ function towerV16(){
  // Glass architecture above entrance: distinct from the doorway so passage remains open.
  for(const y of [12,18,23]){panel([0,y,26],[16,.15,.16],y===18?M.blue:M.violet)}
 }
+// V2.7: atmospheric architectural highlights, landscape and clean access to the entrance.
+function exteriorExperienceV27(){
+ const stone=new THREE.MeshStandardMaterial({color:0x111828,metalness:.7,roughness:.21});
+ const deepStone=new THREE.MeshStandardMaterial({color:0x080d18,metalness:.72,roughness:.22});
+ const water=new THREE.MeshPhysicalMaterial({color:0x76baff,metalness:.28,roughness:.1,
+   transparent:true,opacity:.78,depthWrite:false,side:THREE.DoubleSide,clearcoat:1});
+ const foliage=new THREE.MeshStandardMaterial({color:0x432070,emissive:0x6e31cc,emissiveIntensity:.95,roughness:.6});
+ const budBlue=new THREE.MeshBasicMaterial({color:0x5ec9ff});
+ const budViolet=new THREE.MeshBasicMaterial({color:0xb672ff});
+ // Ceiling-reaching luminous central energy spine, emerging from the existing roof.
+ for(const [radius,height,opacity] of [[2.2,190,.075],[1.05,190,.16],[.35,190,.53]]){
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius*.88,height,12,1,true),
+   new THREE.MeshBasicMaterial({color:radius<.5?0xdbdcff:0x9e61ff,transparent:true,opacity,
+     depthWrite:false,side:THREE.DoubleSide,fog:false,blending:THREE.AdditiveBlending}));
+  beam.position.set(0,169+height/2,-8);world.add(beam);
+ }
+ sphere([0,169,-8],3.3,new THREE.MeshBasicMaterial({color:0xb78cff,transparent:true,opacity:.65,depthWrite:false}));
+ // Halo edging the logo. The existing readable H artwork is retained in front.
+ for(const r of [14.1,14.8]){
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.14,8,80),
+   new THREE.MeshBasicMaterial({color:r<14.5?0xe3c8ff:0x765cff,transparent:true,opacity:r<14.5?.75:.42,
+    depthWrite:false}));ring.position.set(0,90,25.4);world.add(ring);
+ }
+ // Architectural washes placed low in the ground, directed upward at the tower facade.
+ for(const x of [-36,-25,-14,14,25,36]){
+  const base=panel([x,.26,40],[2.1,.48,2.1],deepStone);
+  panel([x,.53,40],[1.75,.045,1.75],Math.abs(x)>26?M.blue:M.violet);
+  const bulb=new THREE.SpotLight(x<0?0xa66dff:0x7bafff,140,145,Math.PI/6,.62,1.4);
+  bulb.position.set(x,.95,40);bulb.target.position.set(x*.58,68,12);
+  world.add(bulb);world.add(bulb.target);
+ }
+ // Water features and bioluminescent plantings frame the walkway WITHOUT blocking the center.
+ for(const side of [-1,1])for(const z of [63,89,116,143]){
+  const x=side*43;
+  panel([x,.56,z],[21,1.10,13],deepStone);
+  panel([x,1.15,z],[19.6,.13,11.7],stone);
+  panel([x,1.26,z],[17.6,.045,9.6],water);
+  // Overflowing waterfall front, subtle and lit.
+  const fall=new THREE.Mesh(new THREE.PlaneGeometry(17.7,1.9),
+   new THREE.MeshBasicMaterial({color:0x6cbcff,transparent:true,opacity:.48,side:THREE.DoubleSide,depthWrite:false}));
+  fall.position.set(x,.22,z+6.2);world.add(fall);
+  for(let j=0;j<6;j++){
+   const xx=x-7+j*2.8;
+   const ht=.9+(j%3)*.31;
+   cyl([xx,1.34+ht*.55,z-2.8],.13,.22,ht,foliage,world,7);
+   sphere([xx,1.43+ht,z-2.8],.56+(j%2)*.14,foliage,world,9);
+   for(let k=0;k<3;k++){
+    const a=(k*2.09)+j;
+    sphere([xx+Math.cos(a)*.4,1.57+ht,z-2.8+Math.sin(a)*.37],.13,k%2?budBlue:budViolet,world,7);
+   }
+  }
+  for(const dx of [-9,9]){
+   panel([x+dx,1.6,z],[.38,1.25,9.5],stone);
+   panel([x+dx,2.25,z],[.40,.055,9.5],side===1?M.blue:M.violet);
+  }
+ }
+}
 function continuousPlaza(){
  scene.fog.density=.00135;
  skyNebula(); towerBackgroundPlanet(); // Distinct 3D planet behind the tower.
@@ -624,6 +681,7 @@ function continuousPlaza(){
  }
  towerV16();
  towerFinishing();
+ exteriorExperienceV27();
  plazaLightReflections();
  // Distant surrounding spires to sell the wider floating mega-structure cityscape.
  for(const side of [-1,1]){
@@ -1044,8 +1102,28 @@ function openElevator(){setPanel(`<div class="eyebrow">HEXCORE TOWER / PORTAL TR
 function openAdmin(){let html=`<div class="eyebrow">HEXCORE / PRIVATE OFFICE</div><h2>CONTENT MANAGEMENT</h2><p class="subtle">FREE LOCAL EDITOR: edits are saved in this browser. Export JSON to publish manually. This is not secure public-server administration.</p><label>DEPARTMENT</label><select id="editDept">${floors.filter(f=>f.id!=='admin').map(f=>`<option value="${f.id}">${esc(f.label)}</option>`).join('')}</select><label>HEADLINE</label><input id="editHeadline"><label>DESCRIPTION</label><textarea id="editDesc"></textarea><label>UPDATES / DISPLAY CONTENT</label><textarea id="editUpdates"></textarea><div class="actions"><button id="saveEdit">SAVE LOCALLY</button><button id="exportEdit">EXPORT CHANGES</button><button id="importEdit">IMPORT CHANGES</button></div><input type="file" id="importFile" accept="application/json" class="hidden"><p id="editStatus" class="status"></p><p class="small">Admin publication to GitHub, asset uploads, permanent multiplayer state and secure identity checks are not implemented in this build. Existing Q&A is protected from edits in this interface.</p>`;setPanel(html);function loadFields(){let id=$('editDept').value,c=content(id);$('editHeadline').value=c.headline;$('editDesc').value=c.description;$('editUpdates').value=c.updates};$('editDept').onchange=loadFields;loadFields();$('saveEdit').onclick=()=>{let id=$('editDept').value;edits[id]={headline:$('editHeadline').value,description:$('editDesc').value,updates:$('editUpdates').value};localStorage.setItem('hexcore_edits_v1',JSON.stringify(edits));$('editStatus').textContent='Saved locally on this device.'};$('exportEdit').onclick=()=>{let blob=new Blob([JSON.stringify({format:'hexcore-content-v1',edits},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hexcore-content.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};$('importEdit').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{let d=JSON.parse(await e.target.files[0].text());if(d.format!=='hexcore-content-v1')throw Error('Unknown format');edits=d.edits||{};localStorage.setItem('hexcore_edits_v1',JSON.stringify(edits));loadFields();$('editStatus').textContent='Imported and saved locally.'}catch(err){$('editStatus').textContent='Import failed: '+err.message}}}
 $('closePanel').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('closeNav').onclick=()=>{$('nav').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('menuBtn').onclick=()=>{hideAll();$('nav').classList.remove('hidden')};$('settingsBtn').onclick=()=>{hideAll();setPanel(`<h2>GRAPHICS & CONTROLS</h2><p>Adaptive rendering supports mobile and desktop devices.</p><select id="liveQuality"><option value="low">LOW / MOBILE</option><option value="medium">BALANCED</option><option value="high">HIGH</option></select><button id="applyQuality">APPLY</button><p>Desktop: WASD, mouse, Shift, E. Mobile: dual joysticks, USE and RUN.</p>`);$('liveQuality').value=quality;$('applyQuality').onclick=()=>{quality=$('liveQuality').value;resizeRenderer();$('panel').classList.add('hidden')}};$('returnLobby').onclick=()=>travel('lobby');$('floorButtons').innerHTML=floors.map(f=>`<div class="directory-item">${esc(f.label)}</div>`).join('')+'<div class="directory-item">OUTSIDE • EXIT THROUGH LOBBY</div>';
 function resizeRenderer(){let dpr=quality==='low'?Math.min(devicePixelRatio,1):quality==='medium'?Math.min(devicePixelRatio,1.35):Math.min(devicePixelRatio,1.7);renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}window.addEventListener('resize',resizeRenderer);
-let prev=performance.now(),movePad={x:0,y:0},lookPad={x:0,y:0},running=false,mobile=matchMedia('(pointer:coarse)').matches;
-function initPad(id,target){let el=$(id),nub=el.querySelector('.nub'),activeId=null;function update(e){let b=el.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;let dx=(e.clientX-cx)/(b.width/2-22),dy=(e.clientY-cy)/(b.height/2-22);let len=Math.max(1,Math.hypot(dx,dy));target.x=dx/len;target.y=dy/len;nub.style.transform=`translate(${target.x*33}px,${target.y*33}px)`}el.onpointerdown=e=>{activeId=e.pointerId;el.setPointerCapture(activeId);update(e)};el.onpointermove=e=>{if(activeId===e.pointerId)update(e)};const end=e=>{if(activeId!==e.pointerId)return;activeId=null;target.x=target.y=0;nub.style.transform='translate(0,0)'};el.onpointerup=end;el.onpointercancel=end}initPad('movePad',movePad);initPad('lookPad',lookPad);$('interactTouch').onclick=()=>{if(!portalSelection)nearest?.cb()};$('runTouch').onpointerdown=()=>running=true;$('runTouch').onpointerup=$('runTouch').onpointercancel=()=>running=false;
+let prev=performance.now(),movePad={x:0,y:0},lookPad={x:0,y:0},running=false,mobile=matchMedia('(pointer:coarse)').matches || (navigator.maxTouchPoints>0 && innerWidth<1050);
+function initPad(id,target){
+ const el=$(id),nub=el.querySelector('.nub');let activeId=null;
+ const clear=()=>{activeId=null;target.x=0;target.y=0;nub.style.transform='translate(0px,0px)'};
+ function update(e){const b=el.getBoundingClientRect();const dx=(e.clientX-b.left-b.width/2),dy=(e.clientY-b.top-b.height/2);
+  const limit=(b.width-nub.offsetWidth)*.5;const scale=Math.max(1,limit);
+  const distance=Math.hypot(dx,dy),factor=Math.min(1,limit/Math.max(distance,.0001));
+  const mx=dx*factor,my=dy*factor;target.x=Math.abs(mx/scale)<.07?0:mx/scale;target.y=Math.abs(my/scale)<.07?0:my/scale;
+  nub.style.transform=`translate(${mx}px,${my}px)`;
+ }
+ el.addEventListener('pointerdown',e=>{if(activeId!==null)return;e.preventDefault();activeId=e.pointerId;el.setPointerCapture(activeId);update(e)});
+ el.addEventListener('pointermove',e=>{if(activeId!==e.pointerId)return;e.preventDefault();update(e)});
+ for(const event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,e=>{if(activeId===e.pointerId)clear()});
+ return clear;
+}
+const clearMovePad=initPad('movePad',movePad),clearLookPad=initPad('lookPad',lookPad);
+$('interactTouch').addEventListener('pointerdown',e=>{e.preventDefault();if(portalSelection)return;
+ if(nearest && $('panel').classList.contains('hidden') && $('nav').classList.contains('hidden'))nearest.cb();});
+$('runTouch').addEventListener('pointerdown',e=>{e.preventDefault();running=true;$('runTouch').setPointerCapture(e.pointerId)});
+for(const evt of ['pointerup','pointercancel','lostpointercapture'])$('runTouch').addEventListener(evt,()=>running=false);
+window.addEventListener('blur',()=>{clearMovePad();clearLookPad();running=false});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){clearMovePad();clearLookPad();running=false}});
 window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)nearest?.cb();if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
 function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-23,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(34.0,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
@@ -1063,6 +1141,6 @@ if(transitionCooldown<=0){
  if(floor==='outside'&&Math.abs(pos.x)<5.8&&pos.z<32.45){travel('lobby','fromOutside');return}
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'USE':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
-$('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile)$('mobileUI').classList.remove('hidden');active=true;travel('lobby');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
+$('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}active=true;travel('lobby');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
 try{Object.assign(selected,JSON.parse(localStorage.getItem('hexcore_character')||'{}'));for(let name of ['species','body']){let match=$(name).querySelector(`[data-value="${selected[name]}"]`);if(match)match.click()}}catch{}
 resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.remove('hidden');

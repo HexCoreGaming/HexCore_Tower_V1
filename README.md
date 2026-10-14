@@ -1,1 +1,9 @@
-HexCore Tower V2.6\n\nComplete replacement for GitHub Pages. Extract all files into the repository root, then commit and push.\n\nUpdates: giant detailed cracked planet from the supplied artwork, softly obscured lower portion, enhanced tower facade materials, metallic layers, lighting and architectural accents. Existing tower structure, doors, departments, legal dialogue, and controls preserved.\n\nV2.6: Detailed facade materials and 360-degree architectural fin finishing. All original entrance functionality remains intact.\n
+HexCore Tower V2.7 — Mobile Controls & Exterior Experience
+
+Extract the contents directly into the root of the GitHub Pages repository, replace old files, commit and push.
+
+Mobile: responsive dual analog pads, hold-to-run, tap USE, floor portal selection by touch, accessible menu, device-sensitive graphics quality. Desktop controls unchanged.
+
+Exterior: ground-level architectural uplights, energy beam above the tower, brighter logo halo, decorative overflowing water features and bioluminescent planting along the sides of the walkway. Original tower silhouette, doors, floors and legal Q&A preserved.
+
+Browser visual test remains recommended.

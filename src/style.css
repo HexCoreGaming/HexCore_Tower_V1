@@ -17,3 +17,13 @@
 .panel-box{backdrop-filter:blur(8px)}
 .prompt{border-color:#b28dff;background:#0c0b1ae8;box-shadow:0 0 20px #5d38b644}
 .hint{background:#090c18cc;border-color:#7e6db4b2;box-shadow:0 0 16px #3e2d6f40}
+
+/* V2.7: accessible phone and tablet controls. */
+.touch-mode #mobileUI{pointer-events:none}
+.touch-mode #mobileUI .pad,.touch-mode #mobileUI button{pointer-events:auto;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+.touch-mode .pad{background:rgba(30,25,56,.43);border-color:rgba(178,149,250,.65);box-shadow:0 0 18px rgba(99,62,181,.14)}
+.touch-mode .pad .nub{background:rgba(161,143,221,.68);box-shadow:0 0 10px rgba(150,108,254,.4)}
+.touch-mode #runTouch,.touch-mode #interactTouch{border:1px solid rgba(190,167,255,.75);background:rgba(29,20,64,.84);font-weight:700;z-index:7}
+@media (pointer:coarse){.touch-mode .crosshair{opacity:.45}.touch-mode #menuBtn{padding:12px;min-width:67px;touch-action:manipulation}}
+@media (max-width:700px){.touch-mode #mobileUI .pad{width:114px;height:114px;bottom:max(36px,env(safe-area-inset-bottom))}.touch-mode #mobileUI .pad .nub{left:33px;top:33px}.touch-mode .touch-action{right:18px;bottom:max(169px,calc(env(safe-area-inset-bottom) + 157px))}.touch-mode .touch-run{right:85px;bottom:max(154px,calc(env(safe-area-inset-bottom) + 143px))}}
+@media(max-height:500px) and (orientation:landscape){.touch-mode #mobileUI .pad{width:90px;height:90px;bottom:12px}.touch-mode #mobileUI .pad .nub{left:21px;top:21px}.touch-mode .touch-action{bottom:110px}.touch-mode .touch-run{bottom:96px}}
