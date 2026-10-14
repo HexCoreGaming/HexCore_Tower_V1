@@ -58,6 +58,7 @@ function marbleTexture(){
 const marbleMap=marbleTexture();
 const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0x0a0b0f,map:marbleMap,metalness:.52,roughness:.16,clearcoat:1,clearcoatRoughness:.08,reflectivity:1}),exteriorFloor:new THREE.MeshPhysicalMaterial({color:0x05070b,metalness:.48,roughness:.15,clearcoat:1,clearcoatRoughness:.05,reflectivity:1}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
 let world=new THREE.Group();scene.add(world);let entities=[],colliders=[],animatedDoors=[],staffActors=[];
+let spaceClouds=[]; // Active only for the exterior world; other floors have no cosmic cloud meshes.
 const box=(p,s,m,parent=world)=>{let o=new THREE.Mesh(new THREE.BoxGeometry(...s),m);o.position.set(...p);parent.add(o);return o};
 const cyl=(p,rTop,rBottom,h,m,parent=world,n=12)=>{let o=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,h,n),m);o.position.set(...p);parent.add(o);return o};
 const sphere=(p,r,m,parent=world,n=16)=>{let o=new THREE.Mesh(new THREE.SphereGeometry(r,n,12),m);o.position.set(...p);parent.add(o);return o};
@@ -453,6 +454,25 @@ function skyNebula(){
  sky.rotation.y=Math.PI;
  sky.renderOrder=-100;
  world.add(sky);
+ // Black-void sectors occupy the opposite and lateral sky, while the original
+ // user-approved illustrated panorama remains untouched in the tower-facing sky.
+ const voidMaterial=new THREE.ShaderMaterial({
+   side:THREE.BackSide,transparent:true,depthWrite:false,depthTest:true,fog:false,
+   uniforms:{uOpacity:{value:.99}},
+   vertexShader:`varying vec3 vDir;void main(){vDir=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+   fragmentShader:`varying vec3 vDir;uniform float uOpacity;
+     void main(){
+       // Sphere rotation and camera viewpoints vary. Preserve the full front vista;
+       // gently mask the rear and two flanks rather than cutting a hard seam.
+       float rear=smoothstep(.12,.78,vDir.z);
+       float flank=smoothstep(.84,.99,abs(vDir.x))*.55;
+       float mask=max(rear,flank);
+       gl_FragColor=vec4(.003,.004,.012,mask*uOpacity);
+     }`
+ });
+ const voidSky=new THREE.Mesh(new THREE.SphereGeometry(414,48,32),voidMaterial);
+ voidSky.position.copy(sky.position);voidSky.rotation.copy(sky.rotation);
+ voidSky.renderOrder=-99;world.add(voidSky);
  new THREE.TextureLoader().load('./reference/space-backdrop.webp',t=>{t.colorSpace=THREE.SRGBColorSpace;material.map=t;material.needsUpdate=true;});
  // A restrained distant-star layer gives depth when looking around in first person.
  const vertices=[];let seed=7823;
@@ -464,6 +484,82 @@ function skyNebula(){
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
  world.add(new THREE.Points(geometry,new THREE.PointsMaterial({color:0xd8d5ff,size:0.48,transparent:true,opacity:.48,sizeAttenuation:false,depthWrite:false,fog:false})));
 }
+// V3.1: time-varying, camera-facing, shader-softened cloud volumes.
+// Cloud sprites exist only in the exterior world, so none render indoors.
+function makeSpaceCloudMaterial(){
+ return new THREE.ShaderMaterial({
+  transparent:true,depthWrite:false,depthTest:true,side:THREE.DoubleSide,
+  uniforms:{
+   uTime:{value:0},uPhase:{value:0},uAlpha:{value:0},
+   uColor:{value:new THREE.Color(0x8565db)}
+  },
+  vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`varying vec2 vUv;uniform float uTime,uPhase,uAlpha;uniform vec3 uColor;
+    float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+    float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+      return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),
+                 mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+    void main(){
+      vec2 p=(vUv-.5)*2.;float r=length(p*vec2(1.,1.4));
+      float n=.54*noise(p*3.4+uPhase+vec2(uTime*.011,0.))
+             +.29*noise(p*8.0-vec2(uTime*.014,uPhase))
+             +.17*noise(p*17.1+uPhase);
+      float density=smoothstep(.78,.15,r)*smoothstep(.32,.70,n+.16);
+      float transparency=density*uAlpha*.36;
+      if(transparency<.006)discard;
+      vec3 col=uColor*mix(.5,1.5,n);
+      gl_FragColor=vec4(col,transparency);
+    }`
+ });
+}
+function createLivingSpace(){
+ spaceClouds=[];
+ const seedFn=()=>{let x=482791;return ()=>{x=(x*1664525+1013904223)>>>0;return x/4294967296}};const rand=seedFn();
+ const amount=quality==='low'?9:quality==='medium'?16:26;
+ const palette=[0x8458b8,0x4851a5,0x6978d7,0x9a6bc9,0x5467a0];
+ const cloudPlane=new THREE.PlaneGeometry(1,1);
+ for(let i=0;i<amount;i++){
+  const mat=makeSpaceCloudMaterial();
+  mat.uniforms.uPhase.value=rand()*17;
+  mat.uniforms.uColor.value.setHex(palette[i%palette.length]);
+  const cloud=new THREE.Mesh(cloudPlane,mat);
+  const size=38+rand()*94;cloud.scale.set(size,size*.62,1);
+  const theta=rand()*6.283;
+  const distance=42+rand()*200;
+  cloud.position.set(Math.cos(theta)*distance,8+rand()*125,Math.sin(theta)*distance+78);
+  // Large distant clouds stay behind most structural details while a few pass through.
+  cloud.userData={phase:rand()*6.28,period:75+rand()*120,speed:.35+rand()*1.25,
+    origin:cloud.position.clone(),wander:new THREE.Vector3((rand()-.5)*70,(rand()-.5)*16,(rand()-.5)*70)};
+  cloud.renderOrder=2;
+  world.add(cloud);spaceClouds.push(cloud);
+ }
+ // Additional 3D stellar depth beyond the nearby cloud layer.
+ const positions=[];for(let i=0;i<(quality==='low'?500:1600);i++){
+  const az=rand()*Math.PI*2,el=Math.acos(rand()*2-1),rad=185+rand()*185;
+  positions.push(Math.cos(az)*Math.sin(el)*rad,70+Math.cos(el)*rad,80+Math.sin(az)*Math.sin(el)*rad);
+ }
+ const geo=new THREE.BufferGeometry();
+ geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+ world.add(new THREE.Points(geo,new THREE.PointsMaterial({color:0xb8c9ff,size:.65,
+   transparent:true,opacity:.56,sizeAttenuation:false,depthWrite:false,fog:false})));
+}
+function updateLivingSpace(now){
+ if(floor!=='outside'||!spaceClouds.length)return;
+ const t=now*.001;
+ for(const cloud of spaceClouds){
+  const d=cloud.userData,phase=d.phase;
+  const cycle=((t+phase*10)/d.period)%1;
+  // Fade in, remain visible, then dissolve until the next formation.
+  let fade=Math.min(1,cycle*7,(1-cycle)*6);
+  fade=Math.max(0,fade);fade=fade*fade*(3-2*fade);
+  cloud.material.uniforms.uAlpha.value=fade;
+  cloud.material.uniforms.uTime.value=t;
+  cloud.position.copy(d.origin).addScaledVector(d.wander,Math.sin(t/d.period*6.283+phase)*.5);
+  cloud.position.x+=t*d.speed%35-17.5;
+  cloud.lookAt(camera.position);
+ }
+}
+
 function planetBackdrop(x,y,z,r,color=0x4e367b){
  const pm=new THREE.MeshBasicMaterial({color,depthWrite:false,fog:false});let planet=sphere([x,y,z],r,pm,world,40);
  const rim=new THREE.Mesh(new THREE.SphereGeometry(r*1.035,40,24),new THREE.MeshBasicMaterial({color:0x8a72ff,side:THREE.BackSide,transparent:true,opacity:.22,depthWrite:false,fog:false}));rim.position.set(x,y,z);world.add(rim);
@@ -1138,14 +1234,14 @@ function openReception(){
 function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openDepartmentEmployee(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
-function exterior(){continuousPlaza()} // Separate exterior hero area.
+function exterior(){continuousPlaza();createLivingSpace()} // Exterior-only nebula volumes.
 
-function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031}
+function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031}
 let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,21),active=false,nearest=null,quality='low',transitionCooldown=0;
 let doorCache=null;
-function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors}}
+function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors,spaceClouds}}
 function installDoorWorld(data){
- scene.remove(world);world=data.world;entities=data.entities;animatedDoors=data.animatedDoors;staffActors=data.staffActors;scene.add(world);
+ scene.remove(world);world=data.world;entities=data.entities;animatedDoors=data.animatedDoors;staffActors=data.staffActors;spaceClouds=data.spaceClouds||[];scene.add(world);
 }
 function prebuildDoorWorlds(){
  if(doorCache||floor!=='lobby')return;
@@ -1153,7 +1249,7 @@ function prebuildDoorWorlds(){
  world=new THREE.Group();entities=[];animatedDoors=[];staffActors=[];
  exterior();const outsideSnapshot=snapshotDoorWorld();scene.remove(world);
  doorCache={lobby:lobbySnapshot,outside:outsideSnapshot};
- world=lobbySnapshot.world;entities=lobbySnapshot.entities;animatedDoors=lobbySnapshot.animatedDoors;staffActors=lobbySnapshot.staffActors;scene.add(world);
+ world=lobbySnapshot.world;entities=lobbySnapshot.entities;animatedDoors=lobbySnapshot.animatedDoors;staffActors=lobbySnapshot.staffActors;spaceClouds=lobbySnapshot.spaceClouds||[];scene.add(world);
  scene.fog.density=.0031;
 }
 function crossDoor(target){
@@ -1294,7 +1390,7 @@ window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code)
 function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-23,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(34.0,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
-npcConversationPulse(now);
+npcConversationPulse(now);updateLivingSpace(now);
 for(const g of staffActors){if(g.userData.tag)g.userData.tag.rotation.y=yaw;if(g.userData.speech)g.userData.speech.rotation.y=yaw;const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;if(!g.userData.speech?.visible)g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
  if(g.userData.walkPath){const t=now*.001*g.userData.speed+ph;
  g.position.x=g.userData.homeX+Math.sin(t)*g.userData.range;

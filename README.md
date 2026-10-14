@@ -1,9 +1,11 @@
-# HexCore Tower V3.0 — NPCs and Security
+HexCore Tower V3.1 — Living Space Environment
+Full replacement website package for GitHub Pages. Extract contents into the repository root, commit and push.
 
-This is a full GitHub Pages replacement ZIP. Extract the contents directly into the repository root, commit, and push.
+Included:
+- Animated transparent, nebula-like clouds in the EXTERIOR world only; clouds slowly drift, appear, and dissipate.
+- Distant black-void sky sectors while preserving the approved background toward the tower.
+- Extra distant star particles for spatial parallax.
+- Low quality uses fewer effects for mobile.
+- Original lobby/department geometry, player controls, tower, and legal dialogue retained.
 
-Changes from V2.8: distinct NPC appearance variants (hair, clothing, skin tones, ear shapes and facial details), individual names and roles above characters, guards at tower entrance and in the lobby, patrolling guards and timed ambient NPC conversations when staff are near each other. Existing 41 Legal Q&A records and mobile controls are unchanged.
-
-Browser-based visual and mobile verification is still required.
-
-V3.0 exterior pass: new paired water features and glowing gardens along entrance, ground-to-tower spotlights, illuminated logo halo, intensified vertical energy beam, and scale reference notes.
+Visual presentation and interaction must still be confirmed on real devices. No spaceship gameplay in this release.

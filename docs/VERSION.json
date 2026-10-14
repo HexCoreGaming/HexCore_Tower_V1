@@ -1,17 +1,15 @@
 {
-  "version": "V3.0",
-  "codename": "Named NPCs and Security",
-  "notes": [
-    "Distinct human / elf, masculine / feminine NPC geometry",
-    "Name and role labels",
-    "Posted and patrolling guards",
-    "Timed proximity dialogue exchanges",
-    "Mobile control implementation unchanged"
-  ],
+  "version": "V3.1",
+  "codename": "Living Space Environment",
   "changes": [
-    "White-veined marble texture visibility increase",
-    "Large background planet behind tower",
-    "Facade lighting and floor glow refinements"
+    "Animated exterior-only cosmic cloud volumes that fade, drift and reform on varying timers",
+    "Black-void sky sectors with soft transition from the existing nebula background",
+    "Additional spatially distributed star particles for 3D depth",
+    "Lower cloud and particle counts in lower graphics quality",
+    "Existing mobile controls, tower and interiors preserved"
   ],
-  "hotfix": "Defined EYE_HEIGHT and NPC_SCALE used by the character and NPC geometry."
+  "limitations": [
+    "Planet and far sky remain rendered scenery; no space flight yet",
+    "WebGL shader cloud cards simulate volume rather than raymarched 3D volumetric fog"
+  ]
 }
