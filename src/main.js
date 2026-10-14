@@ -69,7 +69,104 @@ function trim(p,s,material=M.violet){box(p,s,material)}
 function tree(x,z,scale=1){cyl([x,.9*scale,z],.12*scale,.22*scale,1.8*scale,M.dark);sphere([x,2.05*scale,z],.85*scale,M.leaf);for(let i=0;i<5;i++){let a=i*Math.PI*2/5;sphere([x+Math.cos(a)*.65*scale,1.9*scale,z+Math.sin(a)*.65*scale],.42*scale,M.leaf)}}
 function portal(label,x,z,cb){box([x,1.8,z],[4.7,3.6,.35],M.dark);box([x,3.6,z],[4.9,.08,.5],M.violet);for(let dx of [-2.36,2.36])box([x+dx,1.8,z],[.09,3.6,.5],M.blue);sign(label,[x,4.65,z+.32],5.8,.7);interact(label,[x,1.7,z],cb,5)}
 function hologram(x,y,z){sphere([x,y,z],2.25,new THREE.MeshBasicMaterial({color:0x5555ef,transparent:true,opacity:.42,wireframe:true}));torus([x,y,z],3.05,.04,M.blue,[1.05,0,.2]);torus([x,y,z],2.55,.04,M.violet,[.3,.2,0]);}
-function employee(x,z,i){let g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(NPC_SCALE);g.userData={baseY:0,phase:Math.random()*Math.PI*2,turn:(Math.random()-.5)*.22};world.add(g);staffActors.push(g);cyl([0,1.15,0],.25,.31,1.35,M.black,g);sphere([0,2.06,0],.27,i%2?M.skin:M.hair,g);box([-.37,1.2,0],[.15,.88,.18],M.black,g);box([.37,1.2,0],[.15,.88,.18],M.black,g);box([-.14,.3,0],[.18,.67,.23],M.black,g);box([.14,.3,0],[.18,.67,.23],M.black,g);box([0,1.35,.27],[.25,.15,.05],i%2?M.violet:M.blue,g);return g;}
+// V2.9: deterministic named humans and elves with visual sex/body, hairstyle, skin-tone,
+// uniforms, security patrols and lightweight in-world conversations. No external models required.
+const npcGiven=['Amara','Dorian','Keiko','Marek','Sora','Nadia','Elias','Imani','Ari','Yara','Felix','Liora','Jun','Talia','Ren','Zara','Cassian','Mina','Oren','Ayla','Vera','Theo'];
+const npcLast=['Vale','Chen','Sato','Voss','Reyes','Hale','Okafor','Mercer','Kade','Solari','Bell','Arden','Park','Orion'];
+const npcSkin=[0x6a3d32,0x9c624b,0xd19c77,0xedc5a2,0x6c4b3d,0xb78361];
+const npcHair=[0x0b101b,0x33201d,0x8c6650,0xc2b6ba,0x2b2848,0x52311e];
+const npcDialogue=[['Good to see you.','Welcome back.'],['Did you see the new starfield?','The view is incredible.'],['Security check complete.','Everything looks clear.'],['Heading to my department.','I will see you upstairs.'],['The tower is looking beautiful.','That lighting is something else.']];
+function npcLabel(text,width=4.3,height=.55){
+ const tex=textCanvas(text,{size:47,color:'#e9eeff',width:1024,height:128});
+ const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,side:THREE.DoubleSide,depthTest:false});
+ return new THREE.Mesh(new THREE.PlaneGeometry(width,height),mat);
+}
+function employee(x,z,i,role='Staff'){
+ const n=Math.abs(Math.round(i*10)),elf=n%4===0,female=n%2===0;
+ const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(NPC_SCALE);
+ const name=npcGiven[n%npcGiven.length]+' '+npcLast[(n*3+7)%npcLast.length];
+ g.userData={baseY:0,phase:(n%19)*.27,turn:((n%7)-3)*.07,role,name,elf,female};
+ world.add(g);staffActors.push(g);
+ const skin=new THREE.MeshStandardMaterial({color:npcSkin[n%npcSkin.length],roughness:.85});
+ const hair=new THREE.MeshStandardMaterial({color:npcHair[(n*7+2)%npcHair.length],roughness:.77});
+ const coat=new THREE.MeshStandardMaterial({color:role==='Security'?0x171c2b:(n%3===0?0x343044:0x232939),metalness:.24,roughness:.48});
+ const detail=new THREE.MeshStandardMaterial({color:role==='Security'?0x8cd4ff:0xa99bd7,emissive:role==='Security'?0x2864a0:0x392176,emissiveIntensity:.7,metalness:.45});
+ const pants=new THREE.MeshStandardMaterial({color:0x131726,roughness:.62});
+ // Real geometry for legs, boots, torso, collar and arms rather than single capsules.
+ for(const dx of [-.17,.17]){
+  box([dx,.44,0],[.26,.88,.31],pants,g);
+  box([dx,.115,.07],[.29,.23,.45],coat,g);
+ }
+ const shoulder=female?.85:1.05;
+ cyl([0,1.30,0],female?.29:.33,female?.32:.34,1.10,coat,g,12);
+ box([0,1.36,.34],[.53*shoulder,.13,.055],detail,g);
+ box([0,1.93,0],[.40,.14,.35],detail,g);
+ for(const side of [-1,1]){
+  box([side*.43,1.43,0],[.22,.85,.28],coat,g);
+  sphere([side*.43,.98,0],.135,skin,g,10);
+  box([side*.43,1.62,.16],[.11,.28,.05],detail,g);
+ }
+ cyl([0,2.035,0],.14,.17,.24,skin,g,10);
+ sphere([0,2.35,0],female?.285:.31,skin,g,20);
+ // Expressive hair shapes and variable length. Facial features face +Z.
+ sphere([0,2.53,-.055],.30,hair,g,18);
+ if(female){
+  for(const side of [-1,1])sphere([side*.23,2.29,-.13],.14+(n%3)*.04,hair,g,12);
+ } else {
+  box([0,2.58,-.04],[.49,.13,.39],hair,g);
+ }
+ for(const side of [-1,1]){
+  // Pointed ears make elves immediately recognizable from the front and sides.
+  if(elf){const ear=new THREE.Mesh(new THREE.ConeGeometry(.105,.37,5),skin);ear.rotation.z=side*Math.PI*.47;ear.position.set(side*.39,2.38,.005);g.add(ear)}
+  else sphere([side*.30,2.32,0],.085,skin,g,10);
+  sphere([side*.105,2.39,.265],.028,new THREE.MeshBasicMaterial({color:0x141724}),g,8);
+ }
+ box([0,2.27,.284],[.105,.025,.018],new THREE.MeshBasicMaterial({color:0x603e3e}),g);
+ if(role==='Security'){
+  box([0,1.25,.39],[.30,.20,.06],detail,g);
+  box([0,2.48,.25],[.48,.10,.10],detail,g);
+  box([-.15,.57,.20],[.12,.35,.16],coat,g);
+ }
+ const tag=npcLabel(name+'  |  '+role,role==='Security'?4.9:4.5,.52);
+ tag.position.set(0,3.15,0);g.add(tag);g.userData.tag=tag;
+ const speech=npcLabel('',5,.53);speech.position.set(0,3.64,0);speech.visible=false;g.add(speech);g.userData.speech=speech;
+ return g;
+}
+function guard(x,z,i,patrol=false){
+ const g=employee(x,z,i,'Security');
+ g.userData.guard=true;
+ g.userData.walkPath=patrol;
+ if(patrol){g.userData.homeX=x;g.userData.homeZ=z;g.userData.range=4+(i%3)*2;g.userData.speed=.24+(i%3)*.04}
+ return g;
+}
+function npcConversationPulse(now){
+ // NPCs exchange short, timed dialogue only when they are naturally near one another.
+ // Avoid touching service dialogue / preserved legal Q&A.
+ const beat=Math.floor(now/10500);const progress=now%10500;
+ if(beat===npcConversationPulse.lastBeat && progress>5800){for(const a of staffActors){if(a.userData.speech)a.userData.speech.visible=false}return}
+ if(beat!==npcConversationPulse.lastBeat){
+  npcConversationPulse.lastBeat=beat;
+  for(const a of staffActors){if(a.userData.speech)a.userData.speech.visible=false}
+  for(let j=0;j<staffActors.length;j++){
+   const a=staffActors[j];if((j+beat)%5!==0)continue;
+   let b=null,dist=4.9;
+   for(const other of staffActors){if(other===a)continue;
+    const d=a.position.distanceTo(other.position);if(d<dist){dist=d;b=other}}
+   if(!b)continue;
+   const set=npcDialogue[(beat+j)%npcDialogue.length];
+   const aTag=a.userData.speech,bTag=b.userData.speech;
+   if(!aTag||!bTag)continue;
+   for(const [mesh,line] of [[aTag,set[0]],[bTag,set[1]]]){
+    const next=npcLabel(line,4.5,.5);mesh.material.map.dispose();mesh.material.map=next.material.map;
+    mesh.material.needsUpdate=true;next.material.dispose();next.geometry.dispose();mesh.visible=true;
+   }
+   a.rotation.y=Math.atan2(b.position.x-a.position.x,b.position.z-a.position.z);
+   b.rotation.y=Math.atan2(a.position.x-b.position.x,a.position.z-b.position.z);
+  }
+ }
+ if(progress>5200){for(const a of staffActors){if(a.userData.speech)a.userData.speech.visible=false}}
+}
+npcConversationPulse.lastBeat=-1;
 
 // V7: exactly ONE portal per floor. The destination display is a hologram in the 3D scene.
 let portalSelection=null, portalHologram=null;
@@ -679,6 +776,7 @@ function continuousPlaza(){
    // channel source above side-edge waterfalls.
    for(const z of [18,78,138])panel([side*108,.03,z],[4,.14,16],M.blue);
  }
+ guard(-12,39,206,true);guard(12,39,207,true);guard(-29,74,208,true);guard(29,74,209,true);
  towerV16();
  towerFinishing();
  exteriorExperienceV27();
@@ -962,6 +1060,7 @@ function lobby(){
  lobbyExteriorVista();
  for(let x of [-25,25]){let lamp=new THREE.PointLight(0x8f65ff,34,24,2);lamp.position.set(x,7,-8);world.add(lamp)}
  for(let x of [-18,18]){let uplight=new THREE.PointLight(0xaebfff,10,12,2);uplight.position.set(x,.8,18);world.add(uplight)}
+ guard(-9,25,210,false);guard(9,25,211,false);guard(-23,-3,212,true);guard(23,-3,213,true);
  lobbyAccents();atriumUpgrade();v2LobbyArchitecture();lobbyV9Dressing();v10LobbyFinish();
 }
 function openReception(){
@@ -969,12 +1068,12 @@ function openReception(){
  $('receptionClose').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};
 }
 
-function floorRoom(data){box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
+function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openDepartmentEmployee(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
 function exterior(){continuousPlaza()} // Separate exterior hero area.
 
-function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];scene.fog.density=.0031}
+function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031}
 let floor='lobby',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,21),active=false,nearest=null,quality='low',transitionCooldown=0;
 let doorCache=null;
 function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors}}
@@ -1128,7 +1227,8 @@ window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code)
 function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-23,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(34.0,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
-for(const g of staffActors){const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
+npcConversationPulse(now);
+for(const g of staffActors){if(g.userData.tag)g.userData.tag.rotation.y=yaw;if(g.userData.speech)g.userData.speech.rotation.y=yaw;const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;if(!g.userData.speech?.visible)g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
  if(g.userData.walkPath){const t=now*.001*g.userData.speed+ph;
  g.position.x=g.userData.homeX+Math.sin(t)*g.userData.range;
  g.position.z=g.userData.homeZ+Math.cos(t)*g.userData.range*.65;

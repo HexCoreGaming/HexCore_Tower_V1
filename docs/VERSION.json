@@ -1,11 +1,12 @@
 {
-  "version": "V2.8",
-  "codename": "Space Reference Backdrop",
+  "version": "V2.9",
+  "codename": "Named NPCs and Security",
   "notes": [
-    "User-provided space reference artwork integrated into the in-world 3D sky",
-    "Reduced extraneous duplicate planets",
-    "360-degree starfield to reinforce space depth",
-    "Existing tower, floating plaza, sliding doors, departments and NPC dialogue preserved"
+    "Distinct human / elf, masculine / feminine NPC geometry",
+    "Name and role labels",
+    "Posted and patrolling guards",
+    "Timed proximity dialogue exchanges",
+    "Mobile control implementation unchanged"
   ],
   "changes": [
     "White-veined marble texture visibility increase",
