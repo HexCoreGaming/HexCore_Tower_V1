@@ -1,5 +1,5 @@
 {
-  "version": "V3.5",
+  "version": "V3.7",
   "files": [
     {
       "file": ".nojekyll",
@@ -8,8 +8,8 @@
     },
     {
       "file": "README.md",
-      "size": 1327,
-      "sha256": "a4bfd0087e6f331cd0c4c7d866d1dba49ec685bfacc731a3a53768a120f25811"
+      "size": 1258,
+      "sha256": "aea9f1d9fe14ad87206e9e8786ac8315bcc917c8ec7ef0b467a975d33bd6d65b"
     },
     {
       "file": "data/preservedLegalDialogue.js",
@@ -23,13 +23,13 @@
     },
     {
       "file": "docs/VERSION.json",
-      "size": 952,
-      "sha256": "03b865bda13fe82dd426ed2ea0eaf8adaae064f9b34998940238f407881ae08c"
+      "size": 1015,
+      "sha256": "ed48758d8344339737aa1fefd9f1ee10f7a0a86d14a836f698062ea166915f06"
     },
     {
       "file": "index.html",
       "size": 4337,
-      "sha256": "2dd58464d57bef3604af03624574aec87e0d9bba7e600514211390992a59da09"
+      "sha256": "74893d81ef956953ff202c95d433465c1c6df6d8d2aa31b8a2d758e55a975ce2"
     },
     {
       "file": "reference/approved-lobby.png",
@@ -118,8 +118,8 @@
     },
     {
       "file": "src/main.js",
-      "size": 119829,
-      "sha256": "115a59745569cbc502e45efa6b43efad9429a953ef344b8632d55aa68d702453"
+      "size": 126313,
+      "sha256": "4837c39a13b2b35ba866112e7210adcb6e02220ff02726c151ad785ff3d4e442"
     },
     {
       "file": "src/style.css",

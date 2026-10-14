@@ -842,7 +842,7 @@ function updateCosmicEvent(now,previewOnly=false){
    let offset=(now*.00034*veil.scroll*veil.direction+veil.phase)%1;
    if(offset<0)offset+=1;
    veil.mat.map.offset.y=offset;
-   veil.mat.map.needsUpdate=true;
+   // Offset changes update the UV transform automatically; do NOT upload the entire canvas every frame.
   }
   veil.mesh.position.y=117+Math.sin(now*.0011+veil.phase)*10;
   veil.mesh.lookAt(camera.position.x,veil.mesh.position.y,camera.position.z);
@@ -1512,7 +1512,7 @@ let floor='outside',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,181
 // Two scenes are constructed ONCE per visit: the actual exterior and the actual lobby.
 // When the doors open, each draws a live, screen-projected view of the OTHER scene.
 // Crossing z=32 does not rebuild geometry, reorient the camera, or load another webpage.
-let doorCache=null,doorPortalFrames=0;
+let doorCache=null,doorPortalFrames=0,initialWorldReady=false,preparingWorld=false,prepareTimer=null;
 const DOOR_Z=32;
 function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors,spaceClouds,cosmicSkyLayers,orbitPlanets,glitchOverlays,codeVeils,preview:null}}
 function installDoorWorld(data){
@@ -1523,22 +1523,23 @@ function installDoorWorld(data){
 }
 function previewSize(){
  const ratio=innerWidth/Math.max(1,innerHeight);
- const width=(mobile||quality==='low')?512:quality==='medium'?768:1024;
+ const width=(mobile||quality==='low')?384:quality==='medium'?512:640;
  return [width,Math.max(200,Math.round(width/ratio))];
 }
 function makeDoorwayPreview(data,which){
  const [w,h]=previewSize();
  const rt=new THREE.WebGLRenderTarget(w,h,{depthBuffer:true,stencilBuffer:false});
  rt.texture.colorSpace=THREE.SRGBColorSpace;
- const material=new THREE.ShaderMaterial({transparent:true,depthTest:true,depthWrite:false,
+ const material=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,
   side:THREE.DoubleSide,uniforms:{uMap:{value:rt.texture},uResolution:{value:new THREE.Vector2(1,1)},uAlpha:{value:0}},
   vertexShader:'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
   fragmentShader:'uniform sampler2D uMap;uniform vec2 uResolution;uniform float uAlpha;void main(){vec2 uv=gl_FragCoord.xy/uResolution;gl_FragColor=vec4(texture2D(uMap,uv).rgb,uAlpha);}'
  });
  const surface=new THREE.Mesh(new THREE.PlaneGeometry(10.85,7.20),material);
  // Place the preview BEHIND the sliding panels in the viewer's current world.
- surface.position.set(0,3.60,which==='outside'?31.96:32.11);
- surface.visible=false;surface.renderOrder=3;data.world.add(surface);
+ // Put the real destination view just IN FRONT of the doorway frame, not behind opaque cladding.
+ surface.position.set(0,3.60,which==='outside'?32.32:31.68);
+ surface.visible=false;surface.renderOrder=-1;data.world.add(surface);
  data.preview={surface,material,rt,last:-1000};
 }
 function prebuildDoorWorlds(){
@@ -1574,13 +1575,16 @@ function updateDoorPreview(now,dt){
  syncDoorOpenings(activeData,dt);syncDoorOpenings(inactiveData,dt);
  const preview=activeData.preview;
  if(!preview)return;
- const nearDoor=Math.abs(pos.z-DOOR_Z)<34&&Math.abs(pos.x)<21;
+ // The opposite REAL world should be visible through even closed transparent glass.
+ // Far away we keep an occasional cached snapshot; close up it refreshes live.
+ const distanceToDoor=Math.abs(pos.z-DOOR_Z);
+ const nearDoor=distanceToDoor<(floor==='outside'?162:48)&&Math.abs(pos.x)<20;
  const openness=activeData.animatedDoors[0]?.open||0;
- preview.surface.visible=nearDoor&&openness>.09;
- preview.material.uniforms.uAlpha.value=Math.min(.985,Math.max(0,(openness-.09)*1.7));
+ preview.surface.visible=nearDoor;
+ // A slightly translucent base keeps the glass doors legible while closed.
+ preview.material.uniforms.uAlpha.value=.85+Math.min(.15,openness*.15);
  if(!preview.surface.visible)return;
- // Updating the live view is expensive: reduce extra passes on phones.
- const cadence=mobile||quality==='low'?95:quality==='medium'?58:36;
+ const cadence=distanceToDoor>46?2200:(mobile||quality==='low'?330:quality==='medium'?230:190);
  if(now-preview.last<cadence)return;
  preview.last=now;
  const savedFogDensity=scene.fog.density,savedFogColor=scene.fog.color.clone(),savedExposure=renderer.toneMappingExposure;
@@ -1613,6 +1617,29 @@ function updateDoorPreview(now,dt){
  scene.remove(inactiveData.world);scene.add(world);
  scene.fog.density=savedFogDensity;scene.fog.color.copy(savedFogColor);
  renderer.toneMappingExposure=savedExposure;
+}
+function scheduleDoorPrebuild(){
+ if(doorCache||preparingWorld||prepareTimer!==null)return;
+ prepareTimer=setTimeout(()=>{
+  prepareTimer=null;
+  if(!active||doorCache||(floor!=='lobby'&&floor!=='outside'))return;
+  prebuildDoorWorlds();
+ },300);
+}
+function warmInitialExterior(){
+ // Construct the entrance world BEFORE the visitor presses ENTER, if browser is idle.
+ if(active||initialWorldReady||preparingWorld)return;
+ preparingWorld=true;
+ try{
+  doorCache=null;
+  floor='outside';
+  resetWorld();
+  exterior();
+  pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
+  camera.position.copy(pos);camera.rotation.set(0,0,0);
+  initialWorldReady=true;
+ }catch(err){console.error('Exterior prebuild could not complete',err);initialWorldReady=false;}
+ finally{preparingWorld=false;}
 }
 function crossDoor(target){
  if(!doorCache||!doorCache[target]||floor===target)return;
@@ -1647,7 +1674,8 @@ function travel(id,spawn='default'){
  camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
  $('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();
  hideAll();transitionCooldown=.18;
- if(id==='lobby'||id==='outside')prebuildDoorWorlds();
+ // Preload the other side asynchronously after the first playable frame, never on ENTER.
+ if(id==='lobby'||id==='outside')scheduleDoorPrebuild();
 }
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
@@ -1790,6 +1818,31 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
  else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
-$('enter').onclick=()=>{quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}active=true;travel('outside');if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}};
+$('enter').onclick=()=>{
+ const requestedQuality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;
+ quality=requestedQuality;
+ resizeRenderer();
+ if(!initialWorldReady){warmInitialExterior();}
+ $('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');
+ if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}
+ active=true;
+ // V3.7: reuse the prebuilt scene; do not rebuild the plaza and lobby in the click handler.
+ floor='outside';pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
+ camera.position.copy(pos);camera.rotation.set(0,0,0);
+ $('zone').textContent='HEXCORE // EXTERIOR PLAZA';
+ scheduleDoorPrebuild();
+ if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});
+ try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}
+};
 try{Object.assign(selected,JSON.parse(localStorage.getItem('hexcore_character')||'{}'));for(let name of ['species','body']){let match=$(name).querySelector(`[data-value="${selected[name]}"]`);if(match)match.click()}}catch{}
 resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.remove('hidden');
+// Idle preparation keeps expensive world construction out of the ENTER button's click handler.
+setTimeout(()=>{
+ if(!active){
+  quality=$('quality').value==='auto'?(mobile?'low':(devicePixelRatio>1.5?'medium':'high')):$('quality').value;
+  warmInitialExterior();
+  // Let the entrance menu paint first; prepare the lobby while visitors choose settings.
+  setTimeout(()=>{if(!active&&initialWorldReady&&!doorCache){prebuildDoorWorlds();}},650);
+ }
+},180);
+

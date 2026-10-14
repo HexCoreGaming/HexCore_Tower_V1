@@ -1,15 +1,24 @@
 {
-  "version": "V3.6",
-  "codename": "Seamless Entrance + Exterior Spawn",
+  "version": "V3.7",
+  "codename": "Startup, Corruption Performance & Doorway View Fix",
   "changes": [
-    "Spawn near exterior platform edge facing tower",
-    "Preload real lobby and exterior together before exploration",
-    "Live perspective-correct doorway previews of opposite scene replace fake scene slices",
-    "Cross-door transitions preserve camera location, yaw, pitch and movement",
-    "Shared automatic door opening and mobile-friendly preview cadence"
+    "Construct exterior during welcome screen idle so ENTER reuses prepared geometry",
+    "Prepare actual lobby scene ahead of reaching sliding doors; crossing swaps preloaded world without reconstruction",
+    "Correct exterior and lobby doorway preview surfaces so actual opposite scene is visible through opening rather than distant sky",
+    "Throttle and reduce render resolution of live portal previews to limit extra render overhead",
+    "Stop per-frame code-rain canvas uploads that cause severe GPU stalls at overlap"
   ],
   "preserved": [
-    "Existing NPCs, dialogue, mobile controls, planet orbits, corruption event, exterior design"
+    "10-second overlap cycle",
+    "Planet orbits",
+    "Cosmic entity",
+    "Mobile controls",
+    "Tower geometry",
+    "NPCs",
+    "41 legal Q&A entries"
   ],
-  "testing": "JavaScript / archive tests, plus browser testing where available"
+  "limits": [
+    "Door previews are rate-limited render-to-texture views; verify visually after deployment.",
+    "Browser test unavailable in sandbox due browser navigation restrictions."
+  ]
 }
