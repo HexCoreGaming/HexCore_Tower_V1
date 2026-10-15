@@ -1723,6 +1723,7 @@ const transitStart=(quickSex=null)=>{
  quality=requestedQuality;resizeRenderer();
  $('entry').classList.add('hidden');$('loading').classList.add('hidden');
  $('networkTransit').classList.remove('hidden');$('authorizationText').classList.add('hidden');
+ window.HexCoreNetwork?.start();
  $('transitStatus').textContent='TRANSFERRING USER INSTANCE';
  let start=performance.now();let verified=false;
  // Yield to the compositor before doing any remaining preparation work.
@@ -1730,7 +1731,11 @@ const transitStart=(quickSex=null)=>{
  setTimeout(prepare,50);
  const flight=now=>{
   const elapsed=now-start;
-  $('transitProgress').style.width=Math.min(100,elapsed/10000*100)+'%';
+  const progress=Math.min(initialWorldReady?100:95,Math.round(elapsed/10000*100));
+ $('transitProgress').style.width=progress+'%';
+ $('transitProgressBar').setAttribute('aria-valuenow',String(progress));
+ $('transitPercent').textContent=progress+'%';
+ $('transitStage').textContent=initialWorldReady?'HEADQUARTERS READY':preparingWorld?'STREAMING HEADQUARTERS GEOMETRY':'ESTABLISHING CONNECTION';
   if(elapsed>=7000)$('authorizationText').classList.remove('hidden');
   if(elapsed>=10000&&initialWorldReady){finishArrival();return;}
   if(elapsed>=10000){$('transitStatus').textContent='CONNECTING TO HEADQUARTERS';if(!verified&&!preparingWorld)setTimeout(prepare,80);}
@@ -1739,6 +1744,7 @@ const transitStart=(quickSex=null)=>{
  requestAnimationFrame(flight);
 };
 function finishArrival(){
+ window.HexCoreNetwork?.stop();
  $('networkTransit').classList.add('hidden');$('hud').classList.remove('hidden');
  if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}
  active=true;floor='outside';pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
@@ -1755,13 +1761,7 @@ $('quickMale').onclick=()=>transitStart('male');
 $('quickFemale').onclick=()=>transitStart('female');
 try{const stored=JSON.parse(localStorage.getItem('hexcore_character')||'{}');Object.assign(selected,stored);if(selected.body==='masculine')selected.body='male';if(selected.body==='feminine')selected.body='female';updateAppearanceButtons()}catch{updateAppearanceButtons()}
 resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.remove('hidden');
-// Idle preparation keeps expensive world construction out of the ENTER button's click handler.
-setTimeout(()=>{
- if(!active){
-  quality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;
-  warmInitialExterior();
-  $('worldPrepStatus').textContent=initialWorldReady?'HEADQUARTERS READY // AWAITING USER':'Preparing headquarters…';
-  // The actual lobby has already been built as part of the shared headquarters world.
- }
-},20);
-
+// Do not build the massive 3D scene while visitors are trying to use the menu.
+// Preparation begins during the network transit, after its first animated frame.
+const idleStatus=$('worldPrepStatus');
+if(idleStatus)idleStatus.textContent='HEADQUARTERS TRANSIT READY // SELECT YOUR ARRIVAL';

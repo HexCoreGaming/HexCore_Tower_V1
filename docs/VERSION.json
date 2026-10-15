@@ -1,7 +1,7 @@
 {
-  "version": "4.9",
+  "version": "4.10",
   "phase": "5",
-  "label": "Main Lobby Architecture \u2014 First Floor",
+  "label": "Network Transit Visual and Menu Responsiveness",
   "base": "4.5",
-  "description": "Open lobby geometry correction \u2014 no menu redesign"
+  "description": "Deferred menu-blocking world initialization until transit and replaced flat tunnel with perspective canvas transit and HUD progress bar."
 }

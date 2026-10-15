@@ -1,10 +1,12 @@
-# HexCore Tower V4.9 — Choice Portal & Lobby Obstruction Correction
+# HexCore Tower V4.10 — Network Transit and Menu Responsiveness
 
-Targeted correction based on the V4.7 screenshot and V4.8 failure report.
+- Retains two-choice landing portal with holographic website and 3D headquarters.
+- Removes automatic expensive 3D scene construction 20 ms after character selection appears; begins the scene build during the cinematic instead.
+- Replaces flat repeating CSS rings with a perspective network-flight canvas: angular gateways, receding network lanes, depth-separated light packets and a luminous terminal.
+- Adds a readable loading progress bar, percentage, and world-preparation status. The percentage is a **preparation indicator** combining the 10-second cinematic and scene readiness, not bytes downloaded.
+- Preserves the authorization message and welcome-user arrival beam.
 
-- The original two-choice launch portal is preserved as the homepage. Clicking 3D navigates to `headquarters.html?from=portal`, and a direct old link to `headquarters.html` returns to the portal.
-- The real underlying problem was tower-facade structural solids intersecting the same volume as the open lobby. The exterior build now culls intrusive large structural boxes before adding the lobby contents.
-- The existing lobby desks, NPCs, globe, floor transit and mobile controls remain.
-- This is a geometry-level correction and no changes to the portal styling were made.
+## Caveat
+World construction still runs on the JavaScript main thread and some frames may hitch while meshes are built. This update does not guarantee stutter-free startup. Full elimination requires progressive scene generation and/or offline-prepared assets. Visually test on GitHub Pages.
 
-Note: A live graphical browser test has not been completed. Verify both the menu and lobby in the deployed website.
+Extract archive contents into the GitHub Pages repository root.
