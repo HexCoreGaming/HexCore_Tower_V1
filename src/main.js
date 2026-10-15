@@ -1,5 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import {buildExteriorV5,updateExteriorV5} from './exterior-v5.js';
+import {buildExteriorV6,updateExteriorV6} from './exterior-v6.js';
+import {createStylizedEmployee} from './stylized-characters.js';
 import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 import { baseContent } from '../data/siteContent.js';
 import { npcDepartments, courtyardGuide, npcSharedQuestions } from '../data/npcContent.js';
@@ -38,28 +39,39 @@ for(const [name,key] of [['species','species'],['body','body'],['presets','prese
 }
 $('toggleCreator').onclick=()=>{const showing=$('creatorContent').classList.toggle('hidden');$('toggleCreator').setAttribute('aria-expanded',String(!showing));if(!showing)drawCharacterPreview();};
 // Lightweight 2D preview keeps character selection responsive before WebGL is ready.
-let previewYaw=.14;
+// Character creator now renders the SAME modeled style as the in-world NPCs.
+// This is a real Three.js model preview, not the former flat rectangle drawing.
+let previewYaw=.14, previewRenderer=null, previewScene=null, previewCamera=null, previewModel=null;
 function drawCharacterPreview(){
- const cv=$('characterPreview');if(!cv)return;const g=cv.getContext('2d');if(!g)return;
- const w=cv.width,h=cv.height;g.clearRect(0,0,w,h);
- const bg=g.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#111a32');bg.addColorStop(1,'#130d28');g.fillStyle=bg;g.fillRect(0,0,w,h);
- g.strokeStyle='#6c7fba44';for(let i=0;i<9;i++){g.beginPath();g.moveTo(0,i*36);g.lineTo(w,i*36);g.stroke();}
- const skins=['#d7ae91','#a37458','#785244','#efc9ad'];const skin=skins[selected.preset==='slim'?1:selected.preset==='tall'?2:selected.preset==='athletic'?3:0];
- const colors={casual:['#252b43','#a68dff'],executive:['#171d2d','#d1c4f9'],techwear:['#1d3446','#75d7ff'],cybernetic:['#342146','#cb7dff']};const [coat,trim]=colors[selected.outfit];
- const cx=w/2+Math.sin(previewYaw)*17,headY=57;
- const height=selected.preset==='tall'?1.13:selected.preset==='slim'?.97:1;
- const shoulder=selected.preset==='athletic'?64:selected.body==='female'?43:52;
- g.save();g.translate(cx,0);g.scale(1,height);g.fillStyle='#0c101e';g.beginPath();g.ellipse(0,213,78,11,0,0,Math.PI*2);g.fill();
- g.fillStyle='#151927';g.fillRect(-29,155,25,53);g.fillRect(4,155,25,53);g.fillStyle='#080b16';g.fillRect(-31,198,27,15);g.fillRect(4,198,27,15);
- g.fillStyle=coat;g.beginPath();g.moveTo(-shoulder,101);g.lineTo(shoulder,101);g.lineTo(34,167);g.lineTo(-34,167);g.closePath();g.fill();
- g.fillStyle=trim;g.fillRect(-4,104,8,57);g.fillRect(-shoulder+5,113,6,34);g.fillRect(shoulder-11,113,6,34);
- g.fillStyle=coat;g.fillRect(-shoulder-15,104,16,63);g.fillRect(shoulder-1,104,16,63);
- g.fillStyle=skin;g.fillRect(-shoulder-14,165,14,17);g.fillRect(shoulder,165,14,17);g.fillRect(-9,85,18,20);
- g.beginPath();g.ellipse(0,66,27,34,0,0,Math.PI*2);g.fill();
- if(selected.species==='elf'){g.beginPath();g.moveTo(-24,66);g.lineTo(-49,51);g.lineTo(-29,78);g.moveTo(24,66);g.lineTo(49,51);g.lineTo(29,78);g.fill();}
- g.fillStyle=selected.body==='female'?'#51415d':'#272335';g.beginPath();g.ellipse(0,42,27,17,0,Math.PI,Math.PI*2);g.fill();if(selected.body==='female'){g.fillRect(-26,45,7,36);g.fillRect(19,45,7,36);}
- g.fillStyle='#0b0b18';g.fillRect(-16,63,7,3);g.fillRect(9,63,7,3);g.strokeStyle='#613e52';g.beginPath();g.arc(0,77,7,.15,Math.PI-.15);g.stroke();g.restore();
- g.font='12px monospace';g.fillStyle='#9ecbff';g.fillText((selected.species+' / '+selected.body).toUpperCase(),14,23);
+ const cv=$('characterPreview');if(!cv || !cv.isConnected)return;
+ if(!previewRenderer){
+  previewRenderer=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true,powerPreference:'low-power'});
+  previewRenderer.outputColorSpace=THREE.SRGBColorSpace;
+  previewRenderer.setPixelRatio(Math.min(devicePixelRatio,1.3));
+  previewRenderer.setSize(cv.width,cv.height,false);
+  previewScene=new THREE.Scene();previewScene.background=new THREE.Color(0x12172b);
+  previewCamera=new THREE.PerspectiveCamera(40,cv.width/cv.height,.1,50);
+  previewCamera.position.set(0,1.52,5.5);previewCamera.lookAt(0,1.43,0);
+  const ambient=new THREE.HemisphereLight(0xd9e7ff,0x24142e,3.3);previewScene.add(ambient);
+  const key=new THREE.DirectionalLight(0xe4daff,4.2);key.position.set(3.4,6,6.5);previewScene.add(key);
+  const rim=new THREE.DirectionalLight(0x8366ff,3.3);rim.position.set(-3,4,-5);previewScene.add(rim);
+  const floorMat=new THREE.MeshStandardMaterial({color:0x282943,metalness:.48,roughness:.25});
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.6,.20,48),floorMat);
+  base.position.y=-.15;previewScene.add(base);
+ }
+ if(previewModel){previewScene.remove(previewModel);previewModel.traverse(ob=>{
+   if(ob.geometry)ob.geometry.dispose();if(ob.material){const mm=Array.isArray(ob.material)?ob.material:[ob.material];mm.forEach(m=>m.dispose());}
+  });}
+ const skinColors=[0xb6876a,0x97634d,0x765044,0xe6ba95];
+ const pick=selected.preset==='slim'?1:selected.preset==='tall'?2:selected.preset==='athletic'?3:0;
+ const outfitIndex={casual:1,executive:2,techwear:3,cybernetic:4};
+ previewModel=createStylizedEmployee(THREE,{index:outfitIndex[selected.outfit]??1,elf:selected.species==='elf',female:selected.body==='female',
+  role:selected.outfit==='cybernetic'?'Security':'Staff',skinColor:skinColors[pick],hairColor:selected.body==='female'?0x21192b:0x282033});
+ if(selected.preset==='tall')previewModel.scale.set(1,1.08,1);
+ else if(selected.preset==='slim')previewModel.scale.set(.89,1,.89);
+ else if(selected.preset==='athletic')previewModel.scale.set(1.07,1,1.07);
+ previewModel.rotation.y=previewYaw;
+ previewScene.add(previewModel);previewRenderer.render(previewScene,previewCamera);
 }
 let dragPreview=null;const pv=$('characterPreview');pv.addEventListener('pointerdown',e=>{dragPreview=e.clientX;pv.setPointerCapture(e.pointerId)});pv.addEventListener('pointermove',e=>{if(dragPreview===null)return;previewYaw+=(e.clientX-dragPreview)*.017;dragPreview=e.clientX;drawCharacterPreview();});pv.addEventListener('pointerup',()=>dragPreview=null);pv.addEventListener('pointercancel',()=>dragPreview=null);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setClearColor(0x090d1c);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.72;document.body.appendChild(renderer.domElement);renderer.domElement.style.position='fixed';renderer.domElement.style.inset='0';renderer.domElement.style.zIndex='0';
@@ -119,46 +131,11 @@ function employee(x,z,i,role='Staff'){
  const name=npcGiven[n%npcGiven.length]+' '+npcLast[(n*3+7)%npcLast.length];
  g.userData={baseY:0,phase:(n%19)*.27,turn:((n%7)-3)*.07,role,name,elf,female};
  world.add(g);staffActors.push(g);
- const skin=new THREE.MeshStandardMaterial({color:npcSkin[n%npcSkin.length],roughness:.85});
- const hair=new THREE.MeshStandardMaterial({color:npcHair[(n*7+2)%npcHair.length],roughness:.77});
- const coat=new THREE.MeshStandardMaterial({color:role==='Security'?0x171c2b:(n%3===0?0x343044:0x232939),metalness:.24,roughness:.48});
- const detail=new THREE.MeshStandardMaterial({color:role==='Security'?0x8cd4ff:0xa99bd7,emissive:role==='Security'?0x2864a0:0x392176,emissiveIntensity:.7,metalness:.45});
- const pants=new THREE.MeshStandardMaterial({color:0x131726,roughness:.62});
- // Real geometry for legs, boots, torso, collar and arms rather than single capsules.
- for(const dx of [-.17,.17]){
-  box([dx,.44,0],[.26,.88,.31],pants,g);
-  box([dx,.115,.07],[.29,.23,.45],coat,g);
- }
- const shoulder=female?.85:1.05;
- cyl([0,1.30,0],female?.29:.33,female?.32:.34,1.10,coat,g,12);
- box([0,1.36,.34],[.53*shoulder,.13,.055],detail,g);
- box([0,1.93,0],[.40,.14,.35],detail,g);
- for(const side of [-1,1]){
-  box([side*.43,1.43,0],[.22,.85,.28],coat,g);
-  sphere([side*.43,.98,0],.135,skin,g,10);
-  box([side*.43,1.62,.16],[.11,.28,.05],detail,g);
- }
- cyl([0,2.035,0],.14,.17,.24,skin,g,10);
- sphere([0,2.35,0],female?.285:.31,skin,g,20);
- // Expressive hair shapes and variable length. Facial features face +Z.
- sphere([0,2.53,-.055],.30,hair,g,18);
- if(female){
-  for(const side of [-1,1])sphere([side*.23,2.29,-.13],.14+(n%3)*.04,hair,g,12);
- } else {
-  box([0,2.58,-.04],[.49,.13,.39],hair,g);
- }
- for(const side of [-1,1]){
-  // Pointed ears make elves immediately recognizable from the front and sides.
-  if(elf){const ear=new THREE.Mesh(new THREE.ConeGeometry(.105,.37,5),skin);ear.rotation.z=side*Math.PI*.47;ear.position.set(side*.39,2.38,.005);g.add(ear)}
-  else sphere([side*.30,2.32,0],.085,skin,g,10);
-  sphere([side*.105,2.39,.265],.028,new THREE.MeshBasicMaterial({color:0x141724}),g,8);
- }
- box([0,2.27,.284],[.105,.025,.018],new THREE.MeshBasicMaterial({color:0x603e3e}),g);
- if(role==='Security'){
-  box([0,1.25,.39],[.30,.20,.06],detail,g);
-  box([0,2.48,.25],[.48,.10,.10],detail,g);
-  box([-.15,.57,.20],[.12,.35,.16],coat,g);
- }
+ // Replace the former collection of rectangular torsos, spherical heads, and cone ears.
+ // Character mesh visuals are separate from existing names, roles, interaction callbacks.
+ const model=createStylizedEmployee(THREE,{index:n,elf,female,role,
+   skinColor:npcSkin[n%npcSkin.length],hairColor:npcHair[(n*7+2)%npcHair.length]});
+ g.add(model);g.userData.visualModel=model;
  const tag=npcLabel(name+'  |  '+role,role==='Security'?4.9:4.5,.52);
  tag.position.set(0,3.15,0);g.add(tag);g.userData.tag=tag;
  const speech=npcLabel('',5,.53);speech.position.set(0,3.64,0);speech.visible=false;g.add(speech);g.userData.speech=speech;
@@ -1007,7 +984,7 @@ function monumentalApproachV30(){
 }
 function continuousPlaza(){
  scene.fog.density=.0012;
- buildExteriorV5({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets});
+ buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets});
 }
 
 function spire(x,z,height,width=5,parent=world){
@@ -1648,7 +1625,7 @@ function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
 npcConversationPulse(now);if(floor==='outside'||floor==='lobby')cosmicElapsedMs+=dt*1000;updateLivingSpace(now);updatePeacefulSpace(now);
-for(const g of staffActors){if(g.userData.tag)g.userData.tag.rotation.y=yaw;if(g.userData.speech)g.userData.speech.rotation.y=yaw;const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;if(!g.userData.speech?.visible)g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
+for(const g of staffActors){if(g.userData.visualModel?.userData.armPivots){const a=g.userData.visualModel.userData.armPivots;a[0].rotation.x=Math.sin(now*.0021+g.userData.phase)*.11;a[1].rotation.x=-a[0].rotation.x;}if(g.userData.tag)g.userData.tag.rotation.y=yaw;if(g.userData.speech)g.userData.speech.rotation.y=yaw;const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;if(!g.userData.speech?.visible)g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
  if(g.userData.walkPath){const t=now*.001*g.userData.speed+ph;
  g.position.x=g.userData.homeX+Math.sin(t)*g.userData.range;
  g.position.z=g.userData.homeZ+Math.cos(t)*g.userData.range*.65;
@@ -1660,7 +1637,7 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
  if(floor==='lobby'&&pos.z>=32.02)crossDoor('outside');
  else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
-nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;if(floor==='outside'||floor==='lobby')updateExteriorV5(now/1000);renderer.render(scene,camera)}requestAnimationFrame(tick);
+nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;if(floor==='outside'||floor==='lobby')updateExteriorV6(now/1000);renderer.render(scene,camera)}requestAnimationFrame(tick);
 // Phase 4: travel lasts at least ten seconds, while world preparation happens behind it.
 let transitRunning=false;
 let transitError=null;

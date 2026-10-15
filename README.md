@@ -1,15 +1,28 @@
-# HexCore Gaming — V5.0 exterior visual overhaul
+# HexCore Gaming — V6.0 visual replacement
 
-This ZIP contains a **full GitHub Pages site**, including `index.html`, `headquarters.html`, `holographic.html`, the original website scripts/data, art source, textures, references and build notes.
+**Complete GitHub Pages website.** Upload all files while retaining the existing directory hierarchy. Enter through `index.html` as before. The original V4.13 backup should be retained as a rollback point.
 
-**Primary change:** the 3D exterior uses a new, substantially detailed 360-degree scene: raised floating island with engineered undersides, side and rear terraces, many lit waterfalls, large structural double skybridges, angular dimensional tower with layered vertical facade and rear massing, glass atrium, dimensional lit HexCore emblem, carved plaza, branching violet trees, and bespoke metallic and stone materials.
+## What is actually different from V5
 
-**Preserved:** entrance transitions without page loading, shared interior/exterior scene, walking controls, character choices, NPC content and interactions, menus, department destinations, holographic mode, admin tools, and floor transit. No NPC character model replacement or department interior overhaul has been carried out in this exterior release.
+- Removed the V5 exterior construction module from the active render path. Its black forest of tall spikes is no longer generated.
+- The exterior now uses **the owner's approved art textures** for the tower's front, back and flanks, mapped to relief-deformed 3D surfaces, with separate layered campus panoramas. This is substantially closer visually to the supplied design than black procedural spires. This is art-referenced surface reconstruction, **not** a fully sculpted high-fidelity 360-degree GLB tower.
+- Rebuilt the physical 3D plaza with panelized pavement, inlaid lighting, the ground H emblem, grand side steps with a continuous flat accessible middle approach, raised landscaped terraces, looping deck-like ring skybridges, cliff structure and edge waterfalls.
+- Replaced the old rectangular-torso/spherical-head NPC mesh assembly with custom stylized human/elf meshes: anatomical body and head contours, jacket lapels and seams, trousers, modeled hair/face, shaped elf ears, boots, badges and animated arms. NPC dialogue, names, roles and interactions are untouched.
+- The character creator now previews the same live Three.js character mesh instead of a 2D placeholder drawing.
+- Kept the original `src/main.js` movement, floor state, seamless shared-scene entrance, existing automatic doors, portal travel, department content, administrative tools and interactions. Existing outside and lobby remain in one scene.
 
-**Important:** This is a **procedural, modeled WebGL art implementation** based on the supplied reference pack, not a pixel-perfect recreation or a production-grade sculpted tower asset. Performance, exact lighting and appearance need evaluation in a networked WebGL browser; the sandbox could run syntax and mocked scene-construction checks but not a real WebGL playback (the Three.js CDN was unreachable here). Avoid overwriting your live GitHub site until you've tested this on a private branch. The original V4.13 should be retained for rollback.
+## What has NOT been achieved or tested
 
-## Installation
+- **Not pixel-identical, not a true fully modeled rear/side tower and not verified to meet a specific console-generation art standard.** The approved artwork provides relief-textured elevations, which can appear flat at oblique viewing angles. Only professional 3D model production can eliminate that limitation completely.
+- Department interiors have not been redesigned in this package.
+- Character meshes are bespoke stylized procedural 3D, **not** scanned/rigged professional character GLBs. They should be judged in-game.
+- The sandbox Chromium installation blocks all page navigation, including local HTML; therefore **no real in-browser visual test or FPS measurement could be completed**. This package was syntax checked and statically audited but still needs testing on a private GitHub branch.
 
-Upload the contents of this ZIP **at your repository root**, maintaining directory names exactly. Continue entering through `index.html`; `headquarters.html` imports `src/exterior-v5.js` automatically. Do not paste individual function snippets into the live site.
+## Installation and testing
 
-Read `docs/EXTERIOR_V5_BUILD_NOTES.md` for detailed changes and validation limitations.
+1. Preserve the previous working repository state (a branch or complete ZIP).
+2. Upload the **entire content of this archive to the repository root**; keep `reference/v6/`, `src/`, `data/`, and other directories intact.
+3. Start from `index.html`. Check exterior at entry, enter the same automatic doorway, speak with an NPC, use floor transit and return to the exterior.
+4. If any mechanic breaks, revert and report the exact behavior; do not ship untested changes to your main visitors.
+
+Images used as reference-derived textures come from the owner-supplied visual references inside this package. The visual modules do not introduce new third-party game assets.

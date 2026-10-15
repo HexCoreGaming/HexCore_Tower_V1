@@ -1,8 +1,13 @@
 {
-  "version": "5.0",
-  "source_base": "4.13 rollback recovery",
-  "scope": "exterior art pass (non-gameplay)",
+  "version": "6.0",
+  "source_base": "V5.0 (original gameplay from V4.13 rollback)",
+  "scope": "art-textured exterior reconstruction; stylized NPC mesh replacement; 3D character preview",
   "scene": "Three.js single shared exterior/lobby world",
-  "mechanics_edited": false,
-  "remaining": ["photoreal asset-matched cinematic tower GLB", "interior department visual overhaul", "rigged realistic NPC models", "live WebGL performance verification"]
+  "visual_art_method": "owner-reference-textured relief surfaces + physical supporting geometry",
+  "mechanics": "movement/dialogue/transit/doors/scene thresholds retained",
+  "known_limits": [
+    "not a fully modeled 360-degree tower asset",
+    "department visuals not replaced",
+    "Chromium navigation blocked: no live WebGL browser rendering verified"
+  ]
 }
