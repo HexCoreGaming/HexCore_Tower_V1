@@ -1,5 +1,5 @@
 /**
- * HEXCORE / ART-REFERENCED EXTERIOR V6.0.2
+ * HEXCORE / ART-REFERENCED EXTERIOR V6.0.3
  * A visual-scene replacement, with reference-projected photographic architectural
  * relief layers PLUS walkable 3D island, atrium surrounds, substantial ring
  * bridges, paving, planted terraces and waterfalls. Four angles sourced from
@@ -11,14 +11,14 @@ export function updateExteriorV6(time){for(let k=0;k<waterfallMaps.length;k++)wa
 export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets}){
  waterfallMaps=[];
  skyNebula();buildOrbitingPlanets();
- const root=new THREE.Group();root.name='HEXCORE V6.0.2 SCULPTED ART HYBRID EXTERIOR';world.add(root);
+ const root=new THREE.Group();root.name='HEXCORE V6.0.3 SCULPTED ART HYBRID EXTERIOR';world.add(root);
  const tex=(path,repeat)=>{let t=new THREE.TextureLoader().load(path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);}return t};
  const mats={
   black:new THREE.MeshStandardMaterial({color:0x101827,metalness:.78,roughness:.27}),
   edge:new THREE.MeshStandardMaterial({color:0x4f587a,metalness:.8,roughness:.23}),
   metal:new THREE.MeshStandardMaterial({color:0x292d46,metalness:.8,roughness:.23}),
   glass:new THREE.MeshPhysicalMaterial({color:0x708cb7,metalness:.18,roughness:.07,transmission:.34,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide,clearcoat:1}),
-  ground:new THREE.MeshPhysicalMaterial({map:tex('./reference/v6/pavement.jpg',[.035,.035]),color:0xbcc0ff,metalness:.63,roughness:.20,clearcoat:1,clearcoatRoughness:.07,envMapIntensity:1.7}),
+  ground:new THREE.MeshPhysicalMaterial({map:tex('./reference/v603/floor_tile_base.png',[.033,.033]),color:0xffffff,metalness:.63,roughness:.18,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:1.7}),
   violet:new THREE.MeshBasicMaterial({color:0xb47cff,toneMapped:false}),
   blue:new THREE.MeshBasicMaterial({color:0x7ebaff,toneMapped:false}),
   pearl:new THREE.MeshBasicMaterial({color:0xe2daff,toneMapped:false}),
@@ -51,7 +51,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  for(const [x,z,rx,rz] of [[-92,85,27,20],[92,85,27,20],[-92,-28,37,28],[92,-28,37,28],[-68,140,17,12],[68,140,17,12],[0,-55,62,19]]){
   plat(x,z,rx,rz,.22);const arr=[];for(let j=0;j<64;j++){const a=j*2*Math.PI/64;arr.push([x+rx*Math.cos(a),.40,z+rz*Math.sin(a)]);}strip(arr,.14,mats.violet,true);
  }
- // V6.0.2: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
+ // V6.0.3: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
  // regions and each region gets its own shaped relief mesh and physical backing.
  // Not one photo on a wall: independently set-back crown, paired wings, sign
  // bay, atrium surrounds and rear/side elevations. The original real doorway
@@ -177,11 +177,13 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
     line([side*11,.45+j*.25,Z+.78],[side*32,.45+j*.25,Z+.78],.06,j%2?mats.blue:mats.violet);
    }
   }
- // Central HexCore floor emblem at spawn foreground. Glowing inlaid metalwork.
- const hex=[];for(let j=0;j<6;j++){const a=j*2*Math.PI/6;hex.push([11*Math.cos(a),.47,132+11*Math.sin(a)]);}strip(hex,.21,mats.violet,true);
- for(const s of [-1,1])line([s*3,.49,125],[s*3,.49,139],.44,mats.pearl);
- line([-3,.5,132],[3,.5,132],.44,mats.pearl);
+ // Central floor insignia now uses the generated H-logo floor texture instead of line-built geometry.
+ const emblemPlate=block(0,.17,132,34,.09,34,mats.edge);
+ const emblemTex=tex('./reference/v603/floor_tile_center_h.png');
+ const emblemMat=new THREE.MeshPhysicalMaterial({map:emblemTex,color:0xffffff,metalness:.54,roughness:.16,clearcoat:1,clearcoatRoughness:.05,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+ const emblemPlane=add(new THREE.PlaneGeometry(31,31),emblemMat,0,.225,132);emblemPlane.rotation.x=-Math.PI/2;emblemPlane.renderOrder=8;
  // The skybridge is a structural deck with parapet, not one thin wire.
+
  function skybridge(rx,rz,height,z0){
   const upper=[],lower=[],outer=[],inner=[];for(let j=0;j<150;j++){
     const a=j*2*Math.PI/150,x=Math.cos(a)*rx,z=z0+Math.sin(a)*rz;
@@ -219,7 +221,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
    block(s*50,.7,z,13,1.2,8,mats.black);block(s*50,1.37,z,13,.13,8,mats.edge);
  }
  for(const z of [-52,-28,0,17])for(const s of [-1,1]){tree(s*91,z,1.1);tree(s*104,z-4,.72);}
- // V6.0.2: tiered island gardens physically occupy the side quarters,
+ // V6.0.3: tiered island gardens physically occupy the side quarters,
  // with luminous edge retaining walls and real waterfall drop-offs. They sit
  // beyond x=+/-48, keeping the whole main 3D arrival and doorway axis open.
  function gardenDeck(side,z,depth=32){
