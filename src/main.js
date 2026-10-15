@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import {buildExteriorV6,updateExteriorV6} from './exterior-v6.js?v=6.0.12';
+import {buildExteriorV6,updateExteriorV6} from './exterior-v6.js?v=6.0.13';
 import {createStylizedEmployee} from './stylized-characters.js';
 import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 import { baseContent } from '../data/siteContent.js';
