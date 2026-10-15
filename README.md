@@ -1,13 +1,11 @@
-# HexCore Tower V4.7 — Entrance Wall & Quick Entry Performance
+# HexCore Tower V4.8 — Open Lobby Geometry Correction
 
-Built from V4.6.
+This is a targeted follow-up to the user screenshot of the V4.7 lobby.
 
-- Changed the plain gray rear lobby wall into dark, illuminated architectural backing. The rear enclosure remains intact; no new wall blocks the entrance.
-- Staged headquarters preparation across frames while the entry menu/transit is visible.
-- Avoided repeating builds while a staged preparation is already in progress.
-- Prewarmed the first world render during transit to reduce the freeze on arrival.
-- All existing 3D headquarters, traditional holographic site, NPC content and legal dialogue are retained.
+- Removed the two enormous lobby side-wall boxes and low solid ceiling slab.
+- Removed the pair of tower-base blocks that extended through the actual lobby entrance corridor.
+- Preserved door mechanics, receptionist, floating globe, floor trim, NPCs, 3D world, and the existing menu UX.
+- No menu redesign. Markup matches V4.7 except version/cache-label changes.
+- Live WebGL visual testing remains necessary before confirming the obstruction is fully gone.
 
-Performance is still device-dependent and requires testing in a real browser.
-
-Unzip the contents directly into the GitHub Pages repository root, commit and push.
+Extract all files into the repository root and commit/push.

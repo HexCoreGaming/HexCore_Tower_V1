@@ -788,7 +788,10 @@ function towerV16(){
  const silver=new THREE.MeshStandardMaterial({color:0x929fbe,metalness:.82,roughness:.17});
  // Central skyscraper with four sculpted facades and staggered crown, entrance toward positive Z.
  // Open ground-floor approach: no solid mass behind the automatic doors.
- for(const side of [-1,1])panel([side*13.0,12,0],[13,24,47],ink);
+ // V4.8: The former solid tower base occupied the walking corridor behind
+ // the automatic entrance. Keep external entrance shoulders at the facade,
+ // leaving the full interior passage as genuine open geometry.
+ for(const side of [-1,1])panel([side*19.8,12,26.0],[5,24,2],ink);
  panel([0,54,0],[39,60,47],ink);
  panel([0,93,-3],[31,38,33],metal);
  panel([0,121,-7],[23,27,24],ink);
@@ -1126,7 +1129,7 @@ function towerUpgrade(){
 }
 function lobbyAccents(){
  // The lobby is one grand sculptural atrium. A ceiling opening, balconies and recessed art panels create vertical depth.
- panel([0,39.5,0],[64,1.3,69],M.dark);
+ // No solid low-ceiling cap: the atrium is open beneath the tower superstructure.
  for(let side of [-1,1]){
    panel([side*27,10.5,-3],[11,.55,59],M.wall);panel([side*27,20.5,-3],[11,.55,59],M.wall);
    for(let y of [10.85,20.85]){panel([side*20.8,y,-3],[.12,.13,58],M.blue);panel([side*26.5,y,-3],[.11,.09,58],M.violet)}
@@ -1376,7 +1379,7 @@ function lobby(){
    panel([x,19.2,-34.29],[.12,31,.08],Math.abs(x)===16?M.blue:M.violet);
  }
  panel([0,28,-34.26],[27,.14,.08],M.violet);
- box([-33,20,0],[1.2,40,d],M.dark);box([33,20,0],[1.2,40,d],M.dark);
+ // Side walls removed: mezzanines, pillars and lit inlays define the open atrium.
  for(let side of [-1,1]){
   for(let i=0;i<5;i++){const z=-25+i*13;box([side*28,15,z],[2,30,2],M.dark);trim([side*27.93,15,z+1.05],[.12,29.8,.06],M.violet)}
   for(let i=0;i<3;i++){let z=-24+i*21;tree(side*23,z,1.25);box([side*22,.3,z+3],[9,.5,2.5],M.dark);trim([side*22,.6,z+4.3],[9,.08,.07],M.blue)}

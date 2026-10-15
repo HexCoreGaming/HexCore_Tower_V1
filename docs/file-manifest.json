@@ -1,5 +1,5 @@
 {
-  "version": "4.7",
+  "version": "4.8",
   "files": [
     {
       "path": ".nojekyll",
@@ -8,8 +8,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 941,
-      "sha256": "a90452f39a30a92db5c49e482eb2c8f1a04eb9425f69f11293cfd56cd1c61a01"
+      "bytes": 648,
+      "sha256": "6c56449c83dd5feef521b23e4f0f0d0ddfffe5b1a5ef847bb96fa6b96f6719de"
     },
     {
       "path": "data/npcContent.js",
@@ -33,23 +33,23 @@
     },
     {
       "path": "docs/VERSION.json",
-      "bytes": 113,
-      "sha256": "7ea608657015bbe1afa0eaaf5c51965b624906da6209a197396572e21d169217"
+      "bytes": 188,
+      "sha256": "a2f9f8a9ead3d13648970fffc627aa1f7989e31db3ed95c5406a92f82f2010b3"
     },
     {
       "path": "headquarters.html",
       "bytes": 6283,
-      "sha256": "6d03dd8950497498c5b98e724b3470f04a8bd9c0313fb583549f72af8a41e74f"
+      "sha256": "a0c45a9fe3357c3fc8c295a4943382b89ab68e6448d5d1b9927f40a470827447"
     },
     {
       "path": "holographic.html",
       "bytes": 2643,
-      "sha256": "cad44033518f1b317a57ddefb2e1c2c128769816e4456238d176925a7db25014"
+      "sha256": "fe2df4675ae33d38a438c5a7f0c0bc4411194aeece0106be1d7b08697ce0316e"
     },
     {
       "path": "index.html",
       "bytes": 1948,
-      "sha256": "fce3f206e8c7f6ba5d6c9d25f585688ef36c29fcfebc3894c4148ad2a1131253"
+      "sha256": "259a4cceee6f37e1b69908497896589d40317719184c26c04b15936b2cef3bd9"
     },
     {
       "path": "reference/approved-lobby.png",
@@ -118,8 +118,8 @@
     },
     {
       "path": "src/main.js",
-      "bytes": 118067,
-      "sha256": "42568b1c454d21725ae64c6e8409887344f1a04ffc9145651c72b2539b676556"
+      "bytes": 119693,
+      "sha256": "77045b5c31aa82ba8bbf01b059f449a8db4fd522493979e291d6bc83f53bd524"
     },
     {
       "path": "src/portal.css",

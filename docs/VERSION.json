@@ -1,6 +1,7 @@
 {
-  "version": "4.7",
+  "version": "4.8",
   "phase": "5",
   "label": "Main Lobby Architecture \u2014 First Floor",
-  "base": "4.5"
+  "base": "4.5",
+  "description": "Open lobby geometry correction \u2014 no menu redesign"
 }
