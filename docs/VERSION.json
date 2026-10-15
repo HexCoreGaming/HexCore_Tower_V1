@@ -1,5 +1,5 @@
 {
-  "version": "6.0.14",
+  "version": "6.0.15",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none; main.js solely updates exterior module cache tag",
-  "notes": "Restored sky-free masked tower elevations and ground-level transparent holographic walkway walls, without altering mechanics."
+  "notes": "Front tower structure corrected: the black void beneath the front logo is now built as part of the tower geometry instead of relying on image coverage."
 }
