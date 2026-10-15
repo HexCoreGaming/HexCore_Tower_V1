@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import {buildExteriorV6,updateExteriorV6} from './exterior-v6.js?v=6.0.24';
+import {buildExteriorV6,updateExteriorV6} from './exterior-v6.js?v=6.0.18';
 import {createStylizedEmployee} from './stylized-characters.js';
 import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 import { baseContent } from '../data/siteContent.js';
@@ -284,9 +284,7 @@ function lobbyExteriorVista(){
  const sky=new THREE.Mesh(new THREE.PlaneGeometry(270,156),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,depthWrite:false,fog:false}));
  sky.position.set(0,70,168);g.add(sky);
  new THREE.TextureLoader().load('./reference/space-backdrop.webp',t=>{t.colorSpace=THREE.SRGBColorSpace;sky.material.map=t;sky.material.needsUpdate=true;});
- // The exterior plaza already has its own textured ground mesh in exterior-v6.js.
- // Do not create a second enormous plain slab beneath it (the source of the
- // viewpoint-dependent dark/texture swap). The playable lobby has its own floor.
+ panel([0,-.18,96],[148,.36,136],M.exteriorFloor,g);
  for(const z of [52,96,140])panel([0,.006,z],[132,.012,.08],M.wall,g);
  for(const x of [-42,0,42])panel([x,.006,96],[.08,.012,132],M.wall,g);
  for(const side of [-1,1]){

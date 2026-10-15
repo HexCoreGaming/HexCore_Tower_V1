@@ -1,5 +1,5 @@
 {
-  "version": "6.0.24",
+  "version": "6.0.25",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none; main.js solely updates exterior module cache tag",
-  "notes": "Only floor bug fix: restore V6.0.22 baseline and remove overlapping dark auxiliary plaza slab at world z=28..164; retain original textured exterior plaza ground and all other scene elements unchanged."
+  "notes": "Clean rollback to the NPC Walking Upgrade baseline. No floor modifications from V6.0.21 through V6.0.24 are included."
 }
