@@ -1625,12 +1625,46 @@ function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
 npcConversationPulse(now);if(floor==='outside'||floor==='lobby')cosmicElapsedMs+=dt*1000;updateLivingSpace(now);updatePeacefulSpace(now);
-for(const g of staffActors){if(g.userData.visualModel?.userData.armPivots){const a=g.userData.visualModel.userData.armPivots;a[0].rotation.x=Math.sin(now*.0021+g.userData.phase)*.11;a[1].rotation.x=-a[0].rotation.x;}if(g.userData.tag)g.userData.tag.rotation.y=yaw;if(g.userData.speech)g.userData.speech.rotation.y=yaw;const ph=g.userData.phase||0;g.position.y=(g.userData.baseY||0)+Math.sin(now*.0012+ph)*.035;if(!g.userData.speech?.visible)g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
- if(g.userData.walkPath){const t=now*.001*g.userData.speed+ph;
- g.position.x=g.userData.homeX+Math.sin(t)*g.userData.range;
- g.position.z=g.userData.homeZ+Math.cos(t)*g.userData.range*.65;
- g.rotation.y=Math.atan2(Math.cos(t),-Math.sin(t));}
+for(const g of staffActors){
+ const ph=g.userData.phase||0, model=g.userData.visualModel;
+ const isWalking=!!g.userData.walkPath;
+ let walkIntensity=0;
+ if(isWalking){
+  const t=now*.001*g.userData.speed+ph;
+  const nextX=g.userData.homeX+Math.sin(t)*g.userData.range;
+  const nextZ=g.userData.homeZ+Math.cos(t)*g.userData.range*.65;
+  const dx=g.userData.range*Math.cos(t)*g.userData.speed;
+  const dz=-g.userData.range*.65*Math.sin(t)*g.userData.speed;
+  const motion=Math.hypot(dx,dz);
+  walkIntensity=Math.min(1,motion/1.25);
+  g.position.x=nextX;g.position.z=nextZ;
+  // Three.js +Z is model-forward. Face actual patrol tangent, not the orbit center.
+  g.rotation.y=Math.atan2(dx,dz);
+ }else if(!g.userData.speech?.visible){
+  g.rotation.y=(g.userData.turn||0)+Math.sin(now*.00065+ph)*.09;
+ }
+ // Both legs and arms articulate, with opposite phase and a planted-foot portion.
+ // Idle employees retain subtle breathing but never run in place.
+ const step=(now*.001*2.9+ph*2.1), swing=Math.sin(step);
+ if(model?.userData.legPivots){
+   const legs=model.userData.legPivots;
+   legs[0].rotation.x=swing*.48*walkIntensity;
+   legs[1].rotation.x=-swing*.48*walkIntensity;
+   legs[0].rotation.z=Math.cos(step)*.025*walkIntensity;
+   legs[1].rotation.z=-Math.cos(step)*.025*walkIntensity;
+ }
+ if(model?.userData.armPivots){
+   const arms=model.userData.armPivots;
+   arms[0].rotation.x=-swing*.39*walkIntensity+Math.sin(now*.0014+ph)*.025;
+   arms[1].rotation.x=swing*.39*walkIntensity-Math.sin(now*.0014+ph)*.025;
+   arms[0].rotation.z=-walkIntensity*.04;
+   arms[1].rotation.z=walkIntensity*.04;
+ }
+ if(g.userData.tag)g.userData.tag.rotation.y=yaw-g.rotation.y;
+ if(g.userData.speech)g.userData.speech.rotation.y=yaw-g.rotation.y;
+ g.position.y=(g.userData.baseY||0)+Math.abs(Math.sin(step))*walkIntensity*.033+Math.sin(now*.0012+ph)*(1-walkIntensity)*.015;
 }
+
 updateDoorPreview(now,dt);
 if(transitionCooldown>0)transitionCooldown-=dt;
 if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){

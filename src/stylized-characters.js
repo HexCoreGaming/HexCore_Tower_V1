@@ -8,18 +8,21 @@
 export function createStylizedEmployee(THREE,{index=0,elf=false,female=false,role='Staff',skinColor=0xb6876a,hairColor=0x201b30}){
  const g=new THREE.Group();g.name='HexCore / character / '+index;
  const clothColors=[0x20283c,0x26243c,0x1d3445,0x202c33,0x302537];
- const coatColor=role==='Security'?0x172535:clothColors[index%clothColors.length];
+ const coatColor=role==='Security'?0x111b2d:(role==='Staff'?clothColors[index%clothColors.length]:0x24243c);
  const fabric=new THREE.MeshStandardMaterial({color:coatColor,metalness:.14,roughness:.76,flatShading:false});
  const inset=new THREE.MeshStandardMaterial({color:0x111724,metalness:.31,roughness:.57});
  const fabricLite=new THREE.MeshStandardMaterial({color:0x434762,metalness:.22,roughness:.55});
- const lining=new THREE.MeshStandardMaterial({color:role==='Security'?0x77bbfa:0xa98ee8,emissive:role==='Security'?0x14528d:0x382269,emissiveIntensity:.38,metalness:.48,roughness:.3});
+ const accentColors=[0xa98ee8,0x6de7ff,0xb47cff,0x8ad5ff,0xf0a4ff];
+ const accent=role==='Security'?0x65cfff:accentColors[index%accentColors.length];
+ const lining=new THREE.MeshStandardMaterial({color:accent,emissive:accent,emissiveIntensity:.27,metalness:.55,roughness:.28});
  const skin=new THREE.MeshStandardMaterial({color:skinColor,roughness:.86});
  const hair=new THREE.MeshStandardMaterial({color:hairColor,roughness:.85,metalness:.04});
  const eyes=new THREE.MeshStandardMaterial({color:0xddd4cd,roughness:.38});
  const iris=new THREE.MeshStandardMaterial({color:(index%3===0?0x4f8b8f:0x423b5b),roughness:.29});
  const lip=new THREE.MeshStandardMaterial({color:0x764947,roughness:.89});
  const boot=new THREE.MeshStandardMaterial({color:0x0e121d,roughness:.48,metalness:.2});
- const buckle=new THREE.MeshStandardMaterial({color:0x6a85a8,roughness:.3,metalness:.72});
+ const buckle=new THREE.MeshStandardMaterial({color:0x7489ab,roughness:.27,metalness:.75});
+ const carbon=new THREE.MeshStandardMaterial({color:0x121625,metalness:.68,roughness:.28});
  const geoMesh=(geom,material,par=g)=>{const m=new THREE.Mesh(geom,material);par.add(m);return m;};
  // Cross-section lathed shells yield anatomically tapered contours, not primitive blocks.
  function loft(levels,mat,parent=g,segments=18){const pts=[],uv=[],indices=[];
@@ -37,15 +40,21 @@ export function createStylizedEmployee(THREE,{index=0,elf=false,female=false,rol
   const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));geom.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geom.setIndex(indices);geom.computeVertexNormals();return geoMesh(geom,mat,parent);
  }
  function wedge(p1,p2,p3,p4,material,parent=g){let vertices=[...p1,...p2,...p3,...p4];let geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geom.setIndex([0,1,2,0,2,3]);geom.computeVertexNormals();material.side=THREE.DoubleSide;return geoMesh(geom,material,parent)}
- function pebble(x,y,z,rx,ry,rz,mat,segments=16){const g0=new THREE.SphereGeometry(1,segments,12);const ob=geoMesh(g0,mat);ob.position.set(x,y,z);ob.scale.set(rx,ry,rz);return ob;}
+ function pebble(x,y,z,rx,ry,rz,mat,segments=16,parent=g){const g0=new THREE.SphereGeometry(1,segments,12);const ob=geoMesh(g0,mat,parent);ob.position.set(x,y,z);ob.scale.set(rx,ry,rz);return ob;}
  function rod(a,b,r,mat,segments=9,parent=g){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),d=B.clone().sub(A),m=geoMesh(new THREE.CylinderGeometry(r*.77,r,d.length(),segments),mat,parent);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return m;}
- // The boots have shaped uppers and projected toes instead of V5 box feet.
+ // Independently hinged hips: leg and boot mesh share one pivot for real strides.
+ const legs=[];
  for(const side of [-1,1]){
+  const pivot=new THREE.Group();pivot.position.set(side*.157,1.12,0);g.add(pivot);
+  const leg=new THREE.Group();leg.position.set(-side*.157,-1.12,0);pivot.add(leg);legs.push(pivot);
   const cx=side*.157;
-  loft([[.02,.117,.19,cx,.095],[.08,.16,.28,cx,.12],[.17,.15,.245,cx,.085],[.22,.13,.19,cx,.025],[.30,.13,.155,cx,.00]],boot);
-  rod([cx,.16,.21],[cx,.16,.29],.075,boot);
-  loft([[.22,.108,.127,cx,0],[.46,.111,.119,cx,0],[.77,.113,.132,cx,0],[1.07,.132,.147,cx,0],[1.16,.139,.147,cx,0]],inset);
-  rod([cx-.085,.84,.138],[cx+.085,.84,.138],.017,lining,6);
+  loft([[.02,.117,.19,cx,.095],[.08,.16,.28,cx,.12],[.17,.15,.245,cx,.085],[.22,.13,.19,cx,.025],[.30,.13,.155,cx,.00]],boot,leg);
+  rod([cx,.16,.21],[cx,.16,.29],.075,boot,9,leg);
+  loft([[.22,.108,.127,cx,0],[.46,.111,.119,cx,0],[.77,.113,.132,cx,0],[1.07,.132,.147,cx,0],[1.16,.139,.147,cx,0]],inset,leg);
+  rod([cx-.085,.84,.138],[cx+.085,.84,.138],.017,lining,6,leg);
+  // Segmented boot armor and luminous shin seam; both follow the leg pivot.
+  loft([[.37,.120,.147,cx,.03],[.52,.126,.150,cx,.025],[.69,.115,.143,cx,.03]],carbon,leg);
+  rod([cx,.35,.175],[cx,.71,.165],.016,lining,6,leg);
  }
  // Fitted jacket/trousers with collar, neck, seams and tapered waist.
  const shoulder=female?.395:.455;
@@ -116,6 +125,36 @@ export function createStylizedEmployee(THREE,{index=0,elf=false,female=false,rol
  rod([-.22,1.6,.230],[-.10,1.6,.237],.018,lining,6);
  pebble(.265,1.80,.22,.058,.072,.023,buckle,10);
  for(const side of [-1,1])pebble(side*.17,1.085,.24,.025,.03,.02,buckle,9);
+
+ // HexCore world identity: illuminated tailored armor, distinct shoulders and equipment,
+ // plus subtle cybernetic surface treatment. No primitive helmet or block mannequins.
+ for(const side of [-1,1]){
+  loft([[1.80,.11,.19,side*.395,0],[1.88,.17,.22,side*.395,0],[1.94,.12,.19,side*.395,0]],carbon);
+  rod([side*.31,1.83,.231],[side*.425,1.85,.18],.026,lining,7);
+  rod([side*.34,1.73,.236],[side*.37,1.81,.224],.012,buckle,6);
+ }
+ if(role==='Security'){
+  // Compact armored collar, duty chest plate and communicator.
+  loft([[1.86,.30,.215],[1.96,.31,.19],[2.035,.20,.17]],carbon);
+  rod([-.17,1.76,.249],[.17,1.76,.249],.026,lining,8);
+  pebble(.21,1.83,.239,.072,.075,.023,lining,12);
+ }else{
+  // Tailored HexCore staff tabard, asymmetric lapel clasp and optical badge.
+  wedge([-.13,1.69,.257],[.07,1.64,.264],[.06,1.22,.232],[-.12,1.22,.228],fabricLite);
+  pebble(-.16,1.83,.247,.065,.042,.017,lining,12);
+ }
+ if(index%4===0){
+  // Refined temple implant fitted to the face, not a face-obscuring mask.
+  rod([.264,2.48,.125],[.286,2.54,.02],.018,buckle,7);
+  pebble(.281,2.49,.112,.031,.025,.017,lining,9);
+ }
+ // Small articulated collar pips and longline coat variation.
+ if(index%3===1){
+  loft([[.94,.32,.21],[1.03,.34,.22],[1.12,.29,.22]],fabric);
+  for(const side of [-1,1])rod([side*.27,1.02,.22],[side*.31,.82,.19],.016,lining,6);
+ }
+
  g.userData.armPivots=arms;
+ g.userData.legPivots=legs;
  return g;
 }
