@@ -205,7 +205,6 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  hologramStrip(34,112,-Math.PI/2);
  // Central floor insignia now uses the generated H-logo floor texture instead of line-built geometry,
  // enlarged to roughly 3x the previous size.
- const emblemPlate=block(0,.17,132,102,.09,102,mats.edge);
  const emblemTex=tex('./reference/v603/floor_tile_center_h.png');
  const emblemMat=new THREE.MeshPhysicalMaterial({map:emblemTex,color:0xffffff,metalness:.54,roughness:.16,clearcoat:1,clearcoatRoughness:.05,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
  const emblemPlane=add(new THREE.PlaneGeometry(93,93),emblemMat,0,.225,132);emblemPlane.rotation.x=-Math.PI/2;emblemPlane.renderOrder=8;
