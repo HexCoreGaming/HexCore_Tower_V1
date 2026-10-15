@@ -6,13 +6,18 @@
   },
   {
     "path": "README.md",
-    "bytes": 820,
-    "sha256": "14193359630f764703c67ef254ad618d4a5ecf0887c666fc72bccc87a65eb0cb"
+    "bytes": 959,
+    "sha256": "4f7c8e01d9a5aaa1a57a2cbd30638618d43ab1d60025e1ace14e22003c1483dc"
   },
   {
     "path": "data/preservedLegalDialogue.js",
     "bytes": 22839,
     "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
+  },
+  {
+    "path": "data/siteContent.js",
+    "bytes": 2036,
+    "sha256": "a106a90c3b675e5cfae565141a84e4331ae2865b95376aa85513314a0f51c373"
   },
   {
     "path": "docs/REBUILD_AUDIT.md",
@@ -21,13 +26,23 @@
   },
   {
     "path": "docs/VERSION.json",
-    "bytes": 143,
-    "sha256": "ab0785348342b079234979cff94c3d6077da2f6d94dfa64db4195378ac36855b"
+    "bytes": 167,
+    "sha256": "34cab49a57a789aa877fb3e82e76bc831cdf8d8d300fe6af767c3e81d8c532dc"
+  },
+  {
+    "path": "headquarters.html",
+    "bytes": 4278,
+    "sha256": "1c7bbb6216416f69d0959323a77a58cdba38ead7361ab794f89fe7b051b1b93d"
+  },
+  {
+    "path": "holographic.html",
+    "bytes": 2643,
+    "sha256": "916eb23b30382057afffaa9dcec69622cb3c7c299677f228fe014d2b51772367"
   },
   {
     "path": "index.html",
-    "bytes": 4278,
-    "sha256": "c6bdc60c235934629448245350a318fd38bd11c7e47e9510df1d85981315e02e"
+    "bytes": 1948,
+    "sha256": "d9848daa3b4d20be69b8dd31ac4b2a845f59beb40954dd263fbd08a527cfb3fb"
   },
   {
     "path": "reference/approved-lobby.png",
@@ -85,9 +100,24 @@
     "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
   },
   {
+    "path": "src/holographic.css",
+    "bytes": 9656,
+    "sha256": "d6728c9fa0e01f60d40ba39fdf00b83b5beab52f187e846d40407a55d59866e9"
+  },
+  {
+    "path": "src/holographic.js",
+    "bytes": 3964,
+    "sha256": "d50106d3047246ffc71f6b9318a245bd1553d96b542ad489a0e6337029e8777b"
+  },
+  {
     "path": "src/main.js",
-    "bytes": 109017,
-    "sha256": "709a48de436fa3f3e83fa7cb16ccad512684ed7792a0b39710b6485d6c16ef33"
+    "bytes": 107137,
+    "sha256": "0c6551735f86bca4bb4de2bca7832942f2296991f7e6796cd510ef49e14e40c1"
+  },
+  {
+    "path": "src/portal.css",
+    "bytes": 4162,
+    "sha256": "4671593ac7694f0128df6b867b703f2739887bec27e25a46ad73696f5ec421ce"
   },
   {
     "path": "src/style.css",

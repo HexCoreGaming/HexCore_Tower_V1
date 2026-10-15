@@ -1,13 +1,12 @@
-# HexCore Tower V4.2 — Phase 1, First Build
+# HexCore Tower V4.3 — Phase 2: Holographic Website
 
-Built from the complete V4.1 website. Phase 1's first installment:
+**Install:** Extract every file from the ZIP into the GitHub Pages repository root. The homepage is `index.html`.
 
-- Real shared exterior/lobby 3D environment, with physical automatic glass doors.
-- Removed expensive render-to-texture doorway previews and world switching on crossing.
-- Mobile: left movement joystick, swipe on scene to turn camera, bottom RUN/INTERACT.
-- Courtyard welcome guide near the player approach with working introductory dialogue.
-- Retains original V4.1 space, planet orbit visuals, existing floors, NPCs and legal Q&A.
+- `index.html`: lightweight Choose Your Experience gateway — does not load Three.js.
+- `holographic.html`: animated traditional website and seven public departments; no WebGL dependency.
+- `headquarters.html`: existing V4.2 3D headquarters retained with original functions.
+- `data/siteContent.js`: shared public department information for both the 3D world and 2D site.
+- `data/preservedLegalDialogue.js`: original approved NPC question/answer entries preserved unchanged; holographic site shows them in searchable accordions by department.
+- 60-second subtle glitch on holographic display, disabled for reduced-motion settings.
 
-This is a structural first iteration; lobby geometry and exterior shell alignment should be tested in a browser. Other departments still use the existing floor transit system. Network loading cannot literally be zero.
-
-Unzip the *contents* directly into repository root.
+Future: visually tune both experiences, expand approved information, and prepare cinematic transitions. This release does not claim zero network-load time.

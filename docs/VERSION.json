@@ -1,5 +1,5 @@
 {
-  "version": "4.2",
-  "release": "phase-1-first-build",
-  "notes": "Unified exterior-lobby rendering, mobile swipe camera, courtyard guide"
+  "version": "4.3",
+  "release": "phase-2-holographic-website",
+  "notes": "Separate no-WebGL holographic website, launcher, shared department content and NPC Q&A"
 }
