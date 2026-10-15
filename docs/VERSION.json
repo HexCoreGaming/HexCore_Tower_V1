@@ -1,6 +1,6 @@
 {
-  "version": "4.4",
-  "phase": "3 \u2014 NPC Functionality",
-  "base": "4.3",
-  "notes": "Standardized NPC dialogue and courtyard guide; kept V4.3 holographic site."
+  "version": "4.5",
+  "phase": "4",
+  "label": "Character Creation & Network Transit",
+  "base": "4.4"
 }

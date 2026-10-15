@@ -24,8 +24,43 @@ const groups=[...adminStaffDialogue]; // Preserved verbatim source data; V3 inte
 
 let edits={};try{edits=JSON.parse(localStorage.getItem('hexcore_edits_v1')||'{}')}catch{};
 const content=id=>({...baseContent[id],...(edits[id]||{})});
-let selected={species:'human',body:'masculine'};
-for(const name of ['species','body'])$(name).querySelectorAll('button').forEach(btn=>btn.onclick=()=>{$(name).querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selected[name]=btn.dataset.value});
+let selected={species:'human',body:'male',preset:'standard',outfit:'casual'};
+function updateAppearanceButtons(){
+ for(const [name,key] of [['species','species'],['body','body'],['presets','preset'],['outfits','outfit']]){
+  const el=$(name);if(!el)continue;
+  el.querySelectorAll('button').forEach(btn=>btn.classList.toggle('active',btn.dataset.value===selected[key]));
+ }
+ drawCharacterPreview();
+}
+for(const [name,key] of [['species','species'],['body','body'],['presets','preset'],['outfits','outfit']]){
+ $(name).querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{selected[key]=btn.dataset.value;updateAppearanceButtons();}));
+}
+$('toggleCreator').onclick=()=>{const showing=$('creatorContent').classList.toggle('hidden');$('toggleCreator').setAttribute('aria-expanded',String(!showing));if(!showing)drawCharacterPreview();};
+// Lightweight 2D preview keeps character selection responsive before WebGL is ready.
+let previewYaw=.14;
+function drawCharacterPreview(){
+ const cv=$('characterPreview');if(!cv)return;const g=cv.getContext('2d');if(!g)return;
+ const w=cv.width,h=cv.height;g.clearRect(0,0,w,h);
+ const bg=g.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#111a32');bg.addColorStop(1,'#130d28');g.fillStyle=bg;g.fillRect(0,0,w,h);
+ g.strokeStyle='#6c7fba44';for(let i=0;i<9;i++){g.beginPath();g.moveTo(0,i*36);g.lineTo(w,i*36);g.stroke();}
+ const skins=['#d7ae91','#a37458','#785244','#efc9ad'];const skin=skins[selected.preset==='slim'?1:selected.preset==='tall'?2:selected.preset==='athletic'?3:0];
+ const colors={casual:['#252b43','#a68dff'],executive:['#171d2d','#d1c4f9'],techwear:['#1d3446','#75d7ff'],cybernetic:['#342146','#cb7dff']};const [coat,trim]=colors[selected.outfit];
+ const cx=w/2+Math.sin(previewYaw)*17,headY=57;
+ const height=selected.preset==='tall'?1.13:selected.preset==='slim'?.97:1;
+ const shoulder=selected.preset==='athletic'?64:selected.body==='female'?43:52;
+ g.save();g.translate(cx,0);g.scale(1,height);g.fillStyle='#0c101e';g.beginPath();g.ellipse(0,213,78,11,0,0,Math.PI*2);g.fill();
+ g.fillStyle='#151927';g.fillRect(-29,155,25,53);g.fillRect(4,155,25,53);g.fillStyle='#080b16';g.fillRect(-31,198,27,15);g.fillRect(4,198,27,15);
+ g.fillStyle=coat;g.beginPath();g.moveTo(-shoulder,101);g.lineTo(shoulder,101);g.lineTo(34,167);g.lineTo(-34,167);g.closePath();g.fill();
+ g.fillStyle=trim;g.fillRect(-4,104,8,57);g.fillRect(-shoulder+5,113,6,34);g.fillRect(shoulder-11,113,6,34);
+ g.fillStyle=coat;g.fillRect(-shoulder-15,104,16,63);g.fillRect(shoulder-1,104,16,63);
+ g.fillStyle=skin;g.fillRect(-shoulder-14,165,14,17);g.fillRect(shoulder,165,14,17);g.fillRect(-9,85,18,20);
+ g.beginPath();g.ellipse(0,66,27,34,0,0,Math.PI*2);g.fill();
+ if(selected.species==='elf'){g.beginPath();g.moveTo(-24,66);g.lineTo(-49,51);g.lineTo(-29,78);g.moveTo(24,66);g.lineTo(49,51);g.lineTo(29,78);g.fill();}
+ g.fillStyle=selected.body==='female'?'#51415d':'#272335';g.beginPath();g.ellipse(0,42,27,17,0,Math.PI,Math.PI*2);g.fill();if(selected.body==='female'){g.fillRect(-26,45,7,36);g.fillRect(19,45,7,36);}
+ g.fillStyle='#0b0b18';g.fillRect(-16,63,7,3);g.fillRect(9,63,7,3);g.strokeStyle='#613e52';g.beginPath();g.arc(0,77,7,.15,Math.PI-.15);g.stroke();g.restore();
+ g.font='12px monospace';g.fillStyle='#9ecbff';g.fillText((selected.species+' / '+selected.body).toUpperCase(),14,23);
+}
+let dragPreview=null;const pv=$('characterPreview');pv.addEventListener('pointerdown',e=>{dragPreview=e.clientX;pv.setPointerCapture(e.pointerId)});pv.addEventListener('pointermove',e=>{if(dragPreview===null)return;previewYaw+=(e.clientX-dragPreview)*.017;dragPreview=e.clientX;drawCharacterPreview();});pv.addEventListener('pointerup',()=>dragPreview=null);pv.addEventListener('pointercancel',()=>dragPreview=null);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setClearColor(0x090d1c);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.72;document.body.appendChild(renderer.domElement);renderer.domElement.style.position='fixed';renderer.domElement.style.inset='0';renderer.domElement.style.zIndex='0';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x090c18);scene.fog=new THREE.FogExp2(0x101326,.0031);
 const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.08,1100);camera.rotation.order='YXZ';
@@ -1548,30 +1583,54 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
  else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
-$('enter').onclick=()=>{
+// Phase 4: travel lasts at least ten seconds, while world preparation happens behind it.
+let transitRunning=false;
+const transitStart=(quickSex=null)=>{
+ if(transitRunning)return;
+ if(quickSex){selected={species:'human',body:quickSex,preset:'standard',outfit:'casual'};updateAppearanceButtons();}
+ transitRunning=true;
  const requestedQuality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;
- quality=requestedQuality;
- resizeRenderer();
- if(!initialWorldReady){warmInitialExterior();}
- if(!initialWorldReady){$('loading').classList.remove('hidden');$('loading').querySelector('p').textContent='Could not prepare the 3D world. Reload and try again.';return;}
- $('loading').classList.add('hidden');$('entry').classList.add('hidden');$('hud').classList.remove('hidden');
+ quality=requestedQuality;resizeRenderer();
+ $('entry').classList.add('hidden');$('loading').classList.add('hidden');
+ $('networkTransit').classList.remove('hidden');$('authorizationText').classList.add('hidden');
+ $('transitStatus').textContent='TRANSFERRING USER INSTANCE';
+ let start=performance.now();let verified=false;
+ // Yield to the compositor before doing any remaining preparation work.
+ const prepare=()=>{if(!initialWorldReady)warmInitialExterior();verified=!!initialWorldReady;};
+ setTimeout(prepare,50);
+ const flight=now=>{
+  const elapsed=now-start;
+  $('transitProgress').style.width=Math.min(100,elapsed/10000*100)+'%';
+  if(elapsed>=7000)$('authorizationText').classList.remove('hidden');
+  if(elapsed>=10000&&verified){finishArrival();return;}
+  if(elapsed>=10000){$('transitStatus').textContent='CONNECTING TO HEADQUARTERS';if(!verified)setTimeout(prepare,80);}
+  requestAnimationFrame(flight);
+ };
+ requestAnimationFrame(flight);
+};
+function finishArrival(){
+ $('networkTransit').classList.add('hidden');$('hud').classList.remove('hidden');
  if(mobile){$('mobileUI').classList.remove('hidden');document.body.classList.add('touch-mode');}
- active=true;
- // V3.7: reuse the prebuilt scene; do not rebuild the plaza and lobby in the click handler.
- floor='outside';pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
+ active=true;floor='outside';pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
  camera.position.copy(pos);camera.rotation.set(0,0,0);
  $('zone').textContent='HEXCORE // EXTERIOR PLAZA';
  scheduleDoorPrebuild();
+ $('arrivalBeam').classList.remove('hidden');
+ setTimeout(()=>$('arrivalBeam').classList.add('hidden'),3000);
  if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});
  try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}
-};
-try{Object.assign(selected,JSON.parse(localStorage.getItem('hexcore_character')||'{}'));for(let name of ['species','body']){let match=$(name).querySelector(`[data-value="${selected[name]}"]`);if(match)match.click()}}catch{}
+}
+$('enter').onclick=()=>transitStart();
+$('quickMale').onclick=()=>transitStart('male');
+$('quickFemale').onclick=()=>transitStart('female');
+try{const stored=JSON.parse(localStorage.getItem('hexcore_character')||'{}');Object.assign(selected,stored);if(selected.body==='masculine')selected.body='male';if(selected.body==='feminine')selected.body='female';updateAppearanceButtons()}catch{updateAppearanceButtons()}
 resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.remove('hidden');
 // Idle preparation keeps expensive world construction out of the ENTER button's click handler.
 setTimeout(()=>{
  if(!active){
   quality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;
   warmInitialExterior();
+  $('worldPrepStatus').textContent=initialWorldReady?'HEADQUARTERS READY // AWAITING USER':'Preparing headquarters…';
   // The actual lobby has already been built as part of the shared headquarters world.
  }
 },180);

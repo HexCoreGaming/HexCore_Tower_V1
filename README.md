@@ -1,11 +1,9 @@
-# HexCore Tower V4.4 — Phase 3 NPC Functionality
+# HexCore Tower V4.5 — Phase 4
 
-Built from V4.3. The 3D headquarters and the traditional holographic website remain included.
+Complete GitHub Pages upload. Extract contents at the repository root.
 
-New: standard NPC greeting, selectable questions, safe defaults, directions, goodbye, and courtyard visitor-orientation dialogue. NPC size reduced to match approximate player eye-height. Existing named legal representatives and all approved legal Q&A remain intact.
+Adds Default Male and Default Female quick entry, optional character creator (human/elf, male/female, four silhouette presets and four outfits), a lightweight live preview, local selections, the approximately ten-second HexCore Network Transit animation, three-second access message, and three-second WELCOME USER arrival light beam. The world prepares behind the selection screen; on slow devices transit holds until preparation completes.
 
-IMPORTANT: Full PS2-quality mesh/animation redesign is NOT included; it requires designed character assets and further testing. This release focuses on functional NPC conversations. Existing animations still apply.
+Note: The preset and outfit selection are saved for future customization, and previewed in the character creator; the headquarters is first-person and currently uses existing NPC meshes. No full third-person avatar rig or detailed character meshes are claimed in this phase. The network animation is CSS-based, not a 3D cinematic film. Browser performance needs on-device testing.
 
-Installation: extract ALL files at the repository root (index.html at root), commit and push. No account required.
-
-Browser visual / performance testing has not been verified.
+Preserves the holographic website and legal dialogue. No game demos are introduced by this phase.
