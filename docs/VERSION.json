@@ -1,5 +1,5 @@
 {
-  "version": "6.0.11",
+  "version": "6.0.12",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none; main.js solely updates exterior module cache tag",
-  "notes": "Walkway scenery panels converted into continuous connected side strips; front/side/back tower artwork refreshed to remove the missing black square; animated network-tunnel loading screen added."
+  "notes": "Tower artwork re-cropped and segmented to fit front/side/back tower faces; the character-click loading screen now explicitly uses the user-provided network tunnel image."
 }
