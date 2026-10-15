@@ -1,0 +1,27 @@
+HEXCORE V6.0.2: EXTERIOR TOWER + PLATFORM ONLY
+Source: complete startup-fixed V6.0.1 website; no code files omitted.
+
+CHANGED:
+ - src/exterior-v6.js: tiered tower shell, split facade, side terrace and waterfall architecture
+ - src/main.js: only cache-query bump to reference updated exterior module
+ - headquarters.html: version badge and main module cache query
+ - reference/v602/: 21 cropped textures sourced from owner's approved images
+ - README.md and docs: build notes/version updates
+
+UNCHANGED:
+ - src/stylized-characters.js (NPC/character art)
+ - network-transit.js (transit experience)
+ - all data: NPC dialogue, department content, legal dialogue
+ - 3D movement / door crossings / department transitions in main.js
+
+CHECKED:
+ - node --check: all JS files parse
+ - source game logic compared to original V6.0.1 archive
+ - cropped asset file presence
+ - ZIP integrity
+
+NOT VERIFIED:
+ - actual WebGL browser rendering, frame rate, camera compositions,
+   seamless crossing behavior in a live browser, and all environment assets on deployed GitHub Pages.
+
+This is an image-assisted exterior iteration. It is not guaranteed to match the cinematic artwork exactly.

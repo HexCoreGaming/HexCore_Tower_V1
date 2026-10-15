@@ -1,13 +1,14 @@
 {
-  "version": "6.0",
-  "source_base": "V5.0 (original gameplay from V4.13 rollback)",
-  "scope": "art-textured exterior reconstruction; stylized NPC mesh replacement; 3D character preview",
+  "version": "6.0.2",
+  "source_base": "V6.0.1 startup-fixed ZIP",
+  "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
   "visual_art_method": "owner-reference-textured relief surfaces + physical supporting geometry",
   "mechanics": "movement/dialogue/transit/doors/scene thresholds retained",
   "known_limits": [
-    "not a fully modeled 360-degree tower asset",
-    "department visuals not replaced",
-    "Chromium navigation blocked: no live WebGL browser rendering verified"
-  ]
+    "image-assisted relief, not a fully sculpted 360-degree model",
+    "rendered WebGL output has not been visually verified in a browser environment"
+  ],
+  "npc_changes": "none",
+  "mechanics_changes": "none; main.js solely updates exterior module cache tag"
 }
