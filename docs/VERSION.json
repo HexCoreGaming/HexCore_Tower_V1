@@ -1,5 +1,5 @@
 {
-  "version": "6.0.16",
+  "version": "6.0.17",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none; main.js solely updates exterior module cache tag",
-  "notes": "Removed front protruding central blocks; added inset dark architectural backing behind tower artwork, preserving the entrance."
+  "notes": "Refined recessed front structural bay with tapered vertical ribs rather than a flat rectangular inset; no images or mechanics changed."
 }

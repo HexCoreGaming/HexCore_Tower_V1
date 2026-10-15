@@ -65,7 +65,7 @@
 .transit-progress,.transit-details{display:none!important}
 
 
-/* V6.0.16: animated network-tunnel loading screen and live transit backdrop. */
+/* V6.0.17: animated network-tunnel loading screen and live transit backdrop. */
 #loading{overflow:hidden;background:#040512;isolation:isolate}
 #loading>*{position:relative;z-index:2}
 #loading:before{content:'';position:absolute;inset:-12%;background:url('../reference/v611/loading_network_tunnel.png') center/cover no-repeat;filter:saturate(1.18) brightness(.92);transform:scale(1.08);animation:loadingTunnelFloat 8s ease-in-out infinite alternate,loadingTunnelPulse 4.8s ease-in-out infinite}
@@ -85,7 +85,7 @@
 @media(prefers-reduced-motion:reduce){#loading:before,#loading:after,.network-transit:before{animation:none!important}}
 
 
-/* V6.0.16: explicit user-provided loading image shown during character-entry transit. */
+/* V6.0.17: explicit user-provided loading image shown during character-entry transit. */
 .network-transit-art{position:absolute;inset:-8%;width:116%;height:116%;object-fit:cover;opacity:.92;filter:saturate(1.18) brightness(.92);transform:scale(1.10);animation:loadingTunnelFloat 6.5s ease-in-out infinite alternate,loadingTunnelPulse 4.4s ease-in-out infinite;z-index:0;pointer-events:none}
 .network-canvas{position:absolute;inset:0;z-index:1;mix-blend-mode:screen;opacity:.28}
 #networkTransit .network-vignette{z-index:2}#networkTransit .network-portal{z-index:3}#networkTransit .transit-hud{z-index:4}#networkTransit .authorization-text{z-index:5}
