@@ -1,5 +1,5 @@
 {
-  "version": "4.8",
+  "version": "4.11",
   "files": [
     {
       "path": ".nojekyll",
@@ -8,8 +8,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 648,
-      "sha256": "6c56449c83dd5feef521b23e4f0f0d0ddfffe5b1a5ef847bb96fa6b96f6719de"
+      "bytes": 906,
+      "sha256": "e1e453658ac94c6f3309d8b6f4972929ae404ad95f0aca0f5f89279aade35a2b"
     },
     {
       "path": "data/npcContent.js",
@@ -33,23 +33,23 @@
     },
     {
       "path": "docs/VERSION.json",
-      "bytes": 188,
-      "sha256": "a2f9f8a9ead3d13648970fffc627aa1f7989e31db3ed95c5406a92f82f2010b3"
+      "bytes": 109,
+      "sha256": "fe73708e35cc0cb8350d6d0ce84161d69a88346f57f640a4c8a6f24ed2ddbc5f"
     },
     {
       "path": "headquarters.html",
-      "bytes": 6283,
-      "sha256": "a0c45a9fe3357c3fc8c295a4943382b89ab68e6448d5d1b9927f40a470827447"
+      "bytes": 7082,
+      "sha256": "acd3702610c3ec49bda123ed624ce1a0d51d6827efeb38d26a0b9be7a2689ab7"
     },
     {
       "path": "holographic.html",
-      "bytes": 2643,
-      "sha256": "fe2df4675ae33d38a438c5a7f0c0bc4411194aeece0106be1d7b08697ce0316e"
+      "bytes": 2647,
+      "sha256": "8295efbf0ef2c9c8ab48f5eb2f1d370ed68813b3815025a4d8e8563fe88cbc7f"
     },
     {
       "path": "index.html",
-      "bytes": 1948,
-      "sha256": "259a4cceee6f37e1b69908497896589d40317719184c26c04b15936b2cef3bd9"
+      "bytes": 1963,
+      "sha256": "f43b324962ca9f5864c4d871f6ba52fb3082482ef2ebe149dfa1dbb8881e9ef6"
     },
     {
       "path": "reference/approved-lobby.png",
@@ -65,6 +65,36 @@
       "path": "reference/cracked-planet-transparent.png",
       "bytes": 2005283,
       "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
+    },
+    {
+      "path": "reference/entity-echo-laugh.wav",
+      "bytes": 161008,
+      "sha256": "a0fa08ffda421f8f155180912f15bb8e6b56b537696bc8db47d31aee1b1beaaf"
+    },
+    {
+      "path": "reference/entity-face-crop.png",
+      "bytes": 203919,
+      "sha256": "ddf0e96887f4ecb24e1fa2c8aabfca674f9bcc4f171bc916ae89bb3abca6e607"
+    },
+    {
+      "path": "reference/entity-hand-crop.png",
+      "bytes": 526684,
+      "sha256": "2de438a36190482272b2a5bae188ae69a89f0eb69ec55c44efe1c177108bec95"
+    },
+    {
+      "path": "reference/glitch-hand-right.png",
+      "bytes": 3940071,
+      "sha256": "77cc57be4dbaa9638a380352f99207b8fc4083cd90c0f1bff8931123e0492319"
+    },
+    {
+      "path": "reference/glitch-overlap.png",
+      "bytes": 4002461,
+      "sha256": "5d328244a2f948c9afce737e942640d7aab0af59f4c2162e5b6eb6666110201c"
+    },
+    {
+      "path": "reference/glitch-world-live.png",
+      "bytes": 3937122,
+      "sha256": "2398877814799e3fb4a173bfa0a8c4d19a77fce1d8b3927f4e360d4c28741f7e"
     },
     {
       "path": "reference/lobby-design.png",
@@ -118,8 +148,13 @@
     },
     {
       "path": "src/main.js",
-      "bytes": 119693,
-      "sha256": "77045b5c31aa82ba8bbf01b059f449a8db4fd522493979e291d6bc83f53bd524"
+      "bytes": 121067,
+      "sha256": "21ca6b8df626b2f750476d83d4e407e5790cc6522db2fecd45c7b7eeaad0e867"
+    },
+    {
+      "path": "src/network-transit.js",
+      "bytes": 3671,
+      "sha256": "30e23427c8790b00e3fc2d3bb676bc2c7a25a967e7b3cf6b7f6de830ba579678"
     },
     {
       "path": "src/portal.css",
@@ -128,8 +163,8 @@
     },
     {
       "path": "src/style.css",
-      "bytes": 14947,
-      "sha256": "b89d3c3e69effd261a63cf5ce809602caf95cdf9945f94472d84f3d02c7a49f6"
+      "bytes": 17316,
+      "sha256": "4f6aafa0f043aa2f9a6b80e6b18ebc4b4bdb39bb165ab473aac48010481ec566"
     }
   ]
 }

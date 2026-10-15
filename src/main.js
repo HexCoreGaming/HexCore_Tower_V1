@@ -1493,7 +1493,7 @@ function warmInitialExterior(){
    if(step<jobs.length)requestAnimationFrame(()=>setTimeout(runStep,0));
   }catch(err){
    console.error('Preparing headquarters failed',err);
-   initialWorldReady=false;preparingWorld=false;
+   transitError=err;initialWorldReady=false;preparingWorld=false;
    const status=$('worldPrepStatus');if(status)status.textContent='Preparation failed. Reload the page to retry.';
   }
  };
@@ -1715,6 +1715,7 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
 // Phase 4: travel lasts at least ten seconds, while world preparation happens behind it.
 let transitRunning=false;
+let transitError=null;
 const transitStart=(quickSex=null)=>{
  if(transitRunning)return;
  if(quickSex){selected={species:'human',body:quickSex,preset:'standard',outfit:'casual'};updateAppearanceButtons();}
@@ -1725,20 +1726,17 @@ const transitStart=(quickSex=null)=>{
  $('networkTransit').classList.remove('hidden');$('authorizationText').classList.add('hidden');
  window.HexCoreNetwork?.start();
  $('transitStatus').textContent='TRANSFERRING USER INSTANCE';
- let start=performance.now();let verified=false;
+ let start=performance.now();transitError=null;
  // Yield to the compositor before doing any remaining preparation work.
- const prepare=()=>{if(!initialWorldReady)warmInitialExterior();verified=!!initialWorldReady;};
- setTimeout(prepare,50);
+ const prepare=()=>{if(!initialWorldReady&&!preparingWorld&&!transitError)warmInitialExterior();};
+ // Permit multiple frames of uninterrupted network animation before scene building.
+ setTimeout(prepare,1600);
  const flight=now=>{
   const elapsed=now-start;
-  const progress=Math.min(initialWorldReady?100:95,Math.round(elapsed/10000*100));
- $('transitProgress').style.width=progress+'%';
- $('transitProgressBar').setAttribute('aria-valuenow',String(progress));
- $('transitPercent').textContent=progress+'%';
- $('transitStage').textContent=initialWorldReady?'HEADQUARTERS READY':preparingWorld?'STREAMING HEADQUARTERS GEOMETRY':'ESTABLISHING CONNECTION';
+  if(transitError){$('transitStatus').textContent='STARTUP ERROR — PLEASE RELOAD';window.HexCoreNetwork?.stop();transitRunning=false;return;}
   if(elapsed>=7000)$('authorizationText').classList.remove('hidden');
   if(elapsed>=10000&&initialWorldReady){finishArrival();return;}
-  if(elapsed>=10000){$('transitStatus').textContent='CONNECTING TO HEADQUARTERS';if(!verified&&!preparingWorld)setTimeout(prepare,80);}
+  if(elapsed>=10000&&!initialWorldReady){$('transitStatus').textContent='PREPARING DESTINATION';}
   requestAnimationFrame(flight);
  };
  requestAnimationFrame(flight);
