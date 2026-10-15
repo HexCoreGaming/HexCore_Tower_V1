@@ -1,12 +1,11 @@
-# HexCore Tower V4.3 — Phase 2: Holographic Website
+# HexCore Tower V4.4 — Phase 3 NPC Functionality
 
-**Install:** Extract every file from the ZIP into the GitHub Pages repository root. The homepage is `index.html`.
+Built from V4.3. The 3D headquarters and the traditional holographic website remain included.
 
-- `index.html`: lightweight Choose Your Experience gateway — does not load Three.js.
-- `holographic.html`: animated traditional website and seven public departments; no WebGL dependency.
-- `headquarters.html`: existing V4.2 3D headquarters retained with original functions.
-- `data/siteContent.js`: shared public department information for both the 3D world and 2D site.
-- `data/preservedLegalDialogue.js`: original approved NPC question/answer entries preserved unchanged; holographic site shows them in searchable accordions by department.
-- 60-second subtle glitch on holographic display, disabled for reduced-motion settings.
+New: standard NPC greeting, selectable questions, safe defaults, directions, goodbye, and courtyard visitor-orientation dialogue. NPC size reduced to match approximate player eye-height. Existing named legal representatives and all approved legal Q&A remain intact.
 
-Future: visually tune both experiences, expand approved information, and prepare cinematic transitions. This release does not claim zero network-load time.
+IMPORTANT: Full PS2-quality mesh/animation redesign is NOT included; it requires designed character assets and further testing. This release focuses on functional NPC conversations. Existing animations still apply.
+
+Installation: extract ALL files at the repository root (index.html at root), commit and push. No account required.
+
+Browser visual / performance testing has not been verified.

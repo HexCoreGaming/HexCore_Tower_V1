@@ -1,11 +1,12 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 import { baseContent } from '../data/siteContent.js';
+import { npcDepartments, courtyardGuide, npcSharedQuestions } from '../data/npcContent.js';
 
 // CLEAN REBUILD: This module creates all geometry from scratch. No original world imports.
 const $=id=>document.getElementById(id);
 const EYE_HEIGHT=2.7;
-const NPC_SCALE=1.55;
+const NPC_SCALE=1.08; // In-world eye height 2.7; NPC head ~2.8, not towering overhead.
 const floors=[
  {id:'lobby',label:'G • Main Lobby',title:'HEXCORE MAIN LOBBY',summary:'Reception, visitor guidance, after-hours holographic assistant, and access to every company service.'},
  {id:'company',label:'01 • Company & News',title:'COMPANY & NEWS',summary:'Company mission, official announcements, development news, and public information.'},
@@ -1279,7 +1280,7 @@ function lobby(){
  for(const [x,z,i] of [[-2.6,-15.45,1],[0,-15.45,2],[2.6,-15.45,3],[-13,-21,4],[13,-21,5],[-20,9,6],[20,9,7],[-18,24,8],[18,24,9]])employee(x,z,i);
  lightBench(-17,-6,.35);lightBench(17,-6,-.35);lightBench(-17,24,-.3);lightBench(17,24,.3);
  ambientVisitor(-12,11,10);ambientVisitor(12,11,11);ambientVisitor(-8,-2,12);ambientVisitor(9,-2,13);
- interact('Reception — floor directions',[0,1.4,-14],()=>openReception(),5);
+ interact('Reception — floor directions',[0,1.4,-14],()=>openNpcDepartment('lobby'),5);
  hologram(0,12,-27);sign('WELCOME TO HEXCORE',[0,25,-34.2],23,2);
  for(let side of [-1,1]){box([side*29,20,-25],[.35,35,4],M.dark);trim([side*29,20,-22.9],[.07,34,.08],M.violet);box([side*22,7,-24],[.6,12,.8],M.dark)}
  // All department information belongs on its respective floor, never the lobby.
@@ -1296,11 +1297,12 @@ function openReception(){
 }
 
 function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
- interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openDepartmentEmployee(data.id),4.4);
- interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
+ interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openNpcDepartment(data.id),4.4);
+ interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openNpcDepartment(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
 function exterior(){continuousPlaza();createLivingSpace();lobby();
- employee(-9,158,41);
- interact('Courtyard Welcome Guide',[-9,1.6,158],()=>setPanel(`<div class="eyebrow">HEXCORE // VISITOR SERVICES</div><h2>WELCOME TO HEXCORE TOWER</h2><p>You're standing in the digital headquarters of HexCore Gaming. This is an interactive website: explore the grounds, talk to employees and visit our departments for company and game information.</p><p>Follow the central walkway to the tower. Its doors open automatically. The reception team inside can help you find any department.</p><p>No account is required to explore.</p><button id="guideClose">THANK YOU</button>`),5.5);
+ const guide=employee(-9,158,41,'Welcome Guide');
+ guide.userData.role='Welcome Guide';
+ interact('Speak with '+guide.userData.name+' — Welcome Guide',[-9,1.6,158],()=>openNpcGuide(guide),5.5);
 } // Single shared real-world exterior and lobby; no doorway textures.
 
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];spaceDepthLayers=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
@@ -1364,6 +1366,36 @@ function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$
 function setPanel(html){$('panelBody').innerHTML=html; if($('panelBody').querySelector('#guideClose'))$('panelBody').querySelector('#guideClose').onclick=()=>$('panel').classList.add('hidden');$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function openService(id){const c=content(id);const qaLink=id==='legal'?'<button id="seeQA">OPEN PRESERVED POLICY Q & A</button>':'';setPanel(`<div class="eyebrow">HEXCORE / ${esc(id.toUpperCase())}</div><h2>${esc(c.headline)}</h2><p>${esc(c.description)}</p><div class="directory-item"><h3>INFORMATION</h3><p>${esc(c.updates)}</p></div>${qaLink}<p class="small">This is an editable content location. Unpublished contact links, sales, and submissions are not represented as live services.</p>`);$('seeQA')?.addEventListener('click',()=>openKnowledge())}
+
+// PHASE 3: A consistent in-world conversation flow; approved legal Q&A remain untouched.
+function npcAnswerPanel({name,role,department,opening,questions}){
+ const questionRows=[...questions,...npcSharedQuestions];
+ const questionHtml=questionRows.map((q,i)=>`<button data-npcquestion="${i}">${esc(q.question)}</button>`).join('');
+ setPanel(`<div class="eyebrow">HEXCORE // ${esc(department||'VISITOR SERVICES')}</div><h2>${esc(name||'HEXCORE STAFF')}</h2><p class="subtle">${esc(role||'EMPLOYEE')}</p><div class="directory-item"><p id="npcSpeech" aria-live="polite">${esc(opening||'Welcome to HexCore. How can I help you?')}</p></div><div class="floor-buttons">${questionHtml}</div><button id="npcGoodbye">GOODBYE</button>`);
+ $('panelBody').querySelectorAll('[data-npcquestion]').forEach(btn=>{
+  btn.onclick=()=>{
+   const q=questionRows[Number(btn.dataset.npcquestion)];
+   const display=$('npcSpeech');
+   if(!q||!display)return;
+   if(q.action==='directions'){
+    display.innerHTML=esc(npcDirectoryDirections());
+   }else{display.textContent=q.answer||'That information has not been announced yet. Please check the relevant department for official updates.';}
+  };
+ });
+ $('npcGoodbye').onclick=()=>{hideAll();if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});};
+}
+function npcDirectoryDirections(){
+ return 'Use the floor transit portal in the main lobby. Available public departments: '+floors.filter(f=>!['lobby','admin'].includes(f.id)).map(f=>f.label).join('; ')+'. The front lobby doors lead directly to the courtyard.';
+}
+function openNpcGuide(actor){
+ npcAnswerPanel({name:actor?.userData?.name||'Welcome Guide',role:'Visitor Orientation Specialist',department:'COURTYARD',opening:courtyardGuide.greeting,questions:courtyardGuide.questions});
+}
+function openNpcDepartment(id,actor){
+ const cfg=npcDepartments[id]||npcDepartments.lobby;
+ const c=content(id);const role=cfg.role||'Department Representative';
+ const questions=(cfg.questions||[]).map(q=>({question:q.question,answer:q.answer==='@description'?c.description:q.answer==='@updates'?c.updates:q.answer}));
+ npcAnswerPanel({name:actor?.userData?.name||cfg.name||c.headline,role,department:id.toUpperCase(),opening:cfg.greeting,questions});
+}
 function openDepartmentEmployee(id){
  const c=content(id),f=floors.find(f=>f.id===id);
  const safe='Official HexCore wording for this answer will be provided later. This placeholder exists so the department can already function while final copy is being approved.';
