@@ -1,18 +1,13 @@
-# HexCore Tower V4.1 — Peaceful Living Space
+# HexCore Tower V4.2 — Phase 1, First Build
 
-Full replacement website ZIP for GitHub Pages. Extract all files directly into your repository root.
+Built from the complete V4.1 website. Phase 1's first installment:
 
-## Included
-- Removed the entire timed corruption/overlap scene: no code-world sky, fractures, facial apparitions, sound, or forced overlap state.
-- Two original planets remain as fully textured 3D spheres, slowly orbiting the entire platform in opposite directions (195- and 225-second orbital periods).
-- Both planets rotate continuously on their own axes (132- and 157-second spin periods).
-- Each planet remains low, with approximately 40 percent of its sphere below platform floor level.
-- Preserved the original purple-blue 360-degree space background and dark void regions, with gentle background drift.
-- Added three lightweight depth-separated star and cosmic-dust layers, including subtle slow stellar motion and a few faint distant glints.
-- Preserved transparent drifting exterior cloud volumes, tower, walkway, NPCs, the working mobile controls and the existing doorway system.
+- Real shared exterior/lobby 3D environment, with physical automatic glass doors.
+- Removed expensive render-to-texture doorway previews and world switching on crossing.
+- Mobile: left movement joystick, swipe on scene to turn camera, bottom RUN/INTERACT.
+- Courtyard welcome guide near the player approach with working introductory dialogue.
+- Retains original V4.1 space, planet orbit visuals, existing floors, NPCs and legal Q&A.
 
-## Scope
-This is a calm space environment rather than a spaceship simulator. The new star and dust layers have real 3D positions and modest parallax when moving around; the main far-sky artwork is still a texture mapped to a large sky sphere. No new generated images or full volumetric ray-marching effects have been introduced.
+This is a structural first iteration; lobby geometry and exterior shell alignment should be tested in a browser. Other departments still use the existing floor transit system. Network loading cannot literally be zero.
 
-## Verification
-JavaScript syntax and ZIP contents were checked. Visual fidelity and device performance still require a browser/device test.
+Unzip the *contents* directly into repository root.

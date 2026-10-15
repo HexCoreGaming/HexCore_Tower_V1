@@ -42,3 +42,8 @@
  #mobileUI .touch-action{right:14px;bottom:120px;min-width:90px;width:90px;height:50px}
  #mobileUI .touch-run{right:112px;bottom:118px;width:50px;height:50px}
 }
+
+/* V4.2: natural mobile touch-look with bottom action controls. */
+#lookPad{display:none!important}
+.touch-mode #mobileUI .touch-action{bottom:max(15px,env(safe-area-inset-bottom))!important;right:max(16px,env(safe-area-inset-right))!important}
+.touch-mode #mobileUI .touch-run{bottom:max(20px,env(safe-area-inset-bottom))!important;right:max(132px,calc(env(safe-area-inset-right) + 117px))!important}

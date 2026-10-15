@@ -583,7 +583,7 @@ function createLivingSpace(){
  spaceDepthLayers.push({mesh:gleam,opacity:.32,rotationSpeed:0});
 }
 function updateLivingSpace(now){
- if(floor!=='outside'||!spaceClouds.length)return;
+ if(floor!=='outside'&&floor!=='lobby'||!spaceClouds.length)return;
  const t=now*.001;
  for(const cloud of spaceClouds){
   const d=cloud.userData,phase=d.phase;
@@ -632,7 +632,7 @@ function buildOrbitingPlanets(){
  }
 }
 function updatePeacefulSpace(now){
- if(floor!=='outside')return;
+ if(floor!=='outside'&&floor!=='lobby')return;
  const seconds=cosmicElapsedMs/1000;
  for(const layer of cosmicSkyLayers){
   if(layer.type==='sphere'){
@@ -1293,8 +1293,7 @@ function lobby(){
  for(let side of [-1,1]){box([side*29,20,-25],[.35,35,4],M.dark);trim([side*29,20,-22.9],[.07,34,.08],M.violet);box([side*22,7,-24],[.6,12,.8],M.dark)}
  // All department information belongs on its respective floor, never the lobby.
  floorPortalNexus(true);
- lobbyEntranceAirlock();
- // The live doorway portal renders the actual exterior; no fake outside scenery.
+ // The entrance is already part of the shared exterior/lobby geometry.
  for(let x of [-25,25]){let lamp=new THREE.PointLight(0x8f65ff,34,24,2);lamp.position.set(x,7,-8);world.add(lamp)}
  for(let x of [-18,18]){let uplight=new THREE.PointLight(0xaebfff,10,12,2);uplight.position.set(x,.8,18);world.add(uplight)}
  guard(-9,25,210,false);guard(9,25,211,false);guard(-23,-3,212,true);guard(23,-3,213,true);
@@ -1308,158 +1307,48 @@ function openReception(){
 function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openDepartmentEmployee(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openDepartmentEmployee(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
-function exterior(){continuousPlaza();createLivingSpace()} // Exterior-only nebula volumes.
+function exterior(){continuousPlaza();createLivingSpace();lobby();
+ employee(-9,158,41);
+ interact('Courtyard Welcome Guide',[-9,1.6,158],()=>setPanel(`<div class="eyebrow">HEXCORE // VISITOR SERVICES</div><h2>WELCOME TO HEXCORE TOWER</h2><p>You're standing in the digital headquarters of HexCore Gaming. This is an interactive website: explore the grounds, talk to employees and visit our departments for company and game information.</p><p>Follow the central walkway to the tower. Its doors open automatically. The reception team inside can help you find any department.</p><p>No account is required to explore.</p><button id="guideClose">THANK YOU</button>`),5.5);
+} // Single shared real-world exterior and lobby; no doorway textures.
 
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];spaceDepthLayers=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
 let floor='outside',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,181),active=false,nearest=null,quality='low',transitionCooldown=0;
-// Two scenes are constructed ONCE per visit: the actual exterior and the actual lobby.
-// When the doors open, each draws a live, screen-projected view of the OTHER scene.
-// Crossing z=32 does not rebuild geometry, reorient the camera, or load another webpage.
-let doorCache=null,doorPortalFrames=0,initialWorldReady=false,preparingWorld=false,prepareTimer=null;
+// V4.2: The courtyard and lobby share one continuous scene. No doorway render targets.
+let doorCache=null,initialWorldReady=false,preparingWorld=false;
 const DOOR_Z=32;
-function snapshotDoorWorld(){return {world,entities,animatedDoors,staffActors,spaceClouds,cosmicSkyLayers,orbitPlanets,spaceDepthLayers,preview:null}}
-function installDoorWorld(data){
- scene.remove(world);world=data.world;entities=data.entities;animatedDoors=data.animatedDoors;
- staffActors=data.staffActors;spaceClouds=data.spaceClouds||[];cosmicSkyLayers=data.cosmicSkyLayers||[];
- orbitPlanets=data.orbitPlanets||[];spaceDepthLayers=data.spaceDepthLayers||[];
- scene.add(world);
-}
-function previewSize(){
- const ratio=innerWidth/Math.max(1,innerHeight);
- const width=(mobile||quality==='low')?256:quality==='medium'?320:384;
- return [width,Math.max(200,Math.round(width/ratio))];
-}
-function makeDoorwayPreview(data,which){
- const [w,h]=previewSize();
- const rt=new THREE.WebGLRenderTarget(w,h,{depthBuffer:true,stencilBuffer:false});
- rt.texture.colorSpace=THREE.SRGBColorSpace;
- const material=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,
-  side:THREE.DoubleSide,uniforms:{uMap:{value:rt.texture},uResolution:{value:new THREE.Vector2(1,1)},uAlpha:{value:0}},
-  vertexShader:'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-  fragmentShader:'uniform sampler2D uMap;uniform vec2 uResolution;uniform float uAlpha;void main(){vec2 uv=gl_FragCoord.xy/uResolution;gl_FragColor=vec4(texture2D(uMap,uv).rgb,uAlpha);}'
- });
- const surface=new THREE.Mesh(new THREE.PlaneGeometry(10.85,7.20),material);
- // Place the preview BEHIND the sliding panels in the viewer's current world.
- // Put the real destination view just IN FRONT of the doorway frame, not behind opaque cladding.
- surface.position.set(0,3.60,which==='outside'?32.32:31.68);
- surface.visible=false;surface.renderOrder=-1;data.world.add(surface);
- data.preview={surface,material,rt,last:-1000};
-}
-function prebuildDoorWorlds(){
- if(doorCache||(floor!=='lobby'&&floor!=='outside'))return;
- const originalFloor=floor;
- const current=snapshotDoorWorld();
- scene.remove(world);
- world=new THREE.Group();entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];
- cosmicSkyLayers=[];orbitPlanets=[];spaceDepthLayers=[];
- if(originalFloor==='outside')lobby();else exterior();
- const opposite=snapshotDoorWorld();scene.remove(world);
- doorCache=originalFloor==='outside'?{outside:current,lobby:opposite}:{outside:opposite,lobby:current};
- makeDoorwayPreview(doorCache.outside,'outside');
- makeDoorwayPreview(doorCache.lobby,'lobby');
- installDoorWorld(current);
- floor=originalFloor;
- scene.fog.density=originalFloor==='outside'?.00135:.0031;
- scene.fog.color.setHex(0x101326);
-}
-function syncDoorOpenings(data,dt){
- for(const door of data.animatedDoors){
+function syncDoorOpenings(dt){
+ for(const door of animatedDoors){
   const near=Math.hypot(pos.x-door.center.x,pos.z-door.center.z);
-  const openTarget=near<10.5?1:0;
-  door.open+=(openTarget-door.open)*Math.min(1,dt*8.5);
+  const target=near<10.5?1:0;
+  door.open+=(target-door.open)*Math.min(1,dt*8.5);
   door.left.position.x=-(door.rest||1.55)-door.open*door.travel;
   door.right.position.x=(door.rest||1.55)+door.open*door.travel;
  }
 }
 function updateDoorPreview(now,dt){
- if(!doorCache||(floor!=='outside'&&floor!=='lobby'))return;
- const activeData=doorCache[floor];
- const inactiveData=doorCache[floor==='outside'?'lobby':'outside'];
- syncDoorOpenings(activeData,dt);syncDoorOpenings(inactiveData,dt);
- const preview=activeData.preview;
- if(!preview)return;
- // The opposite REAL world should be visible through even closed transparent glass.
- // Far away we keep an occasional cached snapshot; close up it refreshes live.
- const distanceToDoor=Math.abs(pos.z-DOOR_Z);
- const nearDoor=distanceToDoor<17&&Math.abs(pos.x)<12;
- const openness=activeData.animatedDoors[0]?.open||0;
- preview.surface.visible=nearDoor;
- // A slightly translucent base keeps the glass doors legible while closed.
- preview.material.uniforms.uAlpha.value=.85+Math.min(.15,openness*.15);
- if(!preview.surface.visible)return;
- const cadence=(mobile||quality==='low'?1800:quality==='medium'?1100:850);
- if(now-preview.last<cadence)return;
- preview.last=now;
- const savedFogDensity=scene.fog.density,savedFogColor=scene.fog.color.clone(),savedExposure=renderer.toneMappingExposure;
- const savedFloor=floor;
- const saved={spaceClouds,cosmicSkyLayers,orbitPlanets,spaceDepthLayers};
- // Update the true exterior stars and planet positions even if the visitor is in the lobby.
- if(savedFloor==='lobby'){
-  spaceClouds=inactiveData.spaceClouds||[];
-  cosmicSkyLayers=inactiveData.cosmicSkyLayers||[];
-  orbitPlanets=inactiveData.orbitPlanets||[];
-  spaceDepthLayers=inactiveData.spaceDepthLayers||[];
-  floor='outside';
-  updateLivingSpace(now);
-  updatePeacefulSpace(now);
-  floor=savedFloor;
-  spaceClouds=saved.spaceClouds;
-  cosmicSkyLayers=saved.cosmicSkyLayers;
-  orbitPlanets=saved.orbitPlanets;
-  spaceDepthLayers=saved.spaceDepthLayers;
-  scene.fog.density=.00135;
- }
- scene.remove(world);scene.add(inactiveData.world);
- // Never draw the preview plane into itself.
- inactiveData.preview.surface.visible=false;
- const drawingSize=renderer.getDrawingBufferSize(new THREE.Vector2());
- preview.material.uniforms.uResolution.value.copy(drawingSize);
- const [w,h]=previewSize();if(preview.rt.width!==w||preview.rt.height!==h)preview.rt.setSize(w,h);
- renderer.setRenderTarget(preview.rt);
- renderer.clear();renderer.render(scene,camera);
- renderer.setRenderTarget(null);
- scene.remove(inactiveData.world);scene.add(world);
- scene.fog.density=savedFogDensity;scene.fog.color.copy(savedFogColor);
- renderer.toneMappingExposure=savedExposure;
+ if(floor==='outside'||floor==='lobby')syncDoorOpenings(dt);
 }
-function scheduleDoorPrebuild(){
- if(doorCache||preparingWorld||prepareTimer!==null)return;
- prepareTimer=setTimeout(()=>{
-  prepareTimer=null;
-  if(!active||doorCache||(floor!=='lobby'&&floor!=='outside'))return;
-  prebuildDoorWorlds();
- },300);
-}
+function scheduleDoorPrebuild(){} // Both spaces are already present in the same scene.
 function warmInitialExterior(){
- // Construct the entrance world BEFORE the visitor presses ENTER, if browser is idle.
  if(active||initialWorldReady||preparingWorld)return;
  preparingWorld=true;
  try{
-  doorCache=null;
-  floor='outside';
-  resetWorld();
-  exterior();
+  floor='outside';resetWorld();exterior();
   pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
   camera.position.copy(pos);camera.rotation.set(0,0,0);
   initialWorldReady=true;
- }catch(err){console.error('Exterior prebuild could not complete',err);initialWorldReady=false;}
+ }catch(err){console.error('Preparing headquarters failed',err);initialWorldReady=false;}
  finally{preparingWorld=false;}
 }
 function crossDoor(target){
- if(!doorCache||!doorCache[target]||floor===target)return;
- if(target==='lobby'){
-  renderer.toneMappingExposure=1.72;scene.fog.color.setHex(0x101326);
- }
- const existing=pos.clone();
- // Preserve the EXACT position, yaw and pitch: no snap or camera reset.
- installDoorWorld(doorCache[target]);floor=target;
- pos.set(existing.x,EYE_HEIGHT,existing.z);
- camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
- scene.fog.density=target==='outside'?.00135:.0031;
- transitionCooldown=.18;
+ if((target!=='outside'&&target!=='lobby')||floor===target)return;
+ // Same scene, same camera, no rebuild and no swap.
+ floor=target;
+ transitionCooldown=.10;
 }
 function travel(id,spawn='default'){
- if((spawn==='fromLobby'||spawn==='fromOutside')&&doorCache){crossDoor(id);return;}
+ if((id==='lobby'||id==='outside')&&(floor==='lobby'||floor==='outside')){crossDoor(id);return;}
  doorCache=null;
  const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;
  closePortalSelector();floor=id;resetWorld();
@@ -1468,7 +1357,7 @@ function travel(id,spawn='default'){
   if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,32.12);yaw=oldYaw;pitch=oldPitch;}
   else{pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;}
  }else if(id==='lobby'){
-  lobby();
+  exterior();
   if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,31.88);yaw=oldYaw;pitch=oldPitch;}
   else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0;}
  }else{
@@ -1481,7 +1370,7 @@ function travel(id,spawn='default'){
  if(id==='lobby'||id==='outside')scheduleDoorPrebuild();
 }
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
-function setPanel(html){$('panelBody').innerHTML=html;$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
+function setPanel(html){$('panelBody').innerHTML=html; if($('panelBody').querySelector('#guideClose'))$('panelBody').querySelector('#guideClose').onclick=()=>$('panel').classList.add('hidden');$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function openService(id){const c=content(id);const qaLink=id==='legal'?'<button id="seeQA">OPEN PRESERVED POLICY Q & A</button>':'';setPanel(`<div class="eyebrow">HEXCORE / ${esc(id.toUpperCase())}</div><h2>${esc(c.headline)}</h2><p>${esc(c.description)}</p><div class="directory-item"><h3>INFORMATION</h3><p>${esc(c.updates)}</p></div>${qaLink}<p class="small">This is an editable content location. Unpublished contact links, sales, and submissions are not represented as live services.</p>`);$('seeQA')?.addEventListener('click',()=>openKnowledge())}
 function openDepartmentEmployee(id){
@@ -1579,7 +1468,7 @@ function representative(x,z,index){
 }
 function openElevator(){setPanel(`<div class="eyebrow">HEXCORE TOWER / PORTAL TRANSIT</div><h2>PORTAL TRANSIT</h2><p>Use the in-world portal gates in the lobby to travel directly to each floor without leaving mouse-look.</p><button id="transitClose">UNDERSTOOD</button>`);$('transitClose').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})}}
 function openAdmin(){let html=`<div class="eyebrow">HEXCORE / PRIVATE OFFICE</div><h2>CONTENT MANAGEMENT</h2><p class="subtle">FREE LOCAL EDITOR: edits are saved in this browser. Export JSON to publish manually. This is not secure public-server administration.</p><label>DEPARTMENT</label><select id="editDept">${floors.filter(f=>f.id!=='admin').map(f=>`<option value="${f.id}">${esc(f.label)}</option>`).join('')}</select><label>HEADLINE</label><input id="editHeadline"><label>DESCRIPTION</label><textarea id="editDesc"></textarea><label>UPDATES / DISPLAY CONTENT</label><textarea id="editUpdates"></textarea><div class="actions"><button id="saveEdit">SAVE LOCALLY</button><button id="exportEdit">EXPORT CHANGES</button><button id="importEdit">IMPORT CHANGES</button></div><input type="file" id="importFile" accept="application/json" class="hidden"><p id="editStatus" class="status"></p><p class="small">Admin publication to GitHub, asset uploads, permanent multiplayer state and secure identity checks are not implemented in this build. Existing Q&A is protected from edits in this interface.</p>`;setPanel(html);function loadFields(){let id=$('editDept').value,c=content(id);$('editHeadline').value=c.headline;$('editDesc').value=c.description;$('editUpdates').value=c.updates};$('editDept').onchange=loadFields;loadFields();$('saveEdit').onclick=()=>{let id=$('editDept').value;edits[id]={headline:$('editHeadline').value,description:$('editDesc').value,updates:$('editUpdates').value};localStorage.setItem('hexcore_edits_v1',JSON.stringify(edits));$('editStatus').textContent='Saved locally on this device.'};$('exportEdit').onclick=()=>{let blob=new Blob([JSON.stringify({format:'hexcore-content-v1',edits},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hexcore-content.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};$('importEdit').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{let d=JSON.parse(await e.target.files[0].text());if(d.format!=='hexcore-content-v1')throw Error('Unknown format');edits=d.edits||{};localStorage.setItem('hexcore_edits_v1',JSON.stringify(edits));loadFields();$('editStatus').textContent='Imported and saved locally.'}catch(err){$('editStatus').textContent='Import failed: '+err.message}}}
-$('closePanel').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('closeNav').onclick=()=>{$('nav').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('menuBtn').onclick=()=>{hideAll();$('nav').classList.remove('hidden')};$('settingsBtn').onclick=()=>{hideAll();setPanel(`<h2>GRAPHICS & CONTROLS</h2><p>Adaptive rendering supports mobile and desktop devices.</p><select id="liveQuality"><option value="low">LOW / MOBILE</option><option value="medium">BALANCED</option><option value="high">HIGH</option></select><button id="applyQuality">APPLY</button><p>Desktop: WASD, mouse, Shift, E. Mobile: MOVE and LOOK joysticks, INTERACT and RUN.</p>`);$('liveQuality').value=quality;$('applyQuality').onclick=()=>{quality=$('liveQuality').value;resizeRenderer();$('panel').classList.add('hidden')}};$('returnLobby').onclick=()=>travel('lobby');$('floorButtons').innerHTML=floors.map(f=>`<div class="directory-item">${esc(f.label)}</div>`).join('')+'<div class="directory-item">OUTSIDE • EXIT THROUGH LOBBY</div>';
+$('closePanel').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('closeNav').onclick=()=>{$('nav').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('menuBtn').onclick=()=>{hideAll();$('nav').classList.remove('hidden')};$('settingsBtn').onclick=()=>{hideAll();setPanel(`<h2>GRAPHICS & CONTROLS</h2><p>Adaptive rendering supports mobile and desktop devices.</p><select id="liveQuality"><option value="low">LOW / MOBILE</option><option value="medium">BALANCED</option><option value="high">HIGH</option></select><button id="applyQuality">APPLY</button><p>Desktop: WASD, mouse, Shift, E. Mobile: left MOVE joystick, swipe screen to LOOK, bottom INTERACT and RUN.</p>`);$('liveQuality').value=quality;$('applyQuality').onclick=()=>{quality=$('liveQuality').value;resizeRenderer();$('panel').classList.add('hidden')}};$('returnLobby').onclick=()=>travel('lobby');$('floorButtons').innerHTML=floors.map(f=>`<div class="directory-item">${esc(f.label)}</div>`).join('')+'<div class="directory-item">OUTSIDE • EXIT THROUGH LOBBY</div>';
 function resizeRenderer(){let dpr=quality==='low'?Math.min(devicePixelRatio,1):quality==='medium'?Math.min(devicePixelRatio,1.35):Math.min(devicePixelRatio,1.4);renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}window.addEventListener('resize',resizeRenderer);
 let prev=performance.now(),movePad={x:0,y:0},lookPad={x:0,y:0},running=false,mobile=matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints>0 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function initPad(id,target){
@@ -1596,7 +1485,22 @@ function initPad(id,target){
  for(const event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,e=>{if(activeId===e.pointerId)clear()});
  return clear;
 }
-const clearMovePad=initPad('movePad',movePad),clearLookPad=initPad('lookPad',lookPad);
+const clearMovePad=initPad('movePad',movePad);
+const clearLookPad=()=>{lookPad.x=0;lookPad.y=0;};
+// Camera swipe: use the WebGL canvas so buttons, joystick and overlays keep their own touches.
+let lookTouchId=null,lookTouchX=0,lookTouchY=0;
+renderer.domElement.addEventListener('pointerdown',e=>{
+ if(!mobile||!active||lookTouchId!==null||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden'))return;
+ lookTouchId=e.pointerId;lookTouchX=e.clientX;lookTouchY=e.clientY;
+ try{renderer.domElement.setPointerCapture(e.pointerId)}catch{}
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+ if(!mobile||e.pointerId!==lookTouchId||!active||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden'))return;
+ const dx=e.clientX-lookTouchX,dy=e.clientY-lookTouchY;
+ lookTouchX=e.clientX;lookTouchY=e.clientY;
+ yaw-=dx*.004;pitch=Math.max(-1.32,Math.min(1.32,pitch-dy*.004));
+});
+for(const evt of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(evt,e=>{if(e.pointerId===lookTouchId)lookTouchId=null});
 $('interactTouch').addEventListener('pointerdown',e=>{e.preventDefault();if(portalSelection){const choice=portalSelection.choices[portalSelection.index];if(choice){closePortalSelector();travel(choice.id)}return;}
  if(nearest && $('panel').classList.contains('hidden') && $('nav').classList.contains('hidden'))nearest.cb();});
 $('runTouch').addEventListener('pointerdown',e=>{e.preventDefault();running=true;$('runTouch').setPointerCapture(e.pointerId)});
@@ -1604,7 +1508,7 @@ for(const evt of ['pointerup','pointercancel','lostpointercapture'])$('runTouch'
 window.addEventListener('blur',()=>{clearMovePad();clearLookPad();running=false});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){clearMovePad();clearLookPad();running=false}});
 window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)nearest?.cb();if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
-function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-23,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(34.0,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
+function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'||floor==='lobby'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-31,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(34.0,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
 npcConversationPulse(now);if(floor==='outside'||floor==='lobby')cosmicElapsedMs+=dt*1000;updateLivingSpace(now);updatePeacefulSpace(now);
@@ -1645,8 +1549,7 @@ setTimeout(()=>{
  if(!active){
   quality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;
   warmInitialExterior();
-  // Let the entrance menu paint first; prepare the lobby while visitors choose settings.
-  setTimeout(()=>{if(!active&&initialWorldReady&&!doorCache){prebuildDoorWorlds();}},650);
+  // The actual lobby has already been built as part of the shared headquarters world.
  }
 },180);
 

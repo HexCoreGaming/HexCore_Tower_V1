@@ -1,20 +1,5 @@
 {
-  "version": "V4.1",
-  "codename": "Peaceful Living Space",
-  "changes": [
-    "Removed the timed overlap and corruption event completely",
-    "Two slow continuous opposite-direction 3D planet orbits; both rotate on their axes",
-    "Kept both planets low in the environment",
-    "Added three subtle 3D star/dust depth layers, soft distant glints and gently drifting background",
-    "Preserved tower, mobile controls, NPCs, doors and Legal Q&A"
-  ],
-  "planet_orbit_seconds": {
-    "cracked": 195,
-    "technology": 225
-  },
-  "planet_spin_seconds": {
-    "cracked": 132,
-    "technology": 157
-  },
-  "visual_validation": "Browser/device testing still required"
+  "version": "4.2",
+  "release": "phase-1-first-build",
+  "notes": "Unified exterior-lobby rendering, mobile swipe camera, courtyard guide"
 }
