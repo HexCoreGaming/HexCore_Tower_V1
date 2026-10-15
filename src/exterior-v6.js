@@ -1,5 +1,5 @@
 /**
- * HEXCORE / ART-REFERENCED EXTERIOR V6.0.3
+ * HEXCORE / ART-REFERENCED EXTERIOR V6.0.4
  * A visual-scene replacement, with reference-projected photographic architectural
  * relief layers PLUS walkable 3D island, atrium surrounds, substantial ring
  * bridges, paving, planted terraces and waterfalls. Four angles sourced from
@@ -11,7 +11,7 @@ export function updateExteriorV6(time){for(let k=0;k<waterfallMaps.length;k++)wa
 export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets}){
  waterfallMaps=[];
  skyNebula();buildOrbitingPlanets();
- const root=new THREE.Group();root.name='HEXCORE V6.0.3 SCULPTED ART HYBRID EXTERIOR';world.add(root);
+ const root=new THREE.Group();root.name='HEXCORE V6.0.4 SCULPTED ART HYBRID EXTERIOR';world.add(root);
  const tex=(path,repeat)=>{let t=new THREE.TextureLoader().load(path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);}return t};
  const mats={
   black:new THREE.MeshStandardMaterial({color:0x101827,metalness:.78,roughness:.27}),
@@ -51,7 +51,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  for(const [x,z,rx,rz] of [[-92,85,27,20],[92,85,27,20],[-92,-28,37,28],[92,-28,37,28],[-68,140,17,12],[68,140,17,12],[0,-55,62,19]]){
   plat(x,z,rx,rz,.22);const arr=[];for(let j=0;j<64;j++){const a=j*2*Math.PI/64;arr.push([x+rx*Math.cos(a),.40,z+rz*Math.sin(a)]);}strip(arr,.14,mats.violet,true);
  }
- // V6.0.3: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
+ // V6.0.4: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
  // regions and each region gets its own shaped relief mesh and physical backing.
  // Not one photo on a wall: independently set-back crown, paired wings, sign
  // bay, atrium surrounds and rear/side elevations. The original real doorway
@@ -166,22 +166,40 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  }
  block(0,26.2,36,40,.75,3,mats.metal);
  line([-20.4,26.7,37.5],[20.4,26.7,37.5],.19,mats.pearl);
- // Plaza and grand approach: real 3D strips with visible specular tile treatment.
+ // Plaza and grand approach: keep the paving clean and reflective, without extra glowing grid-line geometry.
  for(const side of [-1,1]){
-   for(const x of [8,18,30])line([side*x,.31,38],[side*x,.31,206],x===8?.11:.045,x===8?mats.blue:mats.violet);
-   for(const z of [43,60,77,94,111,128,145,162,179,196])line([side*8,.33,z],[side*38,.33,z],.044,mats.edge);
    // Low monumental step-terraces beside a permanent flush center approach.
    for(let j=0;j<7;j++){
     const X=side*21, Z=32+j*1.7;
     block(X,.24+j*.13,Z,23,.25+j*.25,1.55,j%2?mats.metal:mats.black);
-    line([side*11,.45+j*.25,Z+.78],[side*32,.45+j*.25,Z+.78],.06,j%2?mats.blue:mats.violet);
    }
   }
- // Central floor insignia now uses the generated H-logo floor texture instead of line-built geometry.
- const emblemPlate=block(0,.17,132,34,.09,34,mats.edge);
+ // Holographic side-wall image panels line the approach into the tower.
+ const holoTex=tex('./reference/v604/holo_sidewall.png');
+ function hologramPanel(x,z,rotY){
+   const panelMat=new THREE.MeshBasicMaterial({map:holoTex,transparent:true,opacity:.68,side:THREE.DoubleSide,depthWrite:false,toneMapped:false,color:0xe8deff});
+   const panel=add(new THREE.PlaneGeometry(20,11.25),panelMat,x,7.2,z);panel.rotation.y=rotY;panel.renderOrder=9;
+   const frameMat=new THREE.MeshBasicMaterial({color:0xb78cff,toneMapped:false});
+   const supportMat=mats.metal;
+   const grp=new THREE.Group();grp.position.set(x,0,z);grp.rotation.y=rotY;root.add(grp);
+   // image plane
+   panel.parent.remove(panel);grp.add(panel);panel.position.set(0,7.2,0);
+   // subtle holographic backing glow
+   const glow=add(new THREE.PlaneGeometry(20.6,11.85),new THREE.MeshBasicMaterial({color:0x7b54ff,transparent:true,opacity:.16,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}),0,7.2,-.12,grp);
+   // frame + pedestal
+   block(0,.35,0,9.5,.7,3.2,supportMat,grp);
+   block(-10.45,7.2,-.05,.22,12,.22,frameMat,grp);block(10.45,7.2,-.05,.22,12,.22,frameMat,grp);
+   block(0,13.15,-.05,20.9,.22,.22,frameMat,grp);block(0,1.25,-.05,20.9,.22,.22,frameMat,grp);
+   line([-9.9,1.8,.02],[-9.9,12.5,.02],.055,mats.pearl,grp);line([9.9,1.8,.02],[9.9,12.5,.02],.055,mats.blue,grp);
+   return grp;
+ }
+ for(const z of [64,96,128,160]){hologramPanel(-34,z,Math.PI/2);hologramPanel(34,z,-Math.PI/2);}
+ // Central floor insignia now uses the generated H-logo floor texture instead of line-built geometry,
+ // enlarged to roughly 3x the previous size.
+ const emblemPlate=block(0,.17,132,102,.09,102,mats.edge);
  const emblemTex=tex('./reference/v603/floor_tile_center_h.png');
  const emblemMat=new THREE.MeshPhysicalMaterial({map:emblemTex,color:0xffffff,metalness:.54,roughness:.16,clearcoat:1,clearcoatRoughness:.05,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
- const emblemPlane=add(new THREE.PlaneGeometry(31,31),emblemMat,0,.225,132);emblemPlane.rotation.x=-Math.PI/2;emblemPlane.renderOrder=8;
+ const emblemPlane=add(new THREE.PlaneGeometry(93,93),emblemMat,0,.225,132);emblemPlane.rotation.x=-Math.PI/2;emblemPlane.renderOrder=8;
  // The skybridge is a structural deck with parapet, not one thin wire.
 
  function skybridge(rx,rz,height,z0){
@@ -221,7 +239,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
    block(s*50,.7,z,13,1.2,8,mats.black);block(s*50,1.37,z,13,.13,8,mats.edge);
  }
  for(const z of [-52,-28,0,17])for(const s of [-1,1]){tree(s*91,z,1.1);tree(s*104,z-4,.72);}
- // V6.0.3: tiered island gardens physically occupy the side quarters,
+ // V6.0.4: tiered island gardens physically occupy the side quarters,
  // with luminous edge retaining walls and real waterfall drop-offs. They sit
  // beyond x=+/-48, keeping the whole main 3D arrival and doorway axis open.
  function gardenDeck(side,z,depth=32){
