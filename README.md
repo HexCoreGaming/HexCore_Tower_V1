@@ -1,15 +1,13 @@
-# HexCore Tower V4.11 — Menu/Transit Stability
+# HexCore Tower V4.12 — Stability groundwork
 
-Base: the ZIP provided by the user, V4.10.
+Based on the user's uploaded V4.11 source. Existing visuals, portal menu, and no-loading-bar cinematic retained.
 
-Changes:
-- Removed the network-transit loading bar, numeric percentage, and progress status block entirely.
-- Network cinematic runs alone for 1.6 seconds before starting geometry preparation.
-- Reduced cinematic pixel ratio and packet/gateway draw counts to lower startup overhead.
-- Prevented repeated geometry preparation attempts at the 10-second mark.
-- Startup failures are now reported visibly instead of looping indefinitely.
-- Preserved both portal options, main menu choices, existing characters, lobby/world, and Legal dialogue.
+## Changes
+- Split the large plaza construction function into nine sequential construction steps, scheduled across animation frames.
+- Removed the forced WebGL full-scene render from the loading sequence.
+- Keep exterior and lobby together as a pinned scene.
+- Cache the two most recently visited department 3D scenes so revisiting them does not rebuild all meshes. Evict older departments to limit memory growth.
+- Emit console timing for slow world-construction steps (>24 ms) to identify remaining stalls.
 
-Remaining limitation: scene building is still on the main browser thread, which can cause frame hitches. Browser/device tests remain necessary; this is not a guaranteed cure for every crash.
-
-Install: unzip contents into GitHub repository root, replace, commit and push.
+## Limits
+No live browser or GPU performance verification has been completed. A single stage or a first-time department build can still cause frame drops; no zero-lag promise.
