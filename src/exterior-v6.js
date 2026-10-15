@@ -1,5 +1,5 @@
 /**
- * HEXCORE / ART-REFERENCED EXTERIOR V6.0.4
+ * HEXCORE / ART-REFERENCED EXTERIOR V6.0.5
  * A visual-scene replacement, with reference-projected photographic architectural
  * relief layers PLUS walkable 3D island, atrium surrounds, substantial ring
  * bridges, paving, planted terraces and waterfalls. Four angles sourced from
@@ -11,7 +11,7 @@ export function updateExteriorV6(time){for(let k=0;k<waterfallMaps.length;k++)wa
 export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets}){
  waterfallMaps=[];
  skyNebula();buildOrbitingPlanets();
- const root=new THREE.Group();root.name='HEXCORE V6.0.4 SCULPTED ART HYBRID EXTERIOR';world.add(root);
+ const root=new THREE.Group();root.name='HEXCORE V6.0.5 SCULPTED ART HYBRID EXTERIOR';world.add(root);
  const tex=(path,repeat)=>{let t=new THREE.TextureLoader().load(path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);}return t};
  const mats={
   black:new THREE.MeshStandardMaterial({color:0x101827,metalness:.78,roughness:.27}),
@@ -51,7 +51,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  for(const [x,z,rx,rz] of [[-92,85,27,20],[92,85,27,20],[-92,-28,37,28],[92,-28,37,28],[-68,140,17,12],[68,140,17,12],[0,-55,62,19]]){
   plat(x,z,rx,rz,.22);const arr=[];for(let j=0;j<64;j++){const a=j*2*Math.PI/64;arr.push([x+rx*Math.cos(a),.40,z+rz*Math.sin(a)]);}strip(arr,.14,mats.violet,true);
  }
- // V6.0.4: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
+ // V6.0.5: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
  // regions and each region gets its own shaped relief mesh and physical backing.
  // Not one photo on a wall: independently set-back crown, paired wings, sign
  // bay, atrium surrounds and rear/side elevations. The original real doorway
@@ -112,25 +112,12 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
      b.rotation.z=sgn*(.012+j*.007);
    }
  }
- // Front slices keep artwork at the exact original relative positions, but
- // differ in depth to create relief around the emblem and projecting wings.
- frontTile('front_crown',[116,0,584,270],39,4.1);
- frontTile('front_l_blade',[0,86,214,710],40.5,3.2);
- frontTile('front_r_blade',[486,86,700,710],40.5,3.2);
- frontTile('front_sign',[202,236,497,512],45.5,1.6);
- frontTile('front_l_lobby',[0,472,226,760],42.1,1.5);
- frontTile('front_r_lobby',[474,472,700,760],42.1,1.5);
- // The atrium texture is intentionally BEHIND the live doors and only renders
- // when viewed from outside; passing the doors reveals the existing real lobby.
- frontTile('front_portal',[226,511,474,759],21.5,.8);
- // Rear and left/right elevations are equally real geometry, no mirrored front.
- facadeTile('./reference/v602/rear_crown.png',0,138,-47,88,69,Math.PI,3);
- facadeTile('./reference/v602/rear_mid.png',0,73,-48,89,84,Math.PI,2.1);
- facadeTile('./reference/v602/rear_base.png',0,27,-49,92,49,Math.PI,1.5);
- for(const side of [-1,1]){
-   facadeTile('./reference/v602/side_crown.png',side*46,139,-5,91,67,side*Math.PI/2,2.4);
-   facadeTile('./reference/v602/side_mid.png',side*47,63,-5,91,75,side*Math.PI/2,2);
- }
+ // Tower artwork update: direct front, left, right and rear tower elevations.
+ // Real massing remains underneath; these are the visible facades requested.
+ facadeTile('./reference/v605/tower_front.png',0,90,42.8,98,170,0,3.2,1);
+ facadeTile('./reference/v605/tower_back.png',0,92,-50.2,92,170,Math.PI,3.1,1);
+ facadeTile('./reference/v605/tower_side_left.png',-46.8,92,-4.5,78,176,-Math.PI/2,2.8,1);
+ facadeTile('./reference/v605/tower_side_right.png',46.8,92,-4.5,78,176,Math.PI/2,2.8,1);
  // Deep sculpted frame, with edge columns and illuminated notched canopy.
  for(const side of [-1,1]){
    block(side*18,27,40.5,1.8,54,2.6,mats.edge);
@@ -138,22 +125,11 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
    block(side*33.5,56,35,1.7,63,4,mats.edge);
    line([side*33.7,31,37.4],[side*33.7,81,37.4],.22,mats.violet);
  }
- // Campus architecture is cut into independent left/right art sections.
- // Avoid duplicating another entire HEXCORE tower/logo behind the actual tower.
- function campusLayer(file,x,y,z,w,h,rot=0,opacity=.91){
-   return facadeTile('./reference/v602/'+file+'.png',x,y,z,w,h,rot,.5,opacity);
- }
- campusLayer('campus_left',-105,46,-110,146,108,0,.93);
- campusLayer('campus_right',105,46,-110,146,108,0,.93);
- campusLayer('campus_back_left',-112,49,-135,143,113,Math.PI,.85);
- campusLayer('campus_back_right',112,49,-135,143,113,Math.PI,.85);
- for(const side of [-1,1])campusLayer('campus_left',side*133,34,29,180,75,side*Math.PI/2,.78);
- // Beveled facade trims align to image divisions, without floating needles.
- for(const sign of [-1,1]){
-   line([sign*24,35,42.6],[sign*26,106,39.8],.20,mats.violet);
-   line([sign*39,31,39.3],[sign*37,113,37],.14,mats.blue);
-   line([sign*17,96,43.9],[sign*13,157,39],.24,mats.pearl);
- }
+ // Purple sky-beam from the tower tip.
+ const skyBeamCore=add(new THREE.CylinderGeometry(.75,.75,240,18,1,true),new THREE.MeshBasicMaterial({color:0xcaa4ff,transparent:true,opacity:.55,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}),0,302,-4);
+ const skyBeamGlow=add(new THREE.CylinderGeometry(2.9,2.9,260,20,1,true),new THREE.MeshBasicMaterial({color:0x7b4dff,transparent:true,opacity:.18,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}),0,312,-4);
+ const skyBeamHalo=add(new THREE.CylinderGeometry(6.5,6.5,280,20,1,true),new THREE.MeshBasicMaterial({color:0x6a33ff,transparent:true,opacity:.08,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}),0,322,-4);
+ skyBeamCore.renderOrder=11; skyBeamGlow.renderOrder=10; skyBeamHalo.renderOrder=9;
  // Grand glass atrium: existing functional door stays at z=32, unaltered.
  // All approach paths inside x +/- 6 are completely unobstructed.
  for(const s of [-1,1]){
@@ -239,7 +215,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
    block(s*50,.7,z,13,1.2,8,mats.black);block(s*50,1.37,z,13,.13,8,mats.edge);
  }
  for(const z of [-52,-28,0,17])for(const s of [-1,1]){tree(s*91,z,1.1);tree(s*104,z-4,.72);}
- // V6.0.4: tiered island gardens physically occupy the side quarters,
+ // V6.0.5: tiered island gardens physically occupy the side quarters,
  // with luminous edge retaining walls and real waterfall drop-offs. They sit
  // beyond x=+/-48, keeping the whole main 3D arrival and doorway axis open.
  function gardenDeck(side,z,depth=32){
