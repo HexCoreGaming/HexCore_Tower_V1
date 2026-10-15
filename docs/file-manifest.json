@@ -1,132 +1,135 @@
-[
-  {
-    "file": ".nojekyll",
-    "bytes": 0,
-    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  },
-  {
-    "file": "README.md",
-    "bytes": 1028,
-    "sha256": "340dd7d15d123b66b5331cf5f46d823d215767d09b270eecc037c5a140669c4a"
-  },
-  {
-    "file": "data/npcContent.js",
-    "bytes": 6944,
-    "sha256": "7ed17f0e50f806e00529052ec76fc90b9541970ade62945d77389a18d71f1725"
-  },
-  {
-    "file": "data/preservedLegalDialogue.js",
-    "bytes": 22839,
-    "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
-  },
-  {
-    "file": "data/siteContent.js",
-    "bytes": 2036,
-    "sha256": "a106a90c3b675e5cfae565141a84e4331ae2865b95376aa85513314a0f51c373"
-  },
-  {
-    "file": "docs/REBUILD_AUDIT.md",
-    "bytes": 886,
-    "sha256": "6ff6b7f32bfdd95a123a7526cfb04718d00c24adac1e4f08b76712945d80221a"
-  },
-  {
-    "file": "docs/VERSION.json",
-    "bytes": 106,
-    "sha256": "f36220288e732dbf93b186dd588d1fab219ac1d1a4ee5f9442c628b2dbaa9438"
-  },
-  {
-    "file": "headquarters.html",
-    "bytes": 6283,
-    "sha256": "402708aeaa465e26c82851219a42f2977d292dd7cbfd9f3fdc678a167f6dff6c"
-  },
-  {
-    "file": "holographic.html",
-    "bytes": 2643,
-    "sha256": "4654404b6e97f01528b268aef9ca36b1d2ebaacfb67ec5a0d9de5656460e1a6f"
-  },
-  {
-    "file": "index.html",
-    "bytes": 1948,
-    "sha256": "dd796515d076826da7c8806b658dd7f700213e5b65b1842dca62ef7ef00d3474"
-  },
-  {
-    "file": "reference/approved-lobby.png",
-    "bytes": 3847405,
-    "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
-  },
-  {
-    "file": "reference/approved-tower.png",
-    "bytes": 3383997,
-    "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
-  },
-  {
-    "file": "reference/cracked-planet-transparent.png",
-    "bytes": 2005283,
-    "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
-  },
-  {
-    "file": "reference/lobby-design.png",
-    "bytes": 3847405,
-    "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
-  },
-  {
-    "file": "reference/orbit-planet-b.png",
-    "bytes": 3469327,
-    "sha256": "a49bc7170ce505ea7e444e244add78b01339bef10ed2a25da703fc3a3777bec1"
-  },
-  {
-    "file": "reference/planet-cracked-spherical.webp",
-    "bytes": 386292,
-    "sha256": "e82612d6543e555d7a20c95c6a23290789fb628e501934fc9e5366b4f7da855b"
-  },
-  {
-    "file": "reference/planet-tech-spherical.webp",
-    "bytes": 304026,
-    "sha256": "cb2549d2830e1c10273a723ae1d0f4fc49baa5cf8873fdfcaf14bd024b723a59"
-  },
-  {
-    "file": "reference/space-backdrop-alt.png",
-    "bytes": 3608107,
-    "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
-  },
-  {
-    "file": "reference/space-backdrop-cyber.png",
-    "bytes": 3608107,
-    "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
-  },
-  {
-    "file": "reference/space-backdrop.webp",
-    "bytes": 693896,
-    "sha256": "686cacfb8ea1ba670bd87e9427ad7b96a028f091d3bc2e95b54e4c9ff65658aa"
-  },
-  {
-    "file": "reference/tower-design.png",
-    "bytes": 3383997,
-    "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
-  },
-  {
-    "file": "src/holographic.css",
-    "bytes": 9656,
-    "sha256": "d6728c9fa0e01f60d40ba39fdf00b83b5beab52f187e846d40407a55d59866e9"
-  },
-  {
-    "file": "src/holographic.js",
-    "bytes": 3964,
-    "sha256": "d50106d3047246ffc71f6b9318a245bd1553d96b542ad489a0e6337029e8777b"
-  },
-  {
-    "file": "src/main.js",
-    "bytes": 113906,
-    "sha256": "eac66b4ea2b04e79e1e54da83d41ec40828ebd9666c1e3cf158a47bfff4817d8"
-  },
-  {
-    "file": "src/portal.css",
-    "bytes": 4162,
-    "sha256": "4671593ac7694f0128df6b867b703f2739887bec27e25a46ad73696f5ec421ce"
-  },
-  {
-    "file": "src/style.css",
-    "bytes": 14947,
-    "sha256": "1aafe8aacf9efc1f9d83e5a6fe9d67bf9ab3573df4658fb05dc8fb68b7a6704a"
-  }
-]
+{
+  "version": "4.6",
+  "files": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "README.md",
+      "bytes": 941,
+      "sha256": "a90452f39a30a92db5c49e482eb2c8f1a04eb9425f69f11293cfd56cd1c61a01"
+    },
+    {
+      "path": "data/npcContent.js",
+      "bytes": 6944,
+      "sha256": "7ed17f0e50f806e00529052ec76fc90b9541970ade62945d77389a18d71f1725"
+    },
+    {
+      "path": "data/preservedLegalDialogue.js",
+      "bytes": 22839,
+      "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
+    },
+    {
+      "path": "data/siteContent.js",
+      "bytes": 2036,
+      "sha256": "a106a90c3b675e5cfae565141a84e4331ae2865b95376aa85513314a0f51c373"
+    },
+    {
+      "path": "docs/REBUILD_AUDIT.md",
+      "bytes": 886,
+      "sha256": "6ff6b7f32bfdd95a123a7526cfb04718d00c24adac1e4f08b76712945d80221a"
+    },
+    {
+      "path": "docs/VERSION.json",
+      "bytes": 113,
+      "sha256": "7ea608657015bbe1afa0eaaf5c51965b624906da6209a197396572e21d169217"
+    },
+    {
+      "path": "headquarters.html",
+      "bytes": 6283,
+      "sha256": "6d03dd8950497498c5b98e724b3470f04a8bd9c0313fb583549f72af8a41e74f"
+    },
+    {
+      "path": "holographic.html",
+      "bytes": 2643,
+      "sha256": "cad44033518f1b317a57ddefb2e1c2c128769816e4456238d176925a7db25014"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1948,
+      "sha256": "fce3f206e8c7f6ba5d6c9d25f585688ef36c29fcfebc3894c4148ad2a1131253"
+    },
+    {
+      "path": "reference/approved-lobby.png",
+      "bytes": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    {
+      "path": "reference/approved-tower.png",
+      "bytes": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    {
+      "path": "reference/cracked-planet-transparent.png",
+      "bytes": 2005283,
+      "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
+    },
+    {
+      "path": "reference/lobby-design.png",
+      "bytes": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    {
+      "path": "reference/orbit-planet-b.png",
+      "bytes": 3469327,
+      "sha256": "a49bc7170ce505ea7e444e244add78b01339bef10ed2a25da703fc3a3777bec1"
+    },
+    {
+      "path": "reference/planet-cracked-spherical.webp",
+      "bytes": 386292,
+      "sha256": "e82612d6543e555d7a20c95c6a23290789fb628e501934fc9e5366b4f7da855b"
+    },
+    {
+      "path": "reference/planet-tech-spherical.webp",
+      "bytes": 304026,
+      "sha256": "cb2549d2830e1c10273a723ae1d0f4fc49baa5cf8873fdfcaf14bd024b723a59"
+    },
+    {
+      "path": "reference/space-backdrop-alt.png",
+      "bytes": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    {
+      "path": "reference/space-backdrop-cyber.png",
+      "bytes": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    {
+      "path": "reference/space-backdrop.webp",
+      "bytes": 693896,
+      "sha256": "686cacfb8ea1ba670bd87e9427ad7b96a028f091d3bc2e95b54e4c9ff65658aa"
+    },
+    {
+      "path": "reference/tower-design.png",
+      "bytes": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    {
+      "path": "src/holographic.css",
+      "bytes": 9656,
+      "sha256": "d6728c9fa0e01f60d40ba39fdf00b83b5beab52f187e846d40407a55d59866e9"
+    },
+    {
+      "path": "src/holographic.js",
+      "bytes": 3964,
+      "sha256": "d50106d3047246ffc71f6b9318a245bd1553d96b542ad489a0e6337029e8777b"
+    },
+    {
+      "path": "src/main.js",
+      "bytes": 118067,
+      "sha256": "42568b1c454d21725ae64c6e8409887344f1a04ffc9145651c72b2539b676556"
+    },
+    {
+      "path": "src/portal.css",
+      "bytes": 4162,
+      "sha256": "4671593ac7694f0128df6b867b703f2739887bec27e25a46ad73696f5ec421ce"
+    },
+    {
+      "path": "src/style.css",
+      "bytes": 14947,
+      "sha256": "b89d3c3e69effd261a63cf5ce809602caf95cdf9945f94472d84f3d02c7a49f6"
+    }
+  ]
+}

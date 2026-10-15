@@ -1296,6 +1296,77 @@ function lobbyV9Dressing(){
    panel([x,2.4,-14],[2.65,.1,2.4],M.glass);
  }
 }
+// V4.6 Phase 5: reference-guided, explorable lobby architecture.
+// All pieces are real geometry; no backdrop picture or fake doorway is used.
+function lobbyReferenceRedesign(){
+ const obsidian=new THREE.MeshStandardMaterial({color:0x101423,metalness:.84,roughness:.2});
+ const graphite=new THREE.MeshStandardMaterial({color:0x252b41,metalness:.71,roughness:.26});
+ const silver=new THREE.MeshStandardMaterial({color:0x858faf,metalness:.87,roughness:.18});
+ const pearl=new THREE.MeshBasicMaterial({color:0xe3e5ff});
+ const violet=new THREE.MeshBasicMaterial({color:0xa65eff});
+ const cyan=new THREE.MeshBasicMaterial({color:0x7ed3ff});
+ const beamMat=new THREE.MeshBasicMaterial({color:0x9d78ff,transparent:true,opacity:.085,depthWrite:false,side:THREE.DoubleSide,fog:false});
+ // Tall dark polished vertical architecture with paired recessed violet light channels.
+ for(const side of [-1,1]){
+  for(const z of [-27,-15,-3,9,21]){
+   panel([side*31.55,21,z],[.7,36,2.3],graphite);
+   panel([side*31.08,21,z],[.12,35.5,.10],silver);
+   panel([side*30.99,21,z+1.18],[.12,33,.13],z%2?cyan:violet);
+  }
+  // Suspended mezzanine outlines, visually continuous but above player circulation.
+  for(const y of [12,25]){
+   panel([side*22.5,y,-8],[17,.48,43],obsidian);
+   panel([side*14.03,y+.14,-8],[.12,.11,42],silver);
+   panel([side*13.95,y+.18,-8],[.055,.08,41.5],y===12?violet:cyan);
+   for(const z of [-26,-10,6,22])panel([side*14.1,y+1.3,z],[.10,2.4,.12],M.glass);
+  }
+  // Two tall narrow wall display bays (real architecture, not fake views).
+  for(const z of [-24,16]){
+   panel([side*32.26,18,z],[.13,22,11],obsidian);
+   panel([side*32.12,18,z],[.09,20,9],M.glass);
+   for(const dz of [-5,5])panel([side*31.99,18,z+dz],[.15,21,.12],silver);
+   panel([side*31.9,28.6,z],[.16,.13,10],cyan);
+   panel([side*31.9,7.5,z],[.16,.12,10],violet);
+  }
+  // Compact real seating alcoves away from the central approach and portal.
+  for(const z of [-5,18]){
+   panel([side*25.5,.52,z],[7.2,.95,2.7],obsidian);
+   panel([side*25.5,1.05,z],[7.4,.11,2.9],silver);
+   panel([side*25.5,1.13,z+1.37],[6.8,.07,.06],violet);
+  }
+  const accent=new THREE.PointLight(side<0?0x9a70ff:0x91c8ff,8,31,2);
+  accent.position.set(side*25,19,-5);world.add(accent);
+ }
+ // A glowing suspended planet and orbiting light-rings form the lobby centerpiece.
+ // Installed well behind the entry and high above pedestrian traffic.
+ const display=new THREE.Group();display.position.set(0,19.5,-25.5);world.add(display);
+ const globe=new THREE.Mesh(new THREE.SphereGeometry(3.6,28,18),new THREE.MeshStandardMaterial({color:0x6b71dc,emissive:0x5f3baf,emissiveIntensity:.75,metalness:.46,roughness:.26}));
+ display.add(globe);
+ const wire=new THREE.Mesh(new THREE.SphereGeometry(3.73,20,12),new THREE.MeshBasicMaterial({color:0xb3d4ff,wireframe:true,transparent:true,opacity:.31,depthWrite:false}));display.add(wire);
+ for(const [r,rot,color] of [[5.1,.22,violet],[5.8,1.22,cyan],[6.45,-.51,silver]]){
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.065,6,70),color);
+  ring.rotation.set(rot,.24,0);display.add(ring);
+ }
+ const beam=new THREE.Mesh(new THREE.CylinderGeometry(2.25,1.8,30,16,1,true),beamMat);
+ beam.position.set(0,19,-25.5);world.add(beam);
+ for(const y of [34,36.5])torus([0,y,-25.5],6.5+(y-34)*.5,.12,y===34?violet:cyan,[-Math.PI/2,0,0]);
+ // High wall signs and layered frame bars emphasize the soaring atrium.
+ sign('HEXCORE GAMING',[0,31,-34.02],24,2.0);
+ sign('WELCOME  /  EXPLORE  /  DISCOVER',[0,28,-33.96],24,.9);
+ for(const z of [-32,-18,-4,10,25]){
+  panel([0,38.25,z],[54,.24,.45],graphite);
+  panel([0,38.10,z],[53,.045,.09],z%2?violet:cyan);
+ }
+ // Distinct elegant frame around reception; desk, employees and interactions are preserved.
+ panel([0,3.85,-15.7],[12.4,.20,.35],silver);
+ for(const x of [-6.05,6.05]){
+  panel([x,2.5,-15.7],[.22,2.7,.35],graphite);
+  panel([x,2.5,-15.44],[.08,2.5,.10],violet);
+ }
+ panel([0,3.98,-15.7],[12.5,.07,.14],cyan);
+ // Four floor guide lines point naturally from entrance to reception, not across doorway.
+ for(const x of [-5.0,-3.15,3.15,5.0])panel([x,.045,7],[.048,.025,28],x<0?violet:cyan);
+}
 function lobby(){
  const w=66,d=70;
  box([0,-.23,0],[w,.46,d],M.floor);
@@ -1324,7 +1395,7 @@ function lobby(){
  for(let x of [-25,25]){let lamp=new THREE.PointLight(0x8f65ff,34,24,2);lamp.position.set(x,7,-8);world.add(lamp)}
  for(let x of [-18,18]){let uplight=new THREE.PointLight(0xaebfff,10,12,2);uplight.position.set(x,.8,18);world.add(uplight)}
  guard(-9,25,210,false);guard(9,25,211,false);guard(-23,-3,212,true);guard(23,-3,213,true);
- lobbyAccents();atriumUpgrade();v2LobbyArchitecture();lobbyV9Dressing();v10LobbyFinish();
+ lobbyAccents();atriumUpgrade();v2LobbyArchitecture();lobbyV9Dressing();v10LobbyFinish();lobbyReferenceRedesign();
 }
 function openReception(){
  setPanel('<div class="eyebrow">HEXCORE / RECEPTION</div><h2>WELCOME TO HEXCORE TOWER</h2><p>Each website department occupies its own floor. Use the floor transit portal in the lobby to choose your destination.</p><p>Company information and questions are handled by employees on their respective floors. The front entrance doors lead out to the plaza.</p><button id="receptionClose">THANK YOU</button>');
