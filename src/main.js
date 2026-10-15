@@ -1005,17 +1005,6 @@ function monumentalApproachV30(){
  // Eye-level design reference: 2.7-unit player, 3.4-unit security NPC, 7.3-unit automatic doors.
 }
 function continuousPlaza(){
- buildPlazaStage1();
- buildPlazaStage2();
- buildPlazaStage3();
- buildPlazaStage4();
- buildPlazaStage5();
- buildPlazaStage6();
- buildPlazaStage7();
- buildPlazaStage8();
- buildPlazaStage9();
-}
-function buildPlazaStage1(){
  scene.fog.density=.00135;
  skyNebula();buildOrbitingPlanets(); // Calm background and slow orbiting/spinning planets only.
  // Main floating platform.
@@ -1023,9 +1012,7 @@ function buildPlazaStage1(){
  // Waterfalls dropping off the floating edge.
  for(const x of [-90,-56,56,90])waterfall(x,194,16,50,0);
  for(const z of [18,78,138]){waterfall(-110,z,13,44,Math.PI/2);waterfall(110,z,13,44,Math.PI/2)}
-
-}
-function buildPlazaStage2(){ // Major approach surface: deep black exterior plaza, distinct from the interior marble lobby.
+ // Major approach surface: deep black exterior plaza, distinct from the interior marble lobby.
  panel([0,.03,104],[186,.05,176],M.exteriorFloor);
  for(const z of [46,94,142])panel([0,.035,z],[186,.012,.08],M.wall);
  for(const x of [-56,0,56])panel([x,.035,104],[.08,.012,176],M.wall);
@@ -1036,9 +1023,7 @@ function buildPlazaStage2(){ // Major approach surface: deep black exterior plaz
  // Entrance apron stays flush with the tower, no floating stairs.
  panel([0,.03,46],[58,.05,26],M.exteriorFloor);
  panel([0,.035,46],[32,.012,.08],M.wall);
-
-}
-function buildPlazaStage3(){ // Side terraces / planters integrated into the platform.
+ // Side terraces / planters integrated into the platform.
  for(const side of [-1,1]){
    for(const z of [48,82,116,150]){
      elevationBand(side*82,.25,z,34,26);
@@ -1057,23 +1042,13 @@ function buildPlazaStage3(){ // Side terraces / planters integrated into the pla
    // channel source above side-edge waterfalls.
    for(const z of [18,78,138])panel([side*108,.03,z],[4,.14,16],M.blue);
  }
-
-}
-function buildPlazaStage4(){ guard(-12,39,206,true);guard(12,39,207,true);guard(-29,74,208,true);guard(29,74,209,true);
-
-}
-function buildPlazaStage5(){ towerV16();
+ guard(-12,39,206,true);guard(12,39,207,true);guard(-29,74,208,true);guard(29,74,209,true);
+ towerV16();
  towerFinishing();
-
-}
-function buildPlazaStage6(){ exteriorExperienceV27();
-
-}
-function buildPlazaStage7(){ monumentalApproachV30();
+ exteriorExperienceV27();
+ monumentalApproachV30();
  plazaLightReflections();
-
-}
-function buildPlazaStage8(){ // Distant surrounding spires to sell the wider floating mega-structure cityscape.
+ // Distant surrounding spires to sell the wider floating mega-structure cityscape.
  for(const side of [-1,1]){
    for(let j=0;j<8;j++){
      let x=side*(52+j*11),z=10-j*8,h=92-j*8.5;
@@ -1082,15 +1057,11 @@ function buildPlazaStage8(){ // Distant surrounding spires to sell the wider flo
    }
    for(const z of [34,170]){panel([side*98,20,z],[5,40,8],M.dark);panel([side*100.6,20,z],[.1,38,4],side>0?M.blue:M.violet)}
  }
-
-}
-function buildPlazaStage9(){ // soft architectural fills so the dark materials remain readable
+ // soft architectural fills so the dark materials remain readable
  for(const [x,z,col] of [[-30,44,0x916fff],[30,44,0x7ebeff],[-55,106,0x8f73ff],[55,106,0x87bfff]]){
   let l=new THREE.PointLight(col,14,70,2);l.position.set(x,14,z);world.add(l);
  }
-
 }
-
 function spire(x,z,height,width=5,parent=world){
  panel([x,height*.43,z],[width,height*.86,width],M.dark,parent);
  panel([x,height*.89,z],[width*.63,height*.18,width*.63],M.wall,parent);
@@ -1472,46 +1443,6 @@ function exterior(){continuousPlaza();clearTowerFromLobbyVolume();createLivingSp
 } // Single shared real-world exterior and lobby; no doorway textures.
 
 function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];spaceDepthLayers=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
-// Scene cache: the connected plaza/lobby stays pinned. Keep only two additional
-// department scenes to bound GPU memory. Cache switches never invoke resetWorld().
-const sceneCache=new Map(),departmentCacheLimit=2;
-function captureWorldState(){return {world,entities,animatedDoors,staffActors,spaceClouds,cosmicSkyLayers,orbitPlanets,spaceDepthLayers};}
-function activateWorldState(state){
- if(world.parent)scene.remove(world);
- world=state.world;scene.add(world);
- entities=state.entities;animatedDoors=state.animatedDoors;staffActors=state.staffActors;
- spaceClouds=state.spaceClouds;cosmicSkyLayers=state.cosmicSkyLayers;
- orbitPlanets=state.orbitPlanets;spaceDepthLayers=state.spaceDepthLayers;
-}
-function disposeWorldState(state){
- state.world.traverse(o=>{
-  o.geometry?.dispose();
-  if(o.material&&!Object.values(M).includes(o.material)){
-   const materials=Array.isArray(o.material)?o.material:[o.material];
-   materials.forEach(m=>{m.map?.dispose();m.dispose();});
-  }
- });
-}
-function storeScene(key){
- if(!key)return;
- // Refresh insertion order for LRU.
- const old=sceneCache.get(key);
- if(old&&old.world!==world)disposeWorldState(old);
- sceneCache.delete(key);sceneCache.set(key,captureWorldState());
- // Trim after destination swap so the destination cannot be evicted prematurely.
-}
-function swapToScene(key){
- const found=sceneCache.get(key);if(!found)return false;
- sceneCache.delete(key);sceneCache.set(key,found);
- activateWorldState(found);return true;
-}
-function startNewWorld(){
- if(world.parent)scene.remove(world);
- world=new THREE.Group();scene.add(world);
- entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];spaceDepthLayers=[];
- npcConversationPulse.lastBeat=-1;
-}
-
 let floor='outside',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,181),active=false,nearest=null,quality='low',transitionCooldown=0;
 // V4.2: The courtyard and lobby share one continuous scene. No doorway render targets.
 let doorCache=null,initialWorldReady=false,preparingWorld=false;
@@ -1531,47 +1462,43 @@ function updateDoorPreview(now,dt){
 function scheduleDoorPrebuild(){} // Both spaces are already present in the same scene.
 function warmInitialExterior(){
  if(active||initialWorldReady||preparingWorld)return;
- preparingWorld=true;floor='outside';resetWorld();
+ preparingWorld=true;
+ floor='outside';
+ resetWorld();
+ // Spread the large scene construction over multiple animation frames.
+ // This avoids doing all of it inside the Quick Entry click handler.
  const jobs=[
-  ()=>buildPlazaStage1(),
-  ()=>buildPlazaStage2(),
-  ()=>buildPlazaStage3(),
-  ()=>buildPlazaStage4(),
-  ()=>buildPlazaStage5(),
-  ()=>buildPlazaStage6(),
-  ()=>buildPlazaStage7(),
-  ()=>buildPlazaStage8(),
-  ()=>buildPlazaStage9(),
-  ()=>clearTowerFromLobbyVolume(),
+  ()=>continuousPlaza(),
   ()=>createLivingSpace(),
-  ()=>lobby(),
   ()=>{
-   const guide=employee(-9,158,41,'Welcome Guide');guide.userData.role='Welcome Guide';
-   interact('Speak with '+guide.userData.name+' — Welcome Guide',[-9,1.6,158],()=>openNpcGuide(guide),5.5);
+    lobby();
+    const guide=employee(-9,158,41,'Welcome Guide');
+    guide.userData.role='Welcome Guide';
+    interact('Speak with '+guide.userData.name+' — Welcome Guide',[-9,1.6,158],()=>openNpcGuide(guide),5.5);
   },
   ()=>{
-   pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
-   camera.position.copy(pos);camera.rotation.set(0,0,0);
-   initialWorldReady=true;preparingWorld=false;
-   sceneCache.set('shared',captureWorldState());
+    pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
+    camera.position.copy(pos);camera.rotation.set(0,0,0);
+    // Force the first view's shader/material initialization during transit, not after arrival.
+    if(!active){try{renderer.render(scene,camera)}catch(e){console.warn('Scene prewarm skipped',e)}}
+    initialWorldReady=true;
+    preparingWorld=false;
+    const status=$('worldPrepStatus');if(status)status.textContent='HEADQUARTERS READY // AWAITING USER';
   }
  ];
  let step=0;
  const runStep=()=>{
   try{
-   const started=performance.now();jobs[step++]();
-   const duration=performance.now()-started;
-   if(duration>24)console.info(`[HexCore V4.12] World build step ${step}/${jobs.length}: ${duration.toFixed(1)} ms`);
-   if(step<jobs.length){requestAnimationFrame(()=>setTimeout(runStep,0));}
+   jobs[step++]();
+   if(step<jobs.length)requestAnimationFrame(()=>setTimeout(runStep,0));
   }catch(err){
-   console.error('Preparing headquarters failed at step',step,err);
+   console.error('Preparing headquarters failed',err);
    transitError=err;initialWorldReady=false;preparingWorld=false;
-   const status=$('worldPrepStatus');if(status)status.textContent='Preparation failed. Reload to retry.';
+   const status=$('worldPrepStatus');if(status)status.textContent='Preparation failed. Reload the page to retry.';
   }
  };
  requestAnimationFrame(()=>setTimeout(runStep,0));
 }
-
 function crossDoor(target){
  if((target!=='outside'&&target!=='lobby')||floor===target)return;
  // Same scene, same camera, no rebuild and no swap.
@@ -1581,38 +1508,25 @@ function crossDoor(target){
 function travel(id,spawn='default'){
  if((id==='lobby'||id==='outside')&&(floor==='lobby'||floor==='outside')){crossDoor(id);return;}
  doorCache=null;
- const previous=floor, oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;
- closePortalSelector();
- const oldKey=previous==='outside'||previous==='lobby'?'shared':previous;
- const destKey=id==='outside'||id==='lobby'?'shared':id;
- if(oldKey!==destKey){
-  storeScene(oldKey);
-  // If scene not built yet, construct once and keep it for subsequent visits.
-  if(!swapToScene(destKey)){
-   startNewWorld();
-   if(destKey==='shared'){cosmicElapsedMs=0;exterior();}
-   else floorRoom(floors.find(f=>f.id===id)||floors[0]);
-   sceneCache.set(destKey,captureWorldState());
-  }
-  const deptKeys=[...sceneCache.keys()].filter(k=>k!=='shared'&&k!==destKey);
-  while(deptKeys.length>=departmentCacheLimit){
-   const victim=deptKeys.shift(),retired=sceneCache.get(victim);
-   sceneCache.delete(victim);if(retired)disposeWorldState(retired);
-  }
- }
- floor=id;
+ const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;
+ closePortalSelector();floor=id;resetWorld();
  if(id==='outside'){
+  cosmicElapsedMs=0;exterior();
   if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,32.12);yaw=oldYaw;pitch=oldPitch;}
   else{pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;}
  }else if(id==='lobby'){
+  exterior();
   if(spawn==='fromOutside'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,31.88);yaw=oldYaw;pitch=oldPitch;}
   else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0;}
- }else{pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0;}
+ }else{
+  floorRoom(floors.find(f=>f.id===id)||floors[0]);pos.set(0,EYE_HEIGHT,21);yaw=0;pitch=0;
+ }
  camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
  $('zone').textContent=id==='outside'?'HEXCORE // EXTERIOR PLAZA':(floors.find(f=>f.id===id)?.label||'TOWER').toUpperCase();
  hideAll();transitionCooldown=.18;
+ // Preload the other side asynchronously after the first playable frame, never on ENTER.
+ if(id==='lobby'||id==='outside')scheduleDoorPrebuild();
 }
-
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html; if($('panelBody').querySelector('#guideClose'))$('panelBody').querySelector('#guideClose').onclick=()=>$('panel').classList.add('hidden');$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

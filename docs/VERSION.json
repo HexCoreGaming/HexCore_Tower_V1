@@ -1,5 +1,6 @@
 {
-  "version": "4.12",
-  "phase": "startup batching and cached department scene lifecycle",
-  "base": "user uploaded V4.10 ZIP"
+  "version": "4.13",
+  "phase": "menu stability and no progress bar",
+  "base": "user uploaded V4.10 ZIP",
+  "notes": "Rollback recovery to V4.11 implementation; no V4.12 world caching."
 }

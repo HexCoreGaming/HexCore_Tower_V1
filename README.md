@@ -1,13 +1,12 @@
-# HexCore Tower V4.12 — Stability groundwork
+# HexCore Tower V4.13 — Rollback recovery
 
-Based on the user's uploaded V4.11 source. Existing visuals, portal menu, and no-loading-bar cinematic retained.
+V4.12 introduced tower appearance changes and a first-frame purple freeze. This package restores the V4.11 application source and initialization order instead of continuing V4.12's experimental staged-build and cached-scene changes.
 
-## Changes
-- Split the large plaza construction function into nine sequential construction steps, scheduled across animation frames.
-- Removed the forced WebGL full-scene render from the loading sequence.
-- Keep exterior and lobby together as a pinned scene.
-- Cache the two most recently visited department 3D scenes so revisiting them does not rebuild all meshes. Evict older departments to limit memory growth.
-- Emit console timing for slow world-construction steps (>24 ms) to identify remaining stalls.
+- V4.11 tower geometry and entrance construction order restored.
+- V4.11 pre-arrival first render restored.
+- V4.12 extra staged build and department scene caching removed.
+- Existing two-choice portal, holographic site and no-loading-bar cinematic retained.
 
-## Limits
-No live browser or GPU performance verification has been completed. A single stage or a first-time department build can still cause frame drops; no zero-lag promise.
+This is a conservative recovery rollback, **not a verified freeze elimination**. Initial world building still runs on the browser main thread and may stutter. Browser run/performance verification is needed.
+
+Unzip contents at repository root.
