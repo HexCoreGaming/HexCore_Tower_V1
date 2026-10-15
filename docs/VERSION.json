@@ -1,6 +1,6 @@
 {
-  "version": "6.0.6",
-  "source_base": "V6.0.5 Tower Art + Sky Beam Update ZIP",
+  "version": "6.0.7",
+  "source_base": "V6.0.6 Walkway Panel Facing Fix ZIP",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
   "visual_art_method": "owner-reference-textured relief surfaces + physical supporting geometry",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none; main.js solely updates exterior module cache tag",
-  "notes": "Rotated/fixed holographic walkway image panels so they face the correct sideways direction."
+  "notes": "Replaced stretched full-tower image planes with cropped front/side/back facade sections fitted to the tower massing."
 }
