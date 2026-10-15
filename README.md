@@ -28,5 +28,5 @@
 Images used as reference-derived textures come from the owner-supplied visual references inside this package. The visual modules do not introduce new third-party game assets.
 
 
-## V6.0.5 exterior-only update
+## V6.0.6 exterior-only update
 Split the approved facade images into 17 architectural texture assets under `reference/v602`; layered crown, wings, sign, entrance and elevations onto physically stepped massing. Added elevated landscape terraces, sculpted island edge, localized waterfall treatments, and new side/drop structures. The NPC character module, dialogues, original door crossing, floor travel and controls have not been modified. This is an image-assisted visual reconstruction and not a full 360-degree photogrammetry model.

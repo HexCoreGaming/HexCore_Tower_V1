@@ -1,5 +1,5 @@
 /**
- * HEXCORE / ART-REFERENCED EXTERIOR V6.0.5
+ * HEXCORE / ART-REFERENCED EXTERIOR V6.0.6
  * A visual-scene replacement, with reference-projected photographic architectural
  * relief layers PLUS walkable 3D island, atrium surrounds, substantial ring
  * bridges, paving, planted terraces and waterfalls. Four angles sourced from
@@ -11,7 +11,7 @@ export function updateExteriorV6(time){for(let k=0;k<waterfallMaps.length;k++)wa
 export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets}){
  waterfallMaps=[];
  skyNebula();buildOrbitingPlanets();
- const root=new THREE.Group();root.name='HEXCORE V6.0.5 SCULPTED ART HYBRID EXTERIOR';world.add(root);
+ const root=new THREE.Group();root.name='HEXCORE V6.0.6 SCULPTED ART HYBRID EXTERIOR';world.add(root);
  const tex=(path,repeat)=>{let t=new THREE.TextureLoader().load(path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);}return t};
  const mats={
   black:new THREE.MeshStandardMaterial({color:0x101827,metalness:.78,roughness:.27}),
@@ -51,7 +51,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  for(const [x,z,rx,rz] of [[-92,85,27,20],[92,85,27,20],[-92,-28,37,28],[92,-28,37,28],[-68,140,17,12],[68,140,17,12],[0,-55,62,19]]){
   plat(x,z,rx,rz,.22);const arr=[];for(let j=0;j<64;j++){const a=j*2*Math.PI/64;arr.push([x+rx*Math.cos(a),.40,z+rz*Math.sin(a)]);}strip(arr,.14,mats.violet,true);
  }
- // V6.0.5: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
+ // V6.0.6: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
  // regions and each region gets its own shaped relief mesh and physical backing.
  // Not one photo on a wall: independently set-back crown, paired wings, sign
  // bay, atrium surrounds and rear/side elevations. The original real doorway
@@ -154,12 +154,12 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  const holoTex=tex('./reference/v604/holo_sidewall.png');
  function hologramPanel(x,z,rotY){
    const panelMat=new THREE.MeshBasicMaterial({map:holoTex,transparent:true,opacity:.68,side:THREE.DoubleSide,depthWrite:false,toneMapped:false,color:0xe8deff});
-   const panel=add(new THREE.PlaneGeometry(20,11.25),panelMat,x,7.2,z);panel.rotation.y=rotY;panel.renderOrder=9;
+   const panel=add(new THREE.PlaneGeometry(20,11.25),panelMat,x,7.2,z);panel.renderOrder=9;
    const frameMat=new THREE.MeshBasicMaterial({color:0xb78cff,toneMapped:false});
    const supportMat=mats.metal;
    const grp=new THREE.Group();grp.position.set(x,0,z);grp.rotation.y=rotY;root.add(grp);
    // image plane
-   panel.parent.remove(panel);grp.add(panel);panel.position.set(0,7.2,0);
+   panel.parent.remove(panel);grp.add(panel);panel.position.set(0,7.2,0);panel.rotation.set(0,0,0);
    // subtle holographic backing glow
    const glow=add(new THREE.PlaneGeometry(20.6,11.85),new THREE.MeshBasicMaterial({color:0x7b54ff,transparent:true,opacity:.16,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}),0,7.2,-.12,grp);
    // frame + pedestal
@@ -215,7 +215,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
    block(s*50,.7,z,13,1.2,8,mats.black);block(s*50,1.37,z,13,.13,8,mats.edge);
  }
  for(const z of [-52,-28,0,17])for(const s of [-1,1]){tree(s*91,z,1.1);tree(s*104,z-4,.72);}
- // V6.0.5: tiered island gardens physically occupy the side quarters,
+ // V6.0.6: tiered island gardens physically occupy the side quarters,
  // with luminous edge retaining walls and real waterfall drop-offs. They sit
  // beyond x=+/-48, keeping the whole main 3D arrival and doorway axis open.
  function gardenDeck(side,z,depth=32){
