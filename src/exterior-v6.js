@@ -115,7 +115,6 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
     line([side*11,.45+j*.25,Z+.78],[side*32,.45+j*.25,Z+.78],.06,j%2?mats.blue:mats.violet);
    }
   }
- }
  // Central HexCore floor emblem at spawn foreground. Glowing inlaid metalwork.
  const hex=[];for(let j=0;j<6;j++){const a=j*2*Math.PI/6;hex.push([11*Math.cos(a),.47,132+11*Math.sin(a)]);}strip(hex,.21,mats.violet,true);
  for(const s of [-1,1])line([s*3,.49,125],[s*3,.49,139],.44,mats.pearl);
