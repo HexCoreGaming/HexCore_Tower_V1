@@ -63,3 +63,24 @@
 
 /* V4.11: no progress bar or percentage in cinematic transit. */
 .transit-progress,.transit-details{display:none!important}
+
+
+/* V6.0.11: animated network-tunnel loading screen and live transit backdrop. */
+#loading{overflow:hidden;background:#040512;isolation:isolate}
+#loading>*{position:relative;z-index:2}
+#loading:before{content:'';position:absolute;inset:-12%;background:url('../reference/v611/loading_network_tunnel.png') center/cover no-repeat;filter:saturate(1.18) brightness(.92);transform:scale(1.08);animation:loadingTunnelFloat 8s ease-in-out infinite alternate,loadingTunnelPulse 4.8s ease-in-out infinite}
+#loading:after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(130,90,255,.18),transparent 34%),linear-gradient(115deg,transparent 0 28%,rgba(190,225,255,.14) 44%,transparent 58%);mix-blend-mode:screen;opacity:.7;animation:loadingSweep 3.8s linear infinite}
+#loading h1,#loading p,#loading .eyebrow,#loading .brandmark,#loading .thin-line{filter:drop-shadow(0 0 16px rgba(116,79,255,.55))}
+.network-transit{background:#020510;isolation:isolate}
+.network-transit:before{content:'';position:absolute;inset:-9%;background:url('../reference/v611/loading_network_tunnel.png') center/cover no-repeat;opacity:.48;filter:saturate(1.14) brightness(.86);transform:scale(1.12);animation:loadingTunnelFloat 6.4s ease-in-out infinite alternate,loadingTunnelPulse 4.2s ease-in-out infinite}
+.network-transit:after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(137,102,255,.24),transparent 32%),linear-gradient(180deg,rgba(2,3,14,.56),transparent 25%,transparent 72%,rgba(2,3,14,.9));z-index:0;pointer-events:none}
+.network-canvas{z-index:1}
+.network-vignette{z-index:2}
+.network-portal{z-index:3}
+.transit-hud{z-index:4}
+.authorization-text{z-index:5}
+@keyframes loadingTunnelFloat{0%{transform:scale(1.06) translate3d(-1.2%,0,0)}100%{transform:scale(1.14) translate3d(1.2%,-1%,0)}}
+@keyframes loadingTunnelPulse{0%,100%{filter:saturate(1.08) brightness(.84)}50%{filter:saturate(1.26) brightness(1.04)}}
+@keyframes loadingSweep{from{transform:translateX(-55%)}to{transform:translateX(55%)}}
+@media(prefers-reduced-motion:reduce){#loading:before,#loading:after,.network-transit:before{animation:none!important}}
+

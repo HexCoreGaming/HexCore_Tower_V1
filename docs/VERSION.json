@@ -1,6 +1,6 @@
 {
-  "version": "6.0.10",
-  "source_base": "V6.0.9 Walkway No Frames Complete",
+  "version": "6.0.11",
+  "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
   "visual_art_method": "owner-reference-textured relief surfaces + physical supporting geometry",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none; main.js solely updates exterior module cache tag",
-  "notes": "Replaced the side walkway images with the new side-wall / trees / waterfalls / pillars artwork and cropped down the floor in the image."
+  "notes": "Walkway scenery panels converted into continuous connected side strips; front/side/back tower artwork refreshed to remove the missing black square; animated network-tunnel loading screen added."
 }

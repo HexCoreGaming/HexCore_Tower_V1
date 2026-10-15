@@ -30,3 +30,9 @@ Images used as reference-derived textures come from the owner-supplied visual re
 
 ## V6.0.7 exterior-only update
 Split the approved facade images into 17 architectural texture assets under `reference/v602`; layered crown, wings, sign, entrance and elevations onto physically stepped massing. Added elevated landscape terraces, sculpted island edge, localized waterfall treatments, and new side/drop structures. The NPC character module, dialogues, original door crossing, floor travel and controls have not been modified. This is an image-assisted visual reconstruction and not a full 360-degree photogrammetry model.
+
+
+V6.0.11 update:
+- walkway side images converted to continuous connected strips
+- tower artwork refreshed with the provided front/side/back images to remove the missing black square
+- loading / transit screen now uses the animated network-tunnel image
