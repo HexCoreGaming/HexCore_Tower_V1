@@ -1,11 +1,10 @@
-# HexCore Tower V4.8 — Open Lobby Geometry Correction
+# HexCore Tower V4.9 — Choice Portal & Lobby Obstruction Correction
 
-This is a targeted follow-up to the user screenshot of the V4.7 lobby.
+Targeted correction based on the V4.7 screenshot and V4.8 failure report.
 
-- Removed the two enormous lobby side-wall boxes and low solid ceiling slab.
-- Removed the pair of tower-base blocks that extended through the actual lobby entrance corridor.
-- Preserved door mechanics, receptionist, floating globe, floor trim, NPCs, 3D world, and the existing menu UX.
-- No menu redesign. Markup matches V4.7 except version/cache-label changes.
-- Live WebGL visual testing remains necessary before confirming the obstruction is fully gone.
+- The original two-choice launch portal is preserved as the homepage. Clicking 3D navigates to `headquarters.html?from=portal`, and a direct old link to `headquarters.html` returns to the portal.
+- The real underlying problem was tower-facade structural solids intersecting the same volume as the open lobby. The exterior build now culls intrusive large structural boxes before adding the lobby contents.
+- The existing lobby desks, NPCs, globe, floor transit and mobile controls remain.
+- This is a geometry-level correction and no changes to the portal styling were made.
 
-Extract all files into the repository root and commit/push.
+Note: A live graphical browser test has not been completed. Verify both the menu and lobby in the deployed website.

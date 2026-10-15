@@ -1413,7 +1413,30 @@ function openReception(){
 function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);box([0,-.2,0],[65,.4,69],M.floor);box([0,11,-34],[65,22,1],M.wall);box([-32.5,11,0],[1,22,69],M.wall);box([32.5,11,0],[1,22,69],M.wall);for(let side of [-1,1]){for(let j=0;j<5;j++){let z=-25+j*12;box([side*29,10,z],[2,20,2],M.dark);trim([side*27.9,10,z],[.08,19,.06],j%2?M.blue:M.violet)}}box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openNpcDepartment(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openNpcDepartment(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}for(let x of [-23,23]){let l=new THREE.PointLight(0x9862ff,22,24,2);l.position.set(x,6,-14);world.add(l)}for(let x of [-12,12]){let floorLight=new THREE.PointLight(0xc9d6ff,6,10,2);floorLight.position.set(x,.8,18);world.add(floorLight)}}
-function exterior(){continuousPlaza();createLivingSpace();lobby();
+// Keep the interior air volume free of tower-facade geometry. The exterior
+// silhouette stays, but nothing from the exterior construction pass may fill
+// the main lobby where a visitor actually walks.
+function clearTowerFromLobbyVolume(){
+ const occupied=new THREE.Box3(new THREE.Vector3(-26,0,-30),new THREE.Vector3(26,33,29));
+ const bounds=new THREE.Box3();
+ world.updateMatrixWorld(true);
+ const toRemove=[];
+ for(const child of world.children){
+  if(!child.isMesh||!child.geometry||!child.material)continue;
+  // Only structural exterior solids, never floor, glass, text, doors or lights.
+  if(!child.geometry.type?.includes('BoxGeometry'))continue;
+  if(child.material.transparent || child.material===M.glass)continue;
+  child.geometry.computeBoundingBox();bounds.copy(child.geometry.boundingBox).applyMatrix4(child.matrixWorld);
+  const dim=bounds.getSize(new THREE.Vector3());
+  const overlaps=bounds.intersectsBox(occupied);
+  const solidVertical=dim.y>9 && (dim.x>1.15 || dim.z>1.15);
+  const largeHorizontal=dim.y>3 && dim.x>8 && dim.z>7;
+  if(overlaps&&(solidVertical||largeHorizontal))toRemove.push(child);
+ }
+ for(const child of toRemove)world.remove(child);
+ console.info('HexCore: cleared',toRemove.length,'exterior obstructions from lobby walking volume');
+}
+function exterior(){continuousPlaza();clearTowerFromLobbyVolume();createLivingSpace();lobby();
  const guide=employee(-9,158,41,'Welcome Guide');
  guide.userData.role='Welcome Guide';
  interact('Speak with '+guide.userData.name+' — Welcome Guide',[-9,1.6,158],()=>openNpcGuide(guide),5.5);
