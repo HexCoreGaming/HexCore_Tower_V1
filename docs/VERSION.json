@@ -1,5 +1,5 @@
 {
-  "version": "6.0.22",
+  "version": "6.0.23",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
