@@ -206,8 +206,9 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  // Central floor insignia now uses the generated H-logo floor texture instead of line-built geometry,
  // enlarged to roughly 3x the previous size.
  const emblemTex=tex('./reference/v603/floor_tile_center_h.png');
- const emblemMat=new THREE.MeshPhysicalMaterial({map:emblemTex,transparent:true,alphaTest:.003,depthWrite:false,color:0xffffff,metalness:.54,roughness:.16,clearcoat:1,clearcoatRoughness:.05,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
- const emblemPlane=add(new THREE.PlaneGeometry(93,93),emblemMat,0,.245,132);emblemPlane.rotation.x=-Math.PI/2;emblemPlane.renderOrder=8;
+ // Keep the existing H artwork but give its visible pixels stable depth.
+ const emblemMat=new THREE.MeshPhysicalMaterial({map:emblemTex,transparent:true,alphaTest:.08,depthTest:true,depthWrite:true,color:0xffffff,metalness:.54,roughness:.16,clearcoat:1,clearcoatRoughness:.05,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
+ const emblemPlane=add(new THREE.PlaneGeometry(93,93),emblemMat,0,.34,132);emblemPlane.rotation.x=-Math.PI/2;
  // The skybridge is a structural deck with parapet, not one thin wire.
 
  function skybridge(rx,rz,height,z0){
