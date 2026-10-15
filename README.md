@@ -1,12 +1,13 @@
-# HexCore Tower V4.6 — Phase 5, Lobby Redesign (First Floor)
+# HexCore Tower V4.7 — Entrance Wall & Quick Entry Performance
 
-Built from the complete V4.5 website.
+Built from V4.6.
 
-- Reworked the physical 3D lobby toward the existing approved lobby reference, with tall architectural ribs, upper terraces, atmospheric lighting, a suspended illuminated globe and rings, upgraded reception framing, and polished lounge areas.
-- Preserved the single continuous exterior/lobby scene, automatic entrance, front doorway clearances, existing reception NPCs and dialogue, floor transit, holographic website, and character creation/intro.
-- This is the first Phase 5 floor. Other departments have not yet been reconstructed from their individual reference images.
-- The central suspended planet/beam are actual lightweight 3D geometry, not backdrop images.
+- Changed the plain gray rear lobby wall into dark, illuminated architectural backing. The rear enclosure remains intact; no new wall blocks the entrance.
+- Staged headquarters preparation across frames while the entry menu/transit is visible.
+- Avoided repeating builds while a staged preparation is already in progress.
+- Prewarmed the first world render during transit to reduce the freeze on arrival.
+- All existing 3D headquarters, traditional holographic site, NPC content and legal dialogue are retained.
 
-Unzip the contents **at the repository root**, replacing existing files.
+Performance is still device-dependent and requires testing in a real browser.
 
-Verification: JS syntax, links and ZIP integrity checked; browser visual/gameplay not verified.
+Unzip the contents directly into the GitHub Pages repository root, commit and push.

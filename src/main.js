@@ -1370,8 +1370,13 @@ function lobbyReferenceRedesign(){
 function lobby(){
  const w=66,d=70;
  box([0,-.23,0],[w,.46,d],M.floor);
- box([0,20,-35],[w,40,1.2],M.wall);
- box([-33,20,0],[1.2,40,d],M.wall);box([33,20,0],[1.2,40,d],M.wall);
+ // Dark rear architectural backing, not an untextured grey wall in the visitors' sight line.
+ box([0,20,-35],[w,40,1.2],M.dark);
+ for(const x of [-24,-16,16,24]){
+   panel([x,19.2,-34.29],[.12,31,.08],Math.abs(x)===16?M.blue:M.violet);
+ }
+ panel([0,28,-34.26],[27,.14,.08],M.violet);
+ box([-33,20,0],[1.2,40,d],M.dark);box([33,20,0],[1.2,40,d],M.dark);
  for(let side of [-1,1]){
   for(let i=0;i<5;i++){const z=-25+i*13;box([side*28,15,z],[2,30,2],M.dark);trim([side*27.93,15,z+1.05],[.12,29.8,.06],M.violet)}
   for(let i=0;i<3;i++){let z=-24+i*21;tree(side*23,z,1.25);box([side*22,.3,z+3],[9,.5,2.5],M.dark);trim([side*22,.6,z+4.3],[9,.08,.07],M.blue)}
@@ -1432,13 +1437,41 @@ function scheduleDoorPrebuild(){} // Both spaces are already present in the same
 function warmInitialExterior(){
  if(active||initialWorldReady||preparingWorld)return;
  preparingWorld=true;
- try{
-  floor='outside';resetWorld();exterior();
-  pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
-  camera.position.copy(pos);camera.rotation.set(0,0,0);
-  initialWorldReady=true;
- }catch(err){console.error('Preparing headquarters failed',err);initialWorldReady=false;}
- finally{preparingWorld=false;}
+ floor='outside';
+ resetWorld();
+ // Spread the large scene construction over multiple animation frames.
+ // This avoids doing all of it inside the Quick Entry click handler.
+ const jobs=[
+  ()=>continuousPlaza(),
+  ()=>createLivingSpace(),
+  ()=>{
+    lobby();
+    const guide=employee(-9,158,41,'Welcome Guide');
+    guide.userData.role='Welcome Guide';
+    interact('Speak with '+guide.userData.name+' — Welcome Guide',[-9,1.6,158],()=>openNpcGuide(guide),5.5);
+  },
+  ()=>{
+    pos.set(0,EYE_HEIGHT,181);yaw=0;pitch=0;
+    camera.position.copy(pos);camera.rotation.set(0,0,0);
+    // Force the first view's shader/material initialization during transit, not after arrival.
+    if(!active){try{renderer.render(scene,camera)}catch(e){console.warn('Scene prewarm skipped',e)}}
+    initialWorldReady=true;
+    preparingWorld=false;
+    const status=$('worldPrepStatus');if(status)status.textContent='HEADQUARTERS READY // AWAITING USER';
+  }
+ ];
+ let step=0;
+ const runStep=()=>{
+  try{
+   jobs[step++]();
+   if(step<jobs.length)requestAnimationFrame(()=>setTimeout(runStep,0));
+  }catch(err){
+   console.error('Preparing headquarters failed',err);
+   initialWorldReady=false;preparingWorld=false;
+   const status=$('worldPrepStatus');if(status)status.textContent='Preparation failed. Reload the page to retry.';
+  }
+ };
+ requestAnimationFrame(()=>setTimeout(runStep,0));
 }
 function crossDoor(target){
  if((target!=='outside'&&target!=='lobby')||floor===target)return;
@@ -1673,8 +1706,8 @@ const transitStart=(quickSex=null)=>{
   const elapsed=now-start;
   $('transitProgress').style.width=Math.min(100,elapsed/10000*100)+'%';
   if(elapsed>=7000)$('authorizationText').classList.remove('hidden');
-  if(elapsed>=10000&&verified){finishArrival();return;}
-  if(elapsed>=10000){$('transitStatus').textContent='CONNECTING TO HEADQUARTERS';if(!verified)setTimeout(prepare,80);}
+  if(elapsed>=10000&&initialWorldReady){finishArrival();return;}
+  if(elapsed>=10000){$('transitStatus').textContent='CONNECTING TO HEADQUARTERS';if(!verified&&!preparingWorld)setTimeout(prepare,80);}
   requestAnimationFrame(flight);
  };
  requestAnimationFrame(flight);
@@ -1704,5 +1737,5 @@ setTimeout(()=>{
   $('worldPrepStatus').textContent=initialWorldReady?'HEADQUARTERS READY // AWAITING USER':'Preparing headquarters…';
   // The actual lobby has already been built as part of the shared headquarters world.
  }
-},180);
+},20);
 
