@@ -1,0 +1,170 @@
+{
+  "version": "4.12",
+  "files": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "README.md",
+      "bytes": 848,
+      "sha256": "2852c752388e5b7eb05d27344697adcb630ad4aa368aabf0922911120e4c0ae8"
+    },
+    {
+      "path": "data/npcContent.js",
+      "bytes": 6944,
+      "sha256": "7ed17f0e50f806e00529052ec76fc90b9541970ade62945d77389a18d71f1725"
+    },
+    {
+      "path": "data/preservedLegalDialogue.js",
+      "bytes": 22839,
+      "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
+    },
+    {
+      "path": "data/siteContent.js",
+      "bytes": 2036,
+      "sha256": "a106a90c3b675e5cfae565141a84e4331ae2865b95376aa85513314a0f51c373"
+    },
+    {
+      "path": "docs/REBUILD_AUDIT.md",
+      "bytes": 886,
+      "sha256": "6ff6b7f32bfdd95a123a7526cfb04718d00c24adac1e4f08b76712945d80221a"
+    },
+    {
+      "path": "docs/VERSION.json",
+      "bytes": 130,
+      "sha256": "b453b1155a1908e5376d8c75d291b26eca380597a32e5b42311f4776fd438ebd"
+    },
+    {
+      "path": "headquarters.html",
+      "bytes": 7082,
+      "sha256": "16ba85e5ba7b8d0522c959bb2660320184de599549def79b2b00bbbe9ac3ad00"
+    },
+    {
+      "path": "holographic.html",
+      "bytes": 2647,
+      "sha256": "306cd53fff2b38654f8191372f302231989694d71d6dc16b32eb72586b3aa0cc"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1963,
+      "sha256": "ede61988d0c255c95844150288ce0af98eeaa42041a9ace20d03b6423726cd4e"
+    },
+    {
+      "path": "reference/approved-lobby.png",
+      "bytes": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    {
+      "path": "reference/approved-tower.png",
+      "bytes": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    {
+      "path": "reference/cracked-planet-transparent.png",
+      "bytes": 2005283,
+      "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
+    },
+    {
+      "path": "reference/entity-echo-laugh.wav",
+      "bytes": 161008,
+      "sha256": "a0fa08ffda421f8f155180912f15bb8e6b56b537696bc8db47d31aee1b1beaaf"
+    },
+    {
+      "path": "reference/entity-face-crop.png",
+      "bytes": 203919,
+      "sha256": "ddf0e96887f4ecb24e1fa2c8aabfca674f9bcc4f171bc916ae89bb3abca6e607"
+    },
+    {
+      "path": "reference/entity-hand-crop.png",
+      "bytes": 526684,
+      "sha256": "2de438a36190482272b2a5bae188ae69a89f0eb69ec55c44efe1c177108bec95"
+    },
+    {
+      "path": "reference/glitch-hand-right.png",
+      "bytes": 3940071,
+      "sha256": "77cc57be4dbaa9638a380352f99207b8fc4083cd90c0f1bff8931123e0492319"
+    },
+    {
+      "path": "reference/glitch-overlap.png",
+      "bytes": 4002461,
+      "sha256": "5d328244a2f948c9afce737e942640d7aab0af59f4c2162e5b6eb6666110201c"
+    },
+    {
+      "path": "reference/glitch-world-live.png",
+      "bytes": 3937122,
+      "sha256": "2398877814799e3fb4a173bfa0a8c4d19a77fce1d8b3927f4e360d4c28741f7e"
+    },
+    {
+      "path": "reference/lobby-design.png",
+      "bytes": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    {
+      "path": "reference/orbit-planet-b.png",
+      "bytes": 3469327,
+      "sha256": "a49bc7170ce505ea7e444e244add78b01339bef10ed2a25da703fc3a3777bec1"
+    },
+    {
+      "path": "reference/planet-cracked-spherical.webp",
+      "bytes": 386292,
+      "sha256": "e82612d6543e555d7a20c95c6a23290789fb628e501934fc9e5366b4f7da855b"
+    },
+    {
+      "path": "reference/planet-tech-spherical.webp",
+      "bytes": 304026,
+      "sha256": "cb2549d2830e1c10273a723ae1d0f4fc49baa5cf8873fdfcaf14bd024b723a59"
+    },
+    {
+      "path": "reference/space-backdrop-alt.png",
+      "bytes": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    {
+      "path": "reference/space-backdrop-cyber.png",
+      "bytes": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    {
+      "path": "reference/space-backdrop.webp",
+      "bytes": 693896,
+      "sha256": "686cacfb8ea1ba670bd87e9427ad7b96a028f091d3bc2e95b54e4c9ff65658aa"
+    },
+    {
+      "path": "reference/tower-design.png",
+      "bytes": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    {
+      "path": "src/holographic.css",
+      "bytes": 9656,
+      "sha256": "d6728c9fa0e01f60d40ba39fdf00b83b5beab52f187e846d40407a55d59866e9"
+    },
+    {
+      "path": "src/holographic.js",
+      "bytes": 3964,
+      "sha256": "d50106d3047246ffc71f6b9318a245bd1553d96b542ad489a0e6337029e8777b"
+    },
+    {
+      "path": "src/main.js",
+      "bytes": 123802,
+      "sha256": "2e1fe621e27ddcbafc2f85c20b61d2d9a2f9caf17bbaafccc045248f458e7f27"
+    },
+    {
+      "path": "src/network-transit.js",
+      "bytes": 3671,
+      "sha256": "30e23427c8790b00e3fc2d3bb676bc2c7a25a967e7b3cf6b7f6de830ba579678"
+    },
+    {
+      "path": "src/portal.css",
+      "bytes": 4162,
+      "sha256": "4671593ac7694f0128df6b867b703f2739887bec27e25a46ad73696f5ec421ce"
+    },
+    {
+      "path": "src/style.css",
+      "bytes": 17316,
+      "sha256": "4f6aafa0f043aa2f9a6b80e6b18ebc4b4bdb39bb165ab473aac48010481ec566"
+    }
+  ]
+}

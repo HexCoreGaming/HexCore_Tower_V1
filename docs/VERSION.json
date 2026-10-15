@@ -1,6 +1,8 @@
 {
-  "version": "4.13",
-  "phase": "menu stability and no progress bar",
-  "base": "user uploaded V4.10 ZIP",
-  "notes": "Rollback recovery to V4.11 implementation; no V4.12 world caching."
+  "version": "5.0",
+  "source_base": "4.13 rollback recovery",
+  "scope": "exterior art pass (non-gameplay)",
+  "scene": "Three.js single shared exterior/lobby world",
+  "mechanics_edited": false,
+  "remaining": ["photoreal asset-matched cinematic tower GLB", "interior department visual overhaul", "rigged realistic NPC models", "live WebGL performance verification"]
 }

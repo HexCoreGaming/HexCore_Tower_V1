@@ -1,0 +1,198 @@
+{
+  "version": "5.0",
+  "exclusions": [
+    "docs/V5_FILE_CHECKSUMS.json",
+    "docs/file-manifest.json"
+  ],
+  "file_count": 47,
+  "files": {
+    ".nojekyll": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "README.md": {
+      "bytes": 1948,
+      "sha256": "bcb899aaf1805f6b19d40d7a6bab931d52ae43d6e6986828022be4cc35641852"
+    },
+    "data/npcContent.js": {
+      "bytes": 6944,
+      "sha256": "7ed17f0e50f806e00529052ec76fc90b9541970ade62945d77389a18d71f1725"
+    },
+    "data/preservedLegalDialogue.js": {
+      "bytes": 22839,
+      "sha256": "35385186c9b72d7c1cef0e09bb9e499ec0f71b7d471ba71563ae8f1c8c47433c"
+    },
+    "data/siteContent.js": {
+      "bytes": 2036,
+      "sha256": "a106a90c3b675e5cfae565141a84e4331ae2865b95376aa85513314a0f51c373"
+    },
+    "docs/EXTERIOR_V5_BUILD_NOTES.md": {
+      "bytes": 3048,
+      "sha256": "d44d537754b28a64623880bbb60dc96728a8f2588db6426ddc3420ea11ae541a"
+    },
+    "docs/REBUILD_AUDIT.md": {
+      "bytes": 886,
+      "sha256": "6ff6b7f32bfdd95a123a7526cfb04718d00c24adac1e4f08b76712945d80221a"
+    },
+    "docs/V4.13_ROLLBACK_README.md": {
+      "bytes": 782,
+      "sha256": "cac21375bd92846a46e1d335b0d7079faf58d7db04fe6167e61c525a059ec9f4"
+    },
+    "docs/VERSION.json": {
+      "bytes": 373,
+      "sha256": "d66200bab6086b8dee8ce2eede31dd201aabc21cc7d18b49aa230c049c841f64"
+    },
+    "docs/file-manifest-v4.13-archive.json": {
+      "bytes": 5329,
+      "sha256": "95b90fbe95f550f530e11c7f6dc21b8495374eb6d81416e7213608dfe4526ce2"
+    },
+    "docs/smoke-scene-v5.mjs": {
+      "bytes": 1999,
+      "sha256": "fc981a9f3e0324e6feeb955c2f939474a6f1d4408ac700b71f93907d5719c989"
+    },
+    "headquarters.html": {
+      "bytes": 7075,
+      "sha256": "1c688335c9497a0fbf5cbd403bbb5d334d802c3eafb92e9dd4413f122a529404"
+    },
+    "holographic.html": {
+      "bytes": 2643,
+      "sha256": "0406f84f377f8a73793ffb233cb14c525072d1b1478721f696aa64915543c68f"
+    },
+    "index.html": {
+      "bytes": 1960,
+      "sha256": "383f248bc5a57ff52c9b48b16e6066c4a81f51e09fd620025b9fcf4cfb6e69f5"
+    },
+    "reference/approved-lobby.png": {
+      "bytes": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    "reference/approved-tower.png": {
+      "bytes": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    "reference/cracked-planet-transparent.png": {
+      "bytes": 2005283,
+      "sha256": "85f4f6ec891efbb20c1089d11f9a7f5afa2e0dc3f0250fa58efdd20acff58dad"
+    },
+    "reference/entity-echo-laugh.wav": {
+      "bytes": 161008,
+      "sha256": "a0fa08ffda421f8f155180912f15bb8e6b56b537696bc8db47d31aee1b1beaaf"
+    },
+    "reference/entity-face-crop.png": {
+      "bytes": 203919,
+      "sha256": "ddf0e96887f4ecb24e1fa2c8aabfca674f9bcc4f171bc916ae89bb3abca6e607"
+    },
+    "reference/entity-hand-crop.png": {
+      "bytes": 526684,
+      "sha256": "2de438a36190482272b2a5bae188ae69a89f0eb69ec55c44efe1c177108bec95"
+    },
+    "reference/exterior-v5-front.png": {
+      "bytes": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    "reference/exterior-v5-rear.png": {
+      "bytes": 3837708,
+      "sha256": "c5d17cb348f3f92d14953006fec1523fddb00e757b9d5da56bb7f5cd9254447d"
+    },
+    "reference/exterior-v5-side.png": {
+      "bytes": 1016088,
+      "sha256": "25a2ed943c5da165793ca7280f0a3609b77d523f00947b794c5ea1318234b623"
+    },
+    "reference/exterior-v5-wide.png": {
+      "bytes": 2297224,
+      "sha256": "0f865e0be8c2b90ee002b0acb39ad6101cd834246ea69b547f0db2de65268dc0"
+    },
+    "reference/glitch-hand-right.png": {
+      "bytes": 3940071,
+      "sha256": "77cc57be4dbaa9638a380352f99207b8fc4083cd90c0f1bff8931123e0492319"
+    },
+    "reference/glitch-overlap.png": {
+      "bytes": 4002461,
+      "sha256": "5d328244a2f948c9afce737e942640d7aab0af59f4c2162e5b6eb6666110201c"
+    },
+    "reference/glitch-world-live.png": {
+      "bytes": 3937122,
+      "sha256": "2398877814799e3fb4a173bfa0a8c4d19a77fce1d8b3927f4e360d4c28741f7e"
+    },
+    "reference/lobby-design.png": {
+      "bytes": 3847405,
+      "sha256": "6e93fe1b9c1c310bc65292c96c0550c93f48097d18750030f87ead8e5ccc9e72"
+    },
+    "reference/orbit-planet-b.png": {
+      "bytes": 3469327,
+      "sha256": "a49bc7170ce505ea7e444e244add78b01339bef10ed2a25da703fc3a3777bec1"
+    },
+    "reference/planet-cracked-spherical.webp": {
+      "bytes": 386292,
+      "sha256": "e82612d6543e555d7a20c95c6a23290789fb628e501934fc9e5366b4f7da855b"
+    },
+    "reference/planet-tech-spherical.webp": {
+      "bytes": 304026,
+      "sha256": "cb2549d2830e1c10273a723ae1d0f4fc49baa5cf8873fdfcaf14bd024b723a59"
+    },
+    "reference/space-backdrop-alt.png": {
+      "bytes": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    "reference/space-backdrop-cyber.png": {
+      "bytes": 3608107,
+      "sha256": "4fab962def19ee1f6380d9797c76acbabef7d5d5cddcdef2f6474d9039d0dc7b"
+    },
+    "reference/space-backdrop.webp": {
+      "bytes": 693896,
+      "sha256": "686cacfb8ea1ba670bd87e9427ad7b96a028f091d3bc2e95b54e4c9ff65658aa"
+    },
+    "reference/tower-design.png": {
+      "bytes": 3383997,
+      "sha256": "a22c7d5327736893a014393b48d465b360d5703b288f85fe87981f09668373d1"
+    },
+    "reference/v5-brushed-metal.jpg": {
+      "bytes": 253502,
+      "sha256": "148546aa3f11fa890deb77f569b622379b0d0e4b943d262305e42b54170bb92d"
+    },
+    "reference/v5-brushed-normal.png": {
+      "bytes": 1372236,
+      "sha256": "d6faac3e4050c77a1c5d8241618ad1f65e6d128489eb9f4bbe76a8cc22b264ea"
+    },
+    "reference/v5-obsidian-normal.png": {
+      "bytes": 3284881,
+      "sha256": "e1ab0d9bbce8810e1519e5315bffb99a68e3cce64230200643b90e8d80228787"
+    },
+    "reference/v5-obsidian-plaza.jpg": {
+      "bytes": 478381,
+      "sha256": "bca3b044c48d04f7a885e83624059d2eca42d6e53b37f561fb2ada8bc1f73caf"
+    },
+    "reference/v5-waterfall.png": {
+      "bytes": 94656,
+      "sha256": "f181970c48aa3bcdd0f28a12c2bddf7a6c727b2da42e90b57bc753c619b9983b"
+    },
+    "src/exterior-v5.js": {
+      "bytes": 26533,
+      "sha256": "915dde08b8c69caf3831cb39daefb1d57a9444c30d1c5ec1d7faed7c81fefe67"
+    },
+    "src/holographic.css": {
+      "bytes": 9656,
+      "sha256": "d6728c9fa0e01f60d40ba39fdf00b83b5beab52f187e846d40407a55d59866e9"
+    },
+    "src/holographic.js": {
+      "bytes": 3964,
+      "sha256": "d50106d3047246ffc71f6b9318a245bd1553d96b542ad489a0e6337029e8777b"
+    },
+    "src/main.js": {
+      "bytes": 118537,
+      "sha256": "fe65afb37963578fa7aabe155353d8a55ba0c3027cb2d1a29e7b178b1ac02d67"
+    },
+    "src/network-transit.js": {
+      "bytes": 3671,
+      "sha256": "30e23427c8790b00e3fc2d3bb676bc2c7a25a967e7b3cf6b7f6de830ba579678"
+    },
+    "src/portal.css": {
+      "bytes": 4162,
+      "sha256": "4671593ac7694f0128df6b867b703f2739887bec27e25a46ad73696f5ec421ce"
+    },
+    "src/style.css": {
+      "bytes": 17316,
+      "sha256": "4f6aafa0f043aa2f9a6b80e6b18ebc4b4bdb39bb165ab473aac48010481ec566"
+    }
+  }
+}

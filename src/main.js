@@ -1,4 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import {buildExteriorV5,updateExteriorV5} from './exterior-v5.js';
 import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 import { baseContent } from '../data/siteContent.js';
 import { npcDepartments, courtyardGuide, npcSharedQuestions } from '../data/npcContent.js';
@@ -1005,63 +1006,10 @@ function monumentalApproachV30(){
  // Eye-level design reference: 2.7-unit player, 3.4-unit security NPC, 7.3-unit automatic doors.
 }
 function continuousPlaza(){
- scene.fog.density=.00135;
- skyNebula();buildOrbitingPlanets(); // Calm background and slow orbiting/spinning planets only.
- // Main floating platform.
- platformIsland(0,81,220,228,19);
- // Waterfalls dropping off the floating edge.
- for(const x of [-90,-56,56,90])waterfall(x,194,16,50,0);
- for(const z of [18,78,138]){waterfall(-110,z,13,44,Math.PI/2);waterfall(110,z,13,44,Math.PI/2)}
- // Major approach surface: deep black exterior plaza, distinct from the interior marble lobby.
- panel([0,.03,104],[186,.05,176],M.exteriorFloor);
- for(const z of [46,94,142])panel([0,.035,z],[186,.012,.08],M.wall);
- for(const x of [-56,0,56])panel([x,.035,104],[.08,.012,176],M.wall);
- // Strong central forecourt closer to the reference image.
- panel([0,.04,118],[74,.05,48],M.exteriorFloor);
- panel([0,.035,118],[52,.012,.08],M.wall);
- hexcoreFloorLogo(0,118,10.2);
- // Entrance apron stays flush with the tower, no floating stairs.
- panel([0,.03,46],[58,.05,26],M.exteriorFloor);
- panel([0,.035,46],[32,.012,.08],M.wall);
- // Side terraces / planters integrated into the platform.
- for(const side of [-1,1]){
-   for(const z of [48,82,116,150]){
-     elevationBand(side*82,.25,z,34,26);
-     panel([side*85,2.15,z],[22,3.9,14],M.dark);panel([side*85,4.10,z],[22.2,.12,14.2],side>0?M.blue:M.violet);
-     tree(side*89,z,1.7);
-     tree(side*81,z+3,1.25);
-   }
-   // Tall light monoliths framing the tower and platform.
-   for(const data of [[58,20],[72,54],[86,90],[72,126],[58,162]]){
-     const x=side*data[0],z=data[1],h=52+(162-data[1])*.18;
-     panel([x,h/2,z],[4.8,h,5.2],M.dark);
-     panel([x+side*2.2,h/2,z+2.62],[.11,h-2,.14],data[1]%2?M.blue:M.violet);
-   }
-   for(const z of [66,132]){lightBench(side*48,z,side*.2)}
-   for(const z of [72,124]){ambientVisitor(side*29,z,10+z);ambientVisitor(side*40,z+6,13+z)}
-   // channel source above side-edge waterfalls.
-   for(const z of [18,78,138])panel([side*108,.03,z],[4,.14,16],M.blue);
- }
- guard(-12,39,206,true);guard(12,39,207,true);guard(-29,74,208,true);guard(29,74,209,true);
- towerV16();
- towerFinishing();
- exteriorExperienceV27();
- monumentalApproachV30();
- plazaLightReflections();
- // Distant surrounding spires to sell the wider floating mega-structure cityscape.
- for(const side of [-1,1]){
-   for(let j=0;j<8;j++){
-     let x=side*(52+j*11),z=10-j*8,h=92-j*8.5;
-     panel([x,h/2+1,z],[3.5,h,5.2],M.dark);
-     panel([x+side*1.82,h/2+1,z+2.65],[.09,h-2,.12],j%2?M.blue:M.violet);
-   }
-   for(const z of [34,170]){panel([side*98,20,z],[5,40,8],M.dark);panel([side*100.6,20,z],[.1,38,4],side>0?M.blue:M.violet)}
- }
- // soft architectural fills so the dark materials remain readable
- for(const [x,z,col] of [[-30,44,0x916fff],[30,44,0x7ebeff],[-55,106,0x8f73ff],[55,106,0x87bfff]]){
-  let l=new THREE.PointLight(col,14,70,2);l.position.set(x,14,z);world.add(l);
- }
+ scene.fog.density=.0012;
+ buildExteriorV5({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets});
 }
+
 function spire(x,z,height,width=5,parent=world){
  panel([x,height*.43,z],[width,height*.86,width],M.dark,parent);
  panel([x,height*.89,z],[width*.63,height*.18,width*.63],M.wall,parent);
@@ -1442,7 +1390,7 @@ function exterior(){continuousPlaza();clearTowerFromLobbyVolume();createLivingSp
  interact('Speak with '+guide.userData.name+' — Welcome Guide',[-9,1.6,158],()=>openNpcGuide(guide),5.5);
 } // Single shared real-world exterior and lobby; no doorway textures.
 
-function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];spaceDepthLayers=[];npcConversationPulse.lastBeat=-1;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
+function resetWorld(){while(world.children.length){let c=world.children[0];world.remove(c);c.traverse(o=>{o.geometry?.dispose();if(o.material && !Object.values(M).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(mat=>{mat.map?.dispose();mat.dispose()})}})}entities=[];animatedDoors=[];staffActors=[];spaceClouds=[];cosmicSkyLayers=[];orbitPlanets=[];spaceDepthLayers=[];npcConversationPulse.lastBeat=-1;scene.environment=null;scene.fog.density=.0031;scene.fog.color.setHex(0x101326)}
 let floor='outside',yaw=0,pitch=0,keys={},pos=new THREE.Vector3(0,EYE_HEIGHT,181),active=false,nearest=null,quality='low',transitionCooldown=0;
 // V4.2: The courtyard and lobby share one continuous scene. No doorway render targets.
 let doorCache=null,initialWorldReady=false,preparingWorld=false;
@@ -1712,7 +1660,7 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
  if(floor==='lobby'&&pos.z>=32.02)crossDoor('outside');
  else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
-nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;renderer.render(scene,camera)}requestAnimationFrame(tick);
+nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;if(floor==='outside'||floor==='lobby')updateExteriorV5(now/1000);renderer.render(scene,camera)}requestAnimationFrame(tick);
 // Phase 4: travel lasts at least ten seconds, while world preparation happens behind it.
 let transitRunning=false;
 let transitError=null;
