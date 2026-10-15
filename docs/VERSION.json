@@ -1,5 +1,5 @@
 {
-  "version": "6.0.18",
+  "version": "6.0.21",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "tower facade segmentation, tiered supporting shape, platform terraces and waterfall sculpt/image mapping only",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none; main.js solely updates exterior module cache tag",
-  "notes": "Rollback 6.0.17; remove rectangular facade backing and replace with seven shallow tapered structural ribs. No image or interaction changes."
+  "notes": "Floor-only: retire H floor backing plate, feather edges of H floor texture into the existing plaza ground, and separate overlay slightly to prevent depth conflicts. NPC upgrades preserved."
 }
