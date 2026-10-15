@@ -133,8 +133,6 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  // V6.0.18: precisely isolated tower-only elevations; no floor, planets or sky in facade textures.
  // Transparent outlines follow each tower crown and shoulder, rather than rectangle crops.
  facadeTile('./reference/v614/tower_front_isolated.png',0,92,40.9,112,184,0,.55,1);
- // Minimal fix: fill only the front center gap so the tower image shows instead of a black square.
- croppedFacadeTile('./reference/v605/tower_front.png',0,45.5,41.05,37,56,0,[0.373,0.562,0.628,0.948],.24,1);
  facadeTile('./reference/v614/tower_back_isolated.png',0,92,-48.9,94,184,Math.PI,.45,1);
  facadeTile('./reference/v614/tower_side_left_isolated.png',-45.6,92,-4.5,78,184,-Math.PI/2,.45,1);
  facadeTile('./reference/v614/tower_side_right_isolated.png',45.6,92,-4.5,78,184,Math.PI/2,.45,1);
