@@ -1,5 +1,5 @@
 /**
- * HEXCORE / ART-REFERENCED EXTERIOR V6.0.13
+ * HEXCORE / ART-REFERENCED EXTERIOR V6.0.14
  * A visual-scene replacement, with reference-projected photographic architectural
  * relief layers PLUS walkable 3D island, atrium surrounds, substantial ring
  * bridges, paving, planted terraces and waterfalls. Four angles sourced from
@@ -11,7 +11,7 @@ export function updateExteriorV6(time){for(let k=0;k<waterfallMaps.length;k++)wa
 export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexcoreFloorLogo,skyNebula,buildOrbitingPlanets}){
  waterfallMaps=[];
  skyNebula();buildOrbitingPlanets();
- const root=new THREE.Group();root.name='HEXCORE V6.0.13 SCULPTED ART HYBRID EXTERIOR';world.add(root);
+ const root=new THREE.Group();root.name='HEXCORE V6.0.14 SCULPTED ART HYBRID EXTERIOR';world.add(root);
  const tex=(path,repeat)=>{let t=new THREE.TextureLoader().load(path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);}return t};
  const mats={
   black:new THREE.MeshStandardMaterial({color:0x101827,metalness:.78,roughness:.27}),
@@ -51,7 +51,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  for(const [x,z,rx,rz] of [[-92,85,27,20],[92,85,27,20],[-92,-28,37,28],[92,-28,37,28],[-68,140,17,12],[68,140,17,12],[0,-55,62,19]]){
   plat(x,z,rx,rz,.22);const arr=[];for(let j=0;j<64;j++){const a=j*2*Math.PI/64;arr.push([x+rx*Math.cos(a),.40,z+rz*Math.sin(a)]);}strip(arr,.14,mats.violet,true);
  }
- // V6.0.13: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
+ // V6.0.14: IMAGE-ASSISTED 3D FACADES. Source art is divided into architectural
  // regions and each region gets its own shaped relief mesh and physical backing.
  // Not one photo on a wall: independently set-back crown, paired wings, sign
  // bay, atrium surrounds and rear/side elevations. The original real doorway
@@ -130,23 +130,12 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
      b.rotation.z=sgn*(.012+j*.007);
    }
  }
- // V6.0.13: cropped tower art segmented to match the stepped tower massing.
- // Front / left / right / back are each split into stacked facade bands so the artwork fits the structure instead of reading as one uncropped rectangle.
- const tf='./reference/v612/tower_front.png', tb='./reference/v612/tower_back.png', tl='./reference/v612/tower_side_left.png', tr='./reference/v612/tower_side_right.png';
- // FRONT
- croppedFacadeTile(tf,0,50,42.65,90,70,0,[.22,.55,.78,.99],1.35,1);
- croppedFacadeTile(tf,0,112,42.25,60,82,0,[.29,.23,.71,.77],1.15,1);
- croppedFacadeTile(tf,0,171,41.9,34,72,0,[.39,.02,.61,.33],.92,1);
- // BACK
- croppedFacadeTile(tb,0,50,-50.45,86,70,Math.PI,[.20,.57,.80,.99],1.28,1);
- croppedFacadeTile(tb,0,112,-49.95,58,82,Math.PI,[.30,.24,.70,.77],1.12,1);
- croppedFacadeTile(tb,0,171,-49.4,32,72,Math.PI,[.39,.02,.61,.32],.9,1);
- // LEFT SIDE
- croppedFacadeTile(tl,-46.1,56,-4.5,52,84,-Math.PI/2,[.18,.51,.82,.99],1.12,1);
- croppedFacadeTile(tl,-45.7,145,-4.5,33,114,-Math.PI/2,[.31,.04,.69,.63],.92,1);
- // RIGHT SIDE
- croppedFacadeTile(tr,46.1,56,-4.5,52,84,Math.PI/2,[.18,.51,.82,.99],1.12,1);
- croppedFacadeTile(tr,45.7,145,-4.5,33,114,Math.PI/2,[.31,.04,.69,.63],.92,1);
+ // V6.0.14: precisely isolated tower-only elevations; no floor, planets or sky in facade textures.
+ // Transparent outlines follow each tower crown and shoulder, rather than rectangle crops.
+ facadeTile('./reference/v614/tower_front_isolated.png',0,92,40.9,112,184,0,.55,1);
+ facadeTile('./reference/v614/tower_back_isolated.png',0,92,-48.9,94,184,Math.PI,.45,1);
+ facadeTile('./reference/v614/tower_side_left_isolated.png',-45.6,92,-4.5,78,184,-Math.PI/2,.45,1);
+ facadeTile('./reference/v614/tower_side_right_isolated.png',45.6,92,-4.5,78,184,Math.PI/2,.45,1);
  // Deep sculpted frame, with edge columns and illuminated notched canopy.
  for(const side of [-1,1]){
    block(side*18,27,40.5,1.8,54,2.6,mats.edge);
@@ -178,19 +167,16 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
     const X=side*21, Z=32+j*1.7;
     block(X,.24+j*.13,Z,23,.25+j*.25,1.55,j%2?mats.metal:mats.black);
    }
-  } // V6.0.13: side walkway wall-strip fixed.
- // Use only the wall / waterfalls / trees / pillars portion of the approved art,
- // and place it directly on the ground instead of floating above it.
- const holoTex=tex('./reference/v613/walkway_sidewall_strip.png');
- holoTex.wrapS=THREE.ClampToEdgeWrapping; holoTex.wrapT=THREE.ClampToEdgeWrapping;
- const holoMat=new THREE.MeshBasicMaterial({map:holoTex,transparent:true,opacity:.96,
-    side:THREE.DoubleSide,depthWrite:false,toneMapped:false,color:0xffffff});
+  } // V6.0.14: transparent holographic side walls at ground level, sky pixels removed.
+ const holoTex=tex('./reference/v614/walkway_wall_transparent.png');
+ holoTex.wrapS=THREE.RepeatWrapping;holoTex.wrapT=THREE.ClampToEdgeWrapping;
+ holoTex.repeat.set(4,1);
+ const holoMat=new THREE.MeshBasicMaterial({map:holoTex,transparent:true,opacity:.68,
+     alphaTest:.03,side:THREE.DoubleSide,depthWrite:false,depthTest:true,toneMapped:false,color:0xddd6ff});
  function hologramStrip(x,z,rotY){
    const group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=rotY;root.add(group);
-   // low plinth so the strip looks grounded instead of floating
-   const base=add(new THREE.BoxGeometry(126,.32,2.8),mats.black,0,.16,0,group);base.userData.visualOnly=true;
-   const lip=add(new THREE.BoxGeometry(126,.08,1.2),mats.violet,0,.40,1.0,group);lip.userData.visualOnly=true;
-   const panel=add(new THREE.PlaneGeometry(126,11.2),holoMat,0,5.6,.25,group);
+   // Invisible support geometry: image baseline touches actual ground.
+   const panel=add(new THREE.PlaneGeometry(126,10.8),holoMat,0,5.42,0,group);
    panel.renderOrder=9;panel.userData.visualOnly=true;
    return group;
  }
@@ -241,7 +227,7 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
    block(s*50,.7,z,13,1.2,8,mats.black);block(s*50,1.37,z,13,.13,8,mats.edge);
  }
  for(const z of [-52,-28,0,17])for(const s of [-1,1]){tree(s*91,z,1.1);tree(s*104,z-4,.72);}
- // V6.0.13: tiered island gardens physically occupy the side quarters,
+ // V6.0.14: tiered island gardens physically occupy the side quarters,
  // with luminous edge retaining walls and real waterfall drop-offs. They sit
  // beyond x=+/-48, keeping the whole main 3D arrival and doorway axis open.
  function gardenDeck(side,z,depth=32){
