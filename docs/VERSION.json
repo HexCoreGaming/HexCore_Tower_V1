@@ -1,7 +1,7 @@
 {
-  "version": "6.0.27",
+  "version": "6.0.28",
   "source_base": "V6.0.10 Side Walkway Image Update",
-  "scope": "floor texture stability fix only; reduced floor glare, unified stable floor image mapping, filtered floor textures, no non-floor scene changes",
+  "scope": "only the two floor regions: behind spawn and tower approach",
   "scene": "Three.js single shared exterior/lobby world",
   "visual_art_method": "owner-reference-textured relief surfaces + physical supporting geometry",
   "mechanics": "movement/dialogue/transit/doors/scene thresholds retained",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none",
-  "notes": "Floor only: remove lighting/reflectivity from plaza/lobby/H image surfaces; black nonreflective H backing; preserve artwork and geometry."
+  "notes": "Original V6.0.27 H artwork left untouched. Cut the two reported floor regions from shared surface; add single image surface over matte black foundations for those regions only; no other geometry, environment, NPCs or mechanics changed."
 }

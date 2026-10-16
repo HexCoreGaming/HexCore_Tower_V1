@@ -39,7 +39,34 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  // Full walkable floor, including a recess for the actual functional lobby flooring.
  const floorShape=new THREE.Shape();edgePoints.forEach(([x,z],i)=>i?floorShape.lineTo(x,-z):floorShape.moveTo(x,-z));floorShape.closePath();
  const interiorOpening=new THREE.Path();interiorOpening.moveTo(-33,35);interiorOpening.lineTo(-33,-31);interiorOpening.lineTo(33,-31);interiorOpening.lineTo(33,35);interiorOpening.closePath();floorShape.holes.push(interiorOpening);
+ // V6.0.28: Only the two reported floor regions are cut from the original plaza
+ // surface. This avoids two coplanar image layers fighting over the same pixels.
+ function cutFloorRect(xMin,xMax,zMin,zMax){
+   const hole=new THREE.Path();
+   hole.moveTo(xMin,-zMin);hole.lineTo(xMax,-zMin);
+   hole.lineTo(xMax,-zMax);hole.lineTo(xMin,-zMax);hole.closePath();
+   floorShape.holes.push(hole);
+ }
+ const floorRepairs=[
+   {x0:-46,x1:46,z0:37,z1:84},       // tower approach, ends before the H artwork
+   {x0:-42,x1:42,z0:179,z1:207}      // behind the arrival point, beyond the H artwork
+ ];
+ floorRepairs.forEach(r=>cutFloorRect(r.x0,r.x1,r.z0,r.z1));
  const floor=add(new THREE.ShapeGeometry(floorShape),mats.ground,0,.15,0);floor.rotation.x=-Math.PI/2;
+ // Matte-black foundations are below the image and inside the holes, not on top
+ // of any part of the rest of the plaza. Each area has only one visible image face.
+ const repairBaseMat=new THREE.MeshBasicMaterial({color:0x000000,depthWrite:true});
+ const repairImageMap=tex('./reference/v603/floor_tile_base.png');
+ repairImageMap.wrapS=repairImageMap.wrapT=THREE.RepeatWrapping;
+ const repairImageMat=new THREE.MeshBasicMaterial({map:repairImageMap,color:0xffffff,depthTest:true,depthWrite:true,side:THREE.FrontSide});
+ floorRepairs.forEach(r=>{
+   const w=r.x1-r.x0,h=r.z1-r.z0,cx=(r.x0+r.x1)*.5,cz=(r.z0+r.z1)*.5;
+   block(cx,.09,cz,w,.12,h,repairBaseMat);
+   // Matching local UV scale retains the reference floor's tile density.
+   const imageMesh=add(new THREE.PlaneGeometry(w,h),repairImageMat,cx,.158,cz);
+   imageMesh.rotation.x=-Math.PI/2;
+   imageMesh.userData.visualOnly=true;
+ });
  strip(edgePoints.map(([x,z])=>[x,.33,z]),.28,mats.edge,true);
  strip(edgePoints.map(([x,z])=>[x,-.21,z]),.13,mats.violet,true);
  // Rear/side engineered drop geometry: thick faceted cliffs, not solid void below.
