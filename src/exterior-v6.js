@@ -12,13 +12,13 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  waterfallMaps=[];
  skyNebula();buildOrbitingPlanets();
  const root=new THREE.Group();root.name='HEXCORE V6.0.18 SCULPTED ART HYBRID EXTERIOR';world.add(root);
- const tex=(path,repeat)=>{let t=new THREE.TextureLoader().load(path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);}return t};
+ const tex=(path,repeat)=>{let t=new THREE.TextureLoader().load(path);t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.generateMipmaps=true;t.anisotropy=8;if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);}return t};
  const mats={
   black:new THREE.MeshStandardMaterial({color:0x101827,metalness:.78,roughness:.27}),
   edge:new THREE.MeshStandardMaterial({color:0x4f587a,metalness:.8,roughness:.23}),
   metal:new THREE.MeshStandardMaterial({color:0x292d46,metalness:.8,roughness:.23}),
   glass:new THREE.MeshPhysicalMaterial({color:0x708cb7,metalness:.18,roughness:.07,transmission:.34,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide,clearcoat:1}),
-  ground:new THREE.MeshPhysicalMaterial({map:tex('./reference/v603/floor_tile_base.png',[.033,.033]),color:0xffffff,metalness:.63,roughness:.18,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:1.7}),
+  ground:new THREE.MeshPhysicalMaterial({map:tex('./reference/v603/floor_tile_base.png',[5.2,5.2]),color:0xffffff,metalness:.24,roughness:.44,clearcoat:.14,clearcoatRoughness:.2,reflectivity:.18,envMapIntensity:.4}),
   violet:new THREE.MeshBasicMaterial({color:0xb47cff,toneMapped:false}),
   blue:new THREE.MeshBasicMaterial({color:0x7ebaff,toneMapped:false}),
   pearl:new THREE.MeshBasicMaterial({color:0xe2daff,toneMapped:false}),
@@ -205,10 +205,10 @@ export function buildExteriorV6({THREE,scene,world,automaticEntrance,guard,hexco
  hologramStrip(34,112,-Math.PI/2);
  // Central floor insignia now uses the generated H-logo floor texture instead of line-built geometry,
  // enlarged to roughly 3x the previous size.
- const emblemPlate=block(0,.17,132,102,.09,102,mats.edge);
+ const emblemPlate=block(0,.115,132,102,.05,102,mats.edge);
  const emblemTex=tex('./reference/v603/floor_tile_center_h.png');
- const emblemMat=new THREE.MeshPhysicalMaterial({map:emblemTex,color:0xffffff,metalness:.54,roughness:.16,clearcoat:1,clearcoatRoughness:.05,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
- const emblemPlane=add(new THREE.PlaneGeometry(93,93),emblemMat,0,.225,132);emblemPlane.rotation.x=-Math.PI/2;emblemPlane.renderOrder=8;
+ const emblemMat=new THREE.MeshPhysicalMaterial({map:emblemTex,color:0xffffff,metalness:.22,roughness:.38,clearcoat:.12,clearcoatRoughness:.18,reflectivity:.18,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
+ const emblemPlane=add(new THREE.PlaneGeometry(93,93),emblemMat,0,.182,132);emblemPlane.rotation.x=-Math.PI/2;emblemPlane.renderOrder=12;
  // The skybridge is a structural deck with parapet, not one thin wire.
 
  function skybridge(rx,rz,height,z0){

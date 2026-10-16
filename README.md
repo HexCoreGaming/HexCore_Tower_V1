@@ -54,3 +54,10 @@ V6.0.18 update:
 - no tower image was modified; only the structure was changed
 
 V6.0.18: Removed obstructing central front tower blocks; rebuilt a recessed facade backing below the logo, above the entrance. Images and mechanics unchanged.
+
+
+## V6.0.26 floor-only fix
+- floor base image and H-center floor image stabilized
+- reduced excessive reflectivity/clearcoat that caused the floor to visually flash when moving
+- added mipmapped filtered floor textures for cleaner movement
+- no tower, NPC, collision, movement or layout changes

@@ -96,7 +96,20 @@ function marbleTexture(){
  const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(.85,.85);tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return tx;
 }
 const marbleMap=marbleTexture();
-const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0x0a0b0f,map:marbleMap,metalness:.52,roughness:.16,clearcoat:1,clearcoatRoughness:.08,reflectivity:1}),exteriorFloor:new THREE.MeshPhysicalMaterial({color:0x05070b,metalness:.48,roughness:.15,clearcoat:1,clearcoatRoughness:.05,reflectivity:1}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
+function stableFloorTexture(path,repeatX=1,repeatY=1){
+ const tx=new THREE.TextureLoader().load(path);
+ tx.colorSpace=THREE.SRGBColorSpace;
+ tx.wrapS=tx.wrapT=THREE.RepeatWrapping;
+ tx.repeat.set(repeatX,repeatY);
+ tx.minFilter=THREE.LinearMipmapLinearFilter;
+ tx.magFilter=THREE.LinearFilter;
+ tx.generateMipmaps=true;
+ tx.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+ return tx;
+}
+const lobbyFloorMap=stableFloorTexture('./reference/v603/floor_tile_base.png',3.2,3.4);
+const exteriorFloorMap=stableFloorTexture('./reference/v603/floor_tile_base.png',5.2,5.2);
+const M={dark:new THREE.MeshStandardMaterial({color:0x0a0e1b,metalness:.82,roughness:.19}),floor:new THREE.MeshPhysicalMaterial({color:0xffffff,map:lobbyFloorMap,metalness:.24,roughness:.42,clearcoat:.18,clearcoatRoughness:.18,reflectivity:.2,envMapIntensity:.45}),exteriorFloor:new THREE.MeshPhysicalMaterial({color:0xffffff,map:exteriorFloorMap,metalness:.24,roughness:.44,clearcoat:.14,clearcoatRoughness:.2,reflectivity:.18,envMapIntensity:.4}),wall:new THREE.MeshStandardMaterial({color:0x283147,metalness:.55,roughness:.24}),glass:new THREE.MeshPhysicalMaterial({color:0x304a88,metalness:.15,roughness:.04,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:0}),violet:new THREE.MeshBasicMaterial({color:0xaf74ff}),blue:new THREE.MeshBasicMaterial({color:0x8ed8ff}),white:new THREE.MeshBasicMaterial({color:0xe6efff}),leaf:new THREE.MeshStandardMaterial({color:0x7a3fd4,emissive:0x5c24ba,emissiveIntensity:.65,roughness:.86}),skin:new THREE.MeshStandardMaterial({color:0xc8aa9f}),hair:new THREE.MeshStandardMaterial({color:0xd5c8ef,metalness:.12}),black:new THREE.MeshStandardMaterial({color:0x171a28,metalness:.4,roughness:.34})};
 let world=new THREE.Group();scene.add(world);let entities=[],colliders=[],animatedDoors=[],staffActors=[];
 let spaceClouds=[]; // Active only for the exterior world; other floors have no cosmic cloud meshes.
 let cosmicSkyLayers=[],orbitPlanets=[],spaceDepthLayers=[];
