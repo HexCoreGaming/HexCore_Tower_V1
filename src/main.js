@@ -1,5 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import {buildExteriorV6,updateExteriorV6} from './exterior-v6.js?v=6.0.28';
+import {installRuntime} from './engine/runtime.js';
+import {buildExteriorV6,updateExteriorV6} from './exterior-v6.js?v=6.0.29';
 import {createStylizedEmployee} from './stylized-characters.js';
 import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 import { baseContent } from '../data/siteContent.js';
@@ -76,6 +77,8 @@ function drawCharacterPreview(){
 let dragPreview=null;const pv=$('characterPreview');pv.addEventListener('pointerdown',e=>{dragPreview=e.clientX;pv.setPointerCapture(e.pointerId)});pv.addEventListener('pointermove',e=>{if(dragPreview===null)return;previewYaw+=(e.clientX-dragPreview)*.017;dragPreview=e.clientX;drawCharacterPreview();});pv.addEventListener('pointerup',()=>dragPreview=null);pv.addEventListener('pointercancel',()=>dragPreview=null);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setClearColor(0x090d1c);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.72;document.body.appendChild(renderer.domElement);renderer.domElement.style.position='fixed';renderer.domElement.style.inset='0';renderer.domElement.style.zIndex='0';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x090c18);scene.fog=new THREE.FogExp2(0x101326,.0031);
+// V6.0.29 engine foundation: registered without changing the existing world or controls.
+const hexcoreRuntime=installRuntime({renderer,scene});
 const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.08,1100);camera.rotation.order='YXZ';
 const lighting=new THREE.AmbientLight(0xd5dcff,2.05);scene.add(lighting);
 const hemi=new THREE.HemisphereLight(0xb1b2ff,0x272132,2.45);scene.add(hemi);
@@ -1684,7 +1687,7 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
  if(floor==='lobby'&&pos.z>=32.02)crossDoor('outside');
  else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
-nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;if(floor==='outside'||floor==='lobby')updateExteriorV6(now/1000);renderer.render(scene,camera)}requestAnimationFrame(tick);
+nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;if(floor==='outside'||floor==='lobby')updateExteriorV6(now/1000);renderer.render(scene,camera);hexcoreRuntime.frame(dt)}requestAnimationFrame(tick);
 // Phase 4: travel lasts at least ten seconds, while world preparation happens behind it.
 let transitRunning=false;
 let transitError=null;

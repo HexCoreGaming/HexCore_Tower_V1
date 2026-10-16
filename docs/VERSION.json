@@ -1,7 +1,7 @@
 {
-  "version": "6.0.28",
+  "version": "6.0.29",
   "source_base": "V6.0.10 Side Walkway Image Update",
-  "scope": "only the two floor regions: behind spawn and tower approach",
+  "scope": "modular environment engine foundation only; approved V6.0.28 environments untouched",
   "scene": "Three.js single shared exterior/lobby world",
   "visual_art_method": "owner-reference-textured relief surfaces + physical supporting geometry",
   "mechanics": "movement/dialogue/transit/doors/scene thresholds retained",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none",
-  "notes": "Original V6.0.27 H artwork left untouched. Cut the two reported floor regions from shared surface; add single image surface over matte black foundations for those regions only; no other geometry, environment, NPCs or mechanics changed."
+  "notes": "New engine modules: model/texture loading, material presets, WebGL portal and code shader effects, world-scene manager, optional Rapier rigid-body collision adapter, performance diagnostics. No environment replacement or NPC redesign."
 }
