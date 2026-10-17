@@ -66,5 +66,9 @@ V6.0.18: Removed obstructing central front tower blocks; rebuilt a recessed faca
 V6.0.30: Department portal behind reception, animated energy shader, black-void department platforms with overhead fixtures; bottom exploration HUD hint removed. Exterior unchanged.
 
 
-## V6.0.31 — Department dimension backgrounds
+## V6.0.32 — Department dimension backgrounds
 Eight supplied panoramas, in the order supplied, assigned to company, games, support, legal, community, business, hardware, and admin departments. Implemented as inside-facing spherical environment maps. No exterior, platform, movement, lighting, or NPC code changed.
+
+
+## V6.0.32 — Department architecture
+Eight distinct modeled room arrangements: company gallery, games hangar, support pods, legal archives, community amphitheater, business hall, hardware engineering, and private office. Existing eight background images, travel and interactions retained.

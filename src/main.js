@@ -1372,6 +1372,88 @@ const departmentAbyssImages={
  hardware:'./reference/pocket-dimensions/hardware.png',
  admin:'./reference/pocket-dimensions/admin.png'
 };
+// Department architecture is deliberately built from reusable meshes, never picture-walls.
+// Keep public paths and all existing staff/interactions clear.
+function departmentArchitecture(id){
+ const material=(color,metalness=.48,roughness=.34)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
+ const ink=material(0x101320),graphite=material(0x252b3e),stone=material(0x37394c),ivory=material(0x8d98aa,.38,.44);
+ const accent=new THREE.MeshBasicMaterial({color:0x8170fc,toneMapped:false});
+ const ice=new THREE.MeshBasicMaterial({color:0x68c8e9,toneMapped:false});
+ const amber=new THREE.MeshBasicMaterial({color:0xdda680,toneMapped:false});
+ const mint=new THREE.MeshBasicMaterial({color:0x72d8b6,toneMapped:false});
+ const plinth=(x,z,w=7,d=4,h=.7,m=graphite)=>{box([x,h/2,z],[w,h,d],m);box([x,h+.025,z],[w,.05,d],stone)};
+ const tower=(x,z,h,m=graphite,w=1.5)=>box([x,h/2,z],[w,h,w],m);
+ const arch=(x,z,w,h,mat=graphite)=>{
+  box([x-w/2,h/2,z],[.55,h,.95],mat);box([x+w/2,h/2,z],[.55,h,.95],mat);
+  box([x,h,z],[w+.5,.55,.95],mat);
+ };
+ const lightLine=(a,b,mat=accent,r=.045)=>{
+  const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));
+  const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),8),mat);
+  o.position.copy(new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5));
+  o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());world.add(o);
+ };
+ const ring=(x,y,z,r,mat=accent,rotation=[0,0,0])=>{
+  const m=new THREE.Mesh(new THREE.TorusGeometry(r,.095,8,56),mat);
+  m.position.set(x,y,z);m.rotation.set(...rotation);world.add(m);return m;
+ };
+ const lamp=(x,z,c=ice)=>{box([x,6.5,z],[.17,11,.17],graphite);box([x,11.6,z],[3.4,.24,1.15],ink);box([x,11.43,z],[3,.055,.8],c)};
+ const display=(x,z,w=6,h=3,mat=ice)=>{
+  box([x,h/2+1,z],[w+.6,h+.65,.36],ink);
+  const glass=new THREE.MeshBasicMaterial({color:0x1d3555,transparent:true,opacity:.45,depthWrite:false,side:THREE.DoubleSide});
+  box([x,h/2+1,z+.24],[w,h,.06],glass);
+  box([x,h+1.14,z+.3],[w*.85,.08,.07],mat);
+ };
+ switch(id){
+  case 'company': // Monumental public information atrium / press gallery.
+   for(const x of [-25,25]){tower(x,-22,9,stone,2);tower(x,24,7,graphite,1.4);lightLine([x,2,-23],[x,8,-23],amber)}
+   arch(0,-28,18,8,stone);box([0,8.4,-28],[15,.16,.85],amber);
+   for(const x of [-19,-10,10,19]){plinth(x,-18,6,2.4,.95,stone);display(x,-20.4,4,2.3,amber)}
+   for(const x of [-14,14]){box([x,3,25],[7,5.6,1.2],graphite);lightLine([x-3,5.7,25.8],[x+3,5.7,25.8],amber)}
+   break;
+  case 'games': // Layered interactive development hangar, game exhibit stations.
+   for(const x of [-23,-12,12,23]){plinth(x,-20,6,5,.9);ring(x,3.2,-20,2,ice,[.25,.3,0]);tower(x,-20,2.1,ink,1.2)}
+   for(const x of [-24,24]){arch(x,13,8,8,graphite);display(x,13,5,3,accent);lightLine([x-4,7.3,13],[x+4,7.3,13],ice)}
+   for(const x of [-8,8]){plinth(x,24,7,4,.6,stone);box([x,2.4,24],[.2,3.4,3],accent)}
+   break;
+  case 'support': // Calm customer care pods, service counters and privacy wings.
+   for(const x of [-23,-13,13,23]){plinth(x,-17,6,4,.65,ivory);box([x,2.1,-18],[5,2.7,.25],graphite);ring(x,4,-17,1,mint)}
+   for(const x of [-24,24]){arch(x,15,7,6,ivory);display(x,15,4.6,2.8,mint)}
+   for(const z of [-8,5,22]){box([-30,2,z],[.35,4.1,6],stone);box([30,2,z],[.35,4.1,6],stone)}
+   break;
+  case 'legal': // Symmetrical solemn archival pillars and document repositories.
+   for(const x of [-26,-18,18,26]){tower(x,-21,8,stone,2);box([x,8.15,-21],[2.8,.25,2.8],ivory)}
+   arch(0,-27,21,9,graphite);box([0,9.4,-27],[20,.13,.9],amber);
+   for(const x of [-24,24])for(const z of [-7,2,13,22]){box([x,2.1,z],[2.4,4.2,5],graphite);lightLine([x-1,1,z+2.7],[x+1,1,z+2.7],amber)}
+   break;
+  case 'community': // Amphitheater-like media gathering room without enclosure.
+   for(const s of [-1,1])for(let j=0;j<3;j++){
+    const x=s*(16+j*4);plinth(x,23,3.4,17,.3+j*.35,stone);
+   }
+   ring(0,5,-25,4.7,accent);ring(0,5,-25,3.8,ice);
+   for(const x of [-24,24]){display(x,-20,6,4,accent);lamp(x,20,ice)}
+   for(const x of [-10,0,10]){plinth(x,-28,7,2,.5,graphite);box([x,1.1,-28],[5,.15,1],accent)}
+   break;
+  case 'business': // Formal corporate meeting hall, poised abstract skyline.
+   for(const x of [-27,-21,21,27]){tower(x,-24,10,stone,1.25);box([x,10.15,-24],[1.6,.25,1.6],ice)}
+   for(const x of [-24,24]){plinth(x,-15,7,11,.5,ivory);display(x,-21,6,3.5,ice)}
+   box([0,.52,25],[19,1,6],graphite);
+   for(const x of [-7,-3.5,0,3.5,7])box([x,1.15,25],[2,.2,3.5],ivory);
+   arch(0,-29,17,8,stone);
+   break;
+  case 'hardware': // Engineering test benches, modular tech plinths and display gantries.
+   for(const x of [-24,-12,12,24]){plinth(x,-19,7,5,.65,stone);box([x,2.05,-19],[3.5,2.1,2],ink);ring(x,3.6,-19,1.4,ice,[0,.25,0])}
+   for(const x of [-26,26]){arch(x,14,7,8,stone);lightLine([x-3,7.5,14],[x+3,7.5,14],mint);display(x,14,5,3,mint)}
+   for(const x of [-18,18])plinth(x,26,9,3,.85,graphite);
+   break;
+  case 'admin': // Restrained private workspace, secure office silhouettes.
+   for(const x of [-26,26]){tower(x,-20,9,graphite,1.8);lamp(x,-7,accent)}
+   arch(0,-29,17,8,stone);box([0,8.2,-29],[15,.16,.95],accent);
+   for(const x of [-19,19]){plinth(x,15,7,11,.6,ink);display(x,10,6,2.7,accent)}
+   for(const z of [-15,3,25]){box([-31,1.7,z],[.6,3.3,5],stone);box([31,1.7,z],[.6,3.3,5],stone)}
+   break;
+ }
+}
 function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);// Floating platform stays unchanged; individual abyss images replace only the black background.
  scene.background.setHex(0x000000);scene.fog=new THREE.FogExp2(0x000000,.00005);
  const abyssPath=departmentAbyssImages[data.id];
@@ -1398,7 +1480,7 @@ function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),tr
  for(const x of [-18,0,18])for(const z of [-19,5,24]){
   box([x,11.7,z],[5.8,.23,.9],M.dark);box([x,11.51,z],[5.4,.035,.54],fixtureMat);
   const light=new THREE.PointLight(0x9daeff,2.0,20,2);light.position.set(x,10.8,z);world.add(light);
- }box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
+ }departmentArchitecture(data.id);box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openNpcDepartment(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openNpcDepartment(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}}
 // Keep the interior air volume free of tower-facade geometry. The exterior
