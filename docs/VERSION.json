@@ -1,5 +1,5 @@
 {
-  "version": "6.0.30",
+  "version": "6.0.31",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "modular environment engine foundation only; approved V6.0.28 environments untouched",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none",
-  "notes": "Remove bottom explore HUD hint, animate portal behind reception, use unbounded black pocket-dimension department platforms with dim hanging lights and player edge clamping; exterior retained."
+  "notes": "Eight unique department abyss panoramas added as interior sky backgrounds; platform, overhead lighting, portal, NPCs, controls and exterior unchanged."
 }

@@ -1362,8 +1362,33 @@ function openReception(){
  $('receptionClose').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};
 }
 
-function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);// Floating platform in a true black void: no surrounding walls or decorative side columns.
+const departmentAbyssImages={
+ company:'./reference/pocket-dimensions/company.png',
+ games:'./reference/pocket-dimensions/games.png',
+ support:'./reference/pocket-dimensions/support.png',
+ legal:'./reference/pocket-dimensions/legal.png',
+ community:'./reference/pocket-dimensions/community.png',
+ business:'./reference/pocket-dimensions/business.png',
+ hardware:'./reference/pocket-dimensions/hardware.png',
+ admin:'./reference/pocket-dimensions/admin.png'
+};
+function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);// Floating platform stays unchanged; individual abyss images replace only the black background.
  scene.background.setHex(0x000000);scene.fog=new THREE.FogExp2(0x000000,.00005);
+ const abyssPath=departmentAbyssImages[data.id];
+ if(abyssPath){
+  const abyssTexture=new THREE.TextureLoader().load(abyssPath);
+  abyssTexture.colorSpace=THREE.SRGBColorSpace;
+  abyssTexture.mapping=THREE.EquirectangularReflectionMapping;
+  abyssTexture.minFilter=THREE.LinearMipmapLinearFilter;
+  abyssTexture.magFilter=THREE.LinearFilter;
+  // A panoramic inside-facing background, not a billboard placed in the room.
+  const abyssMaterial=new THREE.MeshBasicMaterial({map:abyssTexture,side:THREE.BackSide,depthWrite:false,fog:false,toneMapped:false});
+  const abyssSky=new THREE.Mesh(new THREE.SphereGeometry(380,64,40),abyssMaterial);
+  abyssSky.name='HexCore department abyss backdrop';
+  abyssSky.renderOrder=-500;
+  world.add(abyssSky);
+ }
+
  box([0,-.58,0],[65,1.16,69],M.dark);
  box([0,.018,0],[64.7,.035,68.7],M.floor);
  const platformGlow=new THREE.MeshBasicMaterial({color:0x554383,toneMapped:false});
