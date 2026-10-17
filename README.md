@@ -61,3 +61,6 @@ V6.0.18: Removed obstructing central front tower blocks; rebuilt a recessed faca
 - reduced excessive reflectivity/clearcoat that caused the floor to visually flash when moving
 - added mipmapped filtered floor textures for cleaner movement
 - no tower, NPC, collision, movement or layout changes
+
+
+V6.0.30: Department portal behind reception, animated energy shader, black-void department platforms with overhead fixtures; bottom exploration HUD hint removed. Exterior unchanged.
