@@ -5,6 +5,7 @@ import {createStylizedEmployee} from './stylized-characters.js';
 import { adminStaffDialogue } from '../data/preservedLegalDialogue.js';
 import { baseContent } from '../data/siteContent.js';
 import { npcDepartments, courtyardGuide, npcSharedQuestions } from '../data/npcContent.js';
+import {managedContent, managedReady} from './managed-content.js';
 
 // CLEAN REBUILD: This module creates all geometry from scratch. No original world imports.
 const $=id=>document.getElementById(id);
@@ -21,12 +22,13 @@ const floors=[
  {id:'hardware',label:'07 • Hardware & Merchandise',title:'HARDWARE & MERCHANDISE',summary:'Planned gaming hardware, controllers, company merchandise, and future store information.'},
  {id:'admin',label:'08 • Private Office',title:'ADMINISTRATIVE OFFICE',summary:'Private in-world content editor. Free local export workflow; publishing remains authenticated through GitHub.'},
 ];
-const groups=[...adminStaffDialogue]; // Preserved verbatim source data; V3 interaction layer reads it without modification.
+const groups=adminStaffDialogue; // Preserved verbatim source data; V3 interaction layer reads it without modification.
+managedReady.then(()=>{for(const g of groups){const override=managedContent.faq['preserved:'+g.id];if(Array.isArray(override))g.questions=override;}});
 // The exact original 41 Q&A entries are the only retained old-world data.
 
 
 let edits={};try{edits=JSON.parse(localStorage.getItem('hexcore_edits_v1')||'{}')}catch{};
-const content=id=>({...baseContent[id],...(edits[id]||{})});
+const content=id=>({...baseContent[id],...(managedContent.departments[id]||{}),...(edits[id]||{})});
 let selected={species:'human',body:'male',preset:'standard',outfit:'casual'};
 function updateAppearanceButtons(){
  for(const [name,key] of [['species','species'],['body','body'],['presets','preset'],['outfits','outfit']]){
@@ -1628,7 +1630,7 @@ function openNpcGuide(actor){
 function openNpcDepartment(id,actor){
  const cfg=npcDepartments[id]||npcDepartments.lobby;
  const c=content(id);const role=cfg.role||'Department Representative';
- const questions=(cfg.questions||[]).map(q=>({question:q.question,answer:q.answer==='@description'?c.description:q.answer==='@updates'?c.updates:q.answer}));
+ const questions=(managedContent.faq[id]||cfg.questions||[]).map(q=>({question:q.question,answer:q.answer==='@description'?c.description:q.answer==='@updates'?c.updates:q.answer}));
  npcAnswerPanel({name:actor?.userData?.name||cfg.name||c.headline,role,department:id.toUpperCase(),opening:cfg.greeting,questions});
 }
 function openDepartmentEmployee(id){

@@ -72,3 +72,7 @@ Eight supplied panoramas, in the order supplied, assigned to company, games, sup
 
 ## V6.0.32 — Department architecture
 Eight distinct modeled room arrangements: company gallery, games hangar, support pods, legal archives, community amphitheater, business hall, hardware engineering, and private office. Existing eight background images, travel and interactions retained.
+
+
+## V6.0.33 Administration
+Open `admin/index.html` on GitHub Pages. See `docs/SHARED_CMS.md` for auth, publishing, media, and shared-content limitations.
