@@ -1,5 +1,5 @@
 {
-  "version": "6.0.33",
+  "version": "6.0.35",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "modular environment engine foundation only; approved V6.0.28 environments untouched",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none",
-  "notes": "Shared Git-backed content dashboard added. Existing geometry, player movement, NPC models and portal environment preserved."
+  "notes": "Stage 2: traditional holographic site public posts, filters, pagination, gallery, embedded YouTube. 3D world preserved."
 }
