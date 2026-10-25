@@ -89,3 +89,10 @@ Open `admin/index.html` on GitHub Pages. See `docs/SHARED_CMS.md` for auth, publ
 
 ## V6.0.37 — HexCore navigation guide
 A separate floating orb has been added to the 3D headquarters, with a code-fragment materialization effect and old-school clickable dialogue choices. The guide can transfer visitors to every public department through the existing `travel()` function, open the included holographic site, and explain controls. It introduces itself after first arrival and can be summoned from the HUD. Existing employee NPCs and their dialogue remain untouched. No text generation, typed prompts, microphones, paid APIs, or sound effects. The future black-hole entrance/loading sequence is not part of this release.
+
+
+## V6.0.38 — Black-hole initialization entry
+
+After character selection, visitors begin on a small obsidian platform suspended above a luminous black-hole horizon. The navigation guide materializes and gives its welcome. Press JUMP or SPACE to enter the fall cinematic, network transit, and code reconstruction. The HQ starts preparing asynchronously upon entering the intro platform and will not finish arrival until the world reports ready. Existing public HQ, NPCs and rooms are unchanged. Audio remains off.
+
+This build has structural and syntax validation; full visual/browser testing and performance tuning should follow deployment. The black hole is a stylized game visual, not a physically simulated gravitational lens.

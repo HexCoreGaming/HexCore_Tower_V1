@@ -1860,7 +1860,7 @@ for(const evt of ['pointerup','pointercancel','lostpointercapture'])$('runTouch'
 window.addEventListener('blur',()=>{clearMovePad();clearLookPad();running=false});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){clearMovePad();clearLookPad();running=false}});
 window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)nearest?.cb();if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
-function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'||floor==='lobby'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-31,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);updateGuideOrb(now);
+function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active){animateVoid(now);return;}if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'||floor==='lobby'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-31,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);updateGuideOrb(now);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
 npcConversationPulse(now);if(floor==='outside'||floor==='lobby')cosmicElapsedMs+=dt*1000;updateLivingSpace(now);updatePeacefulSpace(now);
@@ -1911,6 +1911,82 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
  else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
 nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;if(floor==='outside'||floor==='lobby')updateExteriorV6(now/1000);for(const fx of departmentPortalFX){fx.energy.uniforms.time.value=now*.001;fx.movingRim.rotation.z=now*.00024;}renderer.render(scene,camera);hexcoreRuntime.frame(dt)}requestAnimationFrame(tick);
+// Stage 5: isolated cinematic entry scene. The full HQ is prepared in the
+// existing world scene, while this small scene remains responsive.
+const voidScene=new THREE.Scene();voidScene.background=new THREE.Color(0x000000);
+const voidCamera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.09,800);
+const vDark=new THREE.MeshStandardMaterial({color:0x060912,metalness:.86,roughness:.22,side:THREE.DoubleSide});
+const vCyan=new THREE.MeshBasicMaterial({color:0x64d8ff});
+const vViolet=new THREE.MeshBasicMaterial({color:0xa47cff});
+const vPlatform=new THREE.Mesh(new THREE.CylinderGeometry(4.7,5.0,.35,12),vDark);
+vPlatform.position.set(0,0,0);voidScene.add(vPlatform);
+for(let j=0;j<2;j++){const edge=new THREE.Mesh(new THREE.TorusGeometry(4.55-j*.37,.025,8,100),j?vViolet:vCyan);edge.rotation.x=-Math.PI/2;edge.position.y=.20+j*.007;voidScene.add(edge)}
+const blackHole=new THREE.Group();blackHole.position.set(0,-34,-4);voidScene.add(blackHole);
+const horizon=new THREE.Mesh(new THREE.TorusGeometry(21,1.20,24,128),new THREE.MeshBasicMaterial({color:0x94bdff,transparent:true,opacity:.24,depthWrite:false}));horizon.rotation.x=-Math.PI/2.85;blackHole.add(horizon);
+const disk=new THREE.Mesh(new THREE.RingGeometry(20,29,144,4),new THREE.ShaderMaterial({transparent:true,side:THREE.DoubleSide,depthWrite:false,uniforms:{t:{value:0}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'varying vec2 vUv;uniform float t;void main(){vec2 p=vUv*2.-1.;float r=length(p);float theta=atan(p.y,p.x);float bands=0.45+0.55*sin(theta*7.+r*42.-t*.32);float lum=smoothstep(.45,.70,r)*(1.-smoothstep(.93,1.,r));vec3 col=mix(vec3(.23,.11,.51),vec3(.39,.75,1.),bands);gl_FragColor=vec4(col,lum*(.22+bands*.40));}'}));disk.rotation.x=-Math.PI/2.85;blackHole.add(disk);
+const core=new THREE.Mesh(new THREE.CircleGeometry(19.9,100),new THREE.MeshBasicMaterial({color:0x000000,side:THREE.DoubleSide}));core.rotation.x=-Math.PI/2.85;core.position.y=.05;blackHole.add(core);
+voidScene.add(new THREE.AmbientLight(0x9abaff,1.25));const vLight=new THREE.PointLight(0x8acbff,18,100);vLight.position.set(0,-24,0);voidScene.add(vLight);
+const introOrb=new THREE.Group();voidScene.add(introOrb);
+const ob=new THREE.Mesh(new THREE.SphereGeometry(.37,24,18),new THREE.MeshStandardMaterial({color:0x0a193a,metalness:.8,roughness:.22}));introOrb.add(ob);
+const eye=new THREE.Mesh(new THREE.SphereGeometry(.135,18,12),vCyan);eye.position.z=.32;introOrb.add(eye);
+for(let n=0;n<3;n++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.45+n*.03,.014,8,70),n===1?vViolet:vCyan);ring.rotation.set(.35+n*.85,n*.7,.22+n*.6);introOrb.add(ring)}
+const orbLamp=new THREE.PointLight(0x55b7ff,4,7);introOrb.add(orbLamp);
+const introAvatar=createStylizedEmployee(THREE,{index:7,elf:false,female:false,role:'Visitor',skinColor:0xb78361,hairColor:0x25182c});introAvatar.scale.setScalar(1.15);introAvatar.position.set(0,.21,0);voidScene.add(introAvatar);
+const binaryCanvas=document.createElement('canvas');binaryCanvas.width=128;binaryCanvas.height=256;const bc=binaryCanvas.getContext('2d');bc.fillStyle='#9feaff';bc.font='bold 42px monospace';bc.textAlign='center';for(let k=0;k<5;k++)bc.fillText(k%2?'0':'1',64,46+k*48);
+const binaryTx=new THREE.CanvasTexture(binaryCanvas);const binaryParticles=[];
+for(let k=0;k<100;k++){const mat=new THREE.SpriteMaterial({map:binaryTx,color:k%4?0x61cfff:0xb592ff,transparent:true,opacity:0,depthWrite:false});const sprite=new THREE.Sprite(mat);sprite.scale.set(.17,.39,1);sprite.position.set(0,0,0);voidScene.add(sprite);binaryParticles.push(sprite)}
+let voidState='idle',voidStart=0,fallStart=0,rebuildStart=0,introCameraYaw=0,entryRequested=false;
+function summonVoidEntry(quickSex){
+ if(voidState!=='idle')return;
+ if(quickSex){selected={species:'human',body:quickSex,preset:'standard',outfit:'casual'};updateAppearanceButtons();}
+ quality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;resizeRenderer();
+ $('entry').classList.add('hidden');$('loading').classList.add('hidden');$('voidIntro').classList.remove('hidden');
+ voidState='platform';voidStart=performance.now();introCameraYaw=0;entryRequested=false;
+ voidCamera.position.set(0,2.8,7);voidCamera.lookAt(0,-10,-4);
+ // Start asset/geometry preparation as soon as the void appears, not after jumping.
+ setTimeout(()=>{if(!initialWorldReady&&!preparingWorld)warmInitialExterior();},350);
+}
+function startVoidJump(){if(voidState!=='platform'||performance.now()-voidStart<1800)return;voidState='fall';fallStart=performance.now();$('voidIntro').classList.add('hidden');$('reconstructHud').classList.remove('hidden');$('reconstructStatus').textContent='TRANSFERRING USER INSTANCE';}
+$('voidJump').addEventListener('click',startVoidJump);
+window.addEventListener('keydown',e=>{if(voidState==='platform'&&e.code==='Space'){e.preventDefault();startVoidJump();}},true);
+function animateVoid(now){
+ if(voidState==='idle'||voidState==='complete')return false;
+ let t=(now-voidStart)*.001;
+ introOrb.position.set(1.7,1.75+Math.sin(t*2)*.13,-.9);introOrb.rotation.y=Math.sin(t)*.18;
+ introOrb.scale.setScalar(Math.min(1,Math.max(.001,(now-voidStart)/1200)));
+ horizon.rotation.z+=.00035;disk.material.uniforms.t.value=t;
+ if(voidState==='platform'){
+   $('voidGuideLine').textContent=t<2?'GUIDE MATERIALIZING…':t<5?'WELCOME TO HEXCORE. I AM YOUR NAVIGATION GUIDE.':'WHEN YOU ARE READY TO ENTER, PLEASE JUMP.';
+   voidCamera.position.set(Math.sin(introCameraYaw)*1.4,2.95,7);voidCamera.lookAt(0,-13,-4);
+   introAvatar.visible=false;
+ } else if(voidState==='fall'){
+   const f=(now-fallStart)*.001;
+   introAvatar.visible=true;introAvatar.position.y=-Math.min(f*f*7,55);introAvatar.rotation.x=-Math.min(f*.23,.88);
+   voidCamera.position.set(4+Math.sin(f*1.4)*1.1,2.8-Math.min(23,f*f*3.5),8+f*.5);
+   voidCamera.lookAt(0,introAvatar.position.y-3,-3);
+   for(let k=0;k<binaryParticles.length;k++){const p=binaryParticles[k],a=k*2.399,r=.3+(k%19)/19*3;const streak=Math.max(0,(f-1.0)/2.4);p.position.set(Math.cos(a)*r, introAvatar.position.y+(k%23)/23*8-4, Math.sin(a)*r);p.material.opacity=Math.min(.9,streak)*(1-((k%7)/10));}
+   introAvatar.scale.setScalar(Math.max(.001,1.15*(1-Math.max(0,(f-1.0)/2.3))));
+   if(f>3.8){voidState='transit';$('reconstructHud').classList.add('hidden');$('networkTransit').classList.remove('hidden');$('authorizationText').classList.add('hidden');$('transitStatus').textContent='TRANSFERRING USER INSTANCE';window.HexCoreNetwork?.start();rebuildStart=now;}
+ } else if(voidState==='transit'){
+   const elapsed=now-rebuildStart;
+   if(elapsed>3500)$('authorizationText').classList.remove('hidden');
+   if(elapsed>5700){window.HexCoreNetwork?.stop();$('networkTransit').classList.add('hidden');$('reconstructHud').classList.remove('hidden');voidState='rebuild';rebuildStart=now;introAvatar.visible=true;introAvatar.rotation.x=0;introAvatar.scale.setScalar(.001);introAvatar.position.set(0,-1.3,-4);}
+ } else if(voidState==='rebuild'){
+   const f=(now-rebuildStart)*.001;
+   $('reconstructStatus').textContent=initialWorldReady?'AUTHORIZATION ACKNOWLEDGED — REASSEMBLING':'REASSEMBLING USER // PREPARING HEADQUARTERS';
+   voidCamera.position.set(3.4,1.5,5.9);voidCamera.lookAt(0,.9,-4);introOrb.position.set(1.5,2.3,-2);
+   introAvatar.scale.setScalar(Math.min(1.15,Math.max(.001,f/4*1.15)));
+   introAvatar.position.set(0,-.5,-4);
+   for(let k=0;k<binaryParticles.length;k++){const p=binaryParticles[k],a=k*2.399,r=1.8*Math.max(.04,1-Math.min(1,f/4));p.position.set(Math.cos(a)*r,-.5+(k%23)/23*3, -4+Math.sin(a)*r);p.material.opacity=.9*Math.max(0,1-f/5);}
+   if(f>4.8&&initialWorldReady){voidState='complete';$('reconstructHud').classList.add('hidden');finishArrival();return false;}
+   if(transitError){$('reconstructStatus').textContent='STARTUP ERROR — RELOAD TO RETRY';}
+ }
+ if(voidState!=='transit'){
+   const old=renderer.getClearColor(new THREE.Color()).clone();voidCamera.aspect=innerWidth/innerHeight;voidCamera.updateProjectionMatrix();
+   renderer.render(voidScene,voidCamera);
+ }
+ return true;
+}
 // Phase 4: travel lasts at least ten seconds, while world preparation happens behind it.
 let transitRunning=false;
 let transitError=null;
@@ -1947,15 +2023,15 @@ function finishArrival(){
  camera.position.copy(pos);camera.rotation.set(0,0,0);
  $('zone').textContent='HEXCORE // EXTERIOR PLAZA';
  scheduleDoorPrebuild();
- if(!guideIntroShown){guideIntroShown=true;setTimeout(()=>{if(active)openGuide('intro')},1600);}
+ // The guide introduced itself in the entry void; do not repeat the welcome.
  $('arrivalBeam').classList.remove('hidden');
  setTimeout(()=>$('arrivalBeam').classList.add('hidden'),3000);
  if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});
  try{localStorage.setItem('hexcore_character',JSON.stringify(selected))}catch{}
 }
-$('enter').onclick=()=>transitStart();
-$('quickMale').onclick=()=>transitStart('male');
-$('quickFemale').onclick=()=>transitStart('female');
+$('enter').onclick=()=>summonVoidEntry();
+$('quickMale').onclick=()=>summonVoidEntry('male');
+$('quickFemale').onclick=()=>summonVoidEntry('female');
 try{const stored=JSON.parse(localStorage.getItem('hexcore_character')||'{}');Object.assign(selected,stored);if(selected.body==='masculine')selected.body='male';if(selected.body==='feminine')selected.body='female';updateAppearanceButtons()}catch{updateAppearanceButtons()}
 resizeRenderer();$('loading').classList.add('hidden');$('entry').classList.remove('hidden');
 // Do not build the massive 3D scene while visitors are trying to use the menu.
