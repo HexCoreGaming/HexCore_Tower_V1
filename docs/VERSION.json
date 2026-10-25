@@ -1,5 +1,5 @@
 {
-  "version": "6.0.35",
+  "version": "6.0.36",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "modular environment engine foundation only; approved V6.0.28 environments untouched",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none",
-  "notes": "Stage 2: traditional holographic site public posts, filters, pagination, gallery, embedded YouTube. 3D world preserved."
+  "notes": "Stage 3 dual-site shared-content integration: 3D news/gallery archive and in-world traditional site terminal; destination-aware media publishing."
 }

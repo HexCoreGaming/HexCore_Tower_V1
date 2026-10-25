@@ -76,3 +76,12 @@ Eight distinct modeled room arrangements: company gallery, games hangar, support
 
 ## V6.0.33 Administration
 Open `admin/index.html` on GitHub Pages. See `docs/SHARED_CMS.md` for auth, publishing, media, and shared-content limitations.
+
+
+## V6.0.36 — Stage 3 shared content
+- Both included website experiences read `data/managed-content.json`. The dashboard publishes that record through the GitHub Contents API.
+- 3D HUD > MENU > NEWS & MEDIA opens searchable public posts and images; TRADITIONAL WEBSITE opens the holographic site inside the 3D overlay. Existing physical world remains unchanged.
+- Posts respect destination (`traditional`, `3d`, `both`) and `published` status. Image media supports the same destination choices (older images default to both).
+- Single GitHub repository; these are two experiences **within the same site**, not an additional external traditional-site repository.
+- The GitHub PAT is entered into the browser for the current editing session; this is **not a password-protected backend**. Use a restricted fine-grained token and trusted device.
+- An actual 3D object/surface browser or secure account login is not yet included.

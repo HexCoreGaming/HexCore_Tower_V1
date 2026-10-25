@@ -18,7 +18,7 @@ function text(el,val){el.textContent=val||''}
 function readEdits(){try{return JSON.parse(localStorage.getItem('hexcore_edits_v1')||'{}')}catch{return {}}}
 function show(id){if(!departments.some(d=>d[0]===id))id='company';current=id;const d=departments.find(x=>x[0]===id);for(const b of nav.children)b.classList.toggle('active',b.dataset.id===id);const data={...baseContent[id],...(managedContent.departments[id]||{}),...(readEdits()[id]||{})};text($('title'),d[2]);text($('lede'),d[3]);text($('coord'),`${d[1]}.00 / HX`);text($('dept-label'),`DEPARTMENT ${d[1]}`);
  const content=$('content');content.replaceChildren();for(const [label,head,value,extra] of [['PRIMARY INFORMATION',data.headline,data.description,''],['STATUS & UPDATES','CURRENT INFORMATION',data.updates,'secondary']]){const el=document.createElement('article');el.className=`glass ${extra}`;const sm=document.createElement('small');text(sm,label);const h=document.createElement('h2');text(h,head);const p=document.createElement('p');text(p,value);el.append(sm,h,p);content.append(el)}
- for(const m of (managedContent.media||[]).filter(m=>m.department===id)){
+ for(const m of (managedContent.media||[]).filter(m=>m.department===id&&['both','traditional'].includes(m.destination||'both'))){
   const a=document.createElement('article');a.className='glass secondary';
   const h=document.createElement('h2');h.textContent=m.title||'Media';a.append(h);
   const link=document.createElement('a');link.href=m.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open media ↗';
