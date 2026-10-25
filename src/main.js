@@ -1456,6 +1456,33 @@ function departmentArchitecture(id){
    break;
  }
 }
+// V6.0.39: Modeled glTF visitor consoles, loaded through the installed asset pipeline.
+// Original sculpted continuous-shell mesh, NOT a collection of box primitives.
+// Load is asynchronous and attached to the captured scene group to avoid cross-floor
+// insertion during travel. Existing geometry, NPCs, portals and boundaries are untouched.
+const visitorConsoleAsset='./models/hexcore_archive_console.glb';
+function installedArchiveConsoles(departmentId){
+ if(departmentId==='admin')return; // private office is a separate future build
+ const hostWorld=world;
+ const choices=[
+  {x:-9,z:-11,title:'NEWS / MEDIA',action:()=>openContentArchive3D('posts')},
+  {x:9,z:-11,title:'PUBLIC WEBSITE',action:()=>openTraditionalTerminal3D()}
+ ];
+ for(const choice of choices){
+  interact(choice.title,[choice.x,2.4,choice.z+1.5],choice.action,4.2);
+  hexcoreRuntime.assets.model(visitorConsoleAsset,{draco:null,ktx2:null}).then(asset=>{
+   if(world!==hostWorld)return; // Visitor changed floors before download completed
+   asset.position.set(choice.x,.03,choice.z);
+   asset.rotation.y=0;
+   asset.scale.set(1.45,1.45,1.45);
+   asset.name='HexCore commissioned glTF '+choice.title;
+   asset.traverse(child=>{if(child.isMesh){child.castShadow=false;child.receiveShadow=false;}});
+   hostWorld.add(asset);
+  }).catch(error=>console.warn('HexCore glTF console not available:',error));
+  // Text stays legible and data-driven; the physical frame itself is an authored mesh.
+  sign(choice.title,[choice.x,5.9,choice.z+.26],5.8,.68);
+ }
+}
 function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),true);// Floating platform stays unchanged; individual abyss images replace only the black background.
  scene.background.setHex(0x000000);scene.fog=new THREE.FogExp2(0x000000,.00005);
  const abyssPath=departmentAbyssImages[data.id];
@@ -1482,7 +1509,7 @@ function floorRoom(data){guard(-27,22,300+floors.findIndex(f=>f.id===data.id),tr
  for(const x of [-18,0,18])for(const z of [-19,5,24]){
   box([x,11.7,z],[5.8,.23,.9],M.dark);box([x,11.51,z],[5.4,.035,.54],fixtureMat);
   const light=new THREE.PointLight(0x9daeff,2.0,20,2);light.position.set(x,10.8,z);world.add(light);
- }departmentArchitecture(data.id);box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
+ }departmentArchitecture(data.id);installedArchiveConsoles(data.id);box([0,2.2,-25],[23,4.5,1],M.dark);sign(data.title,[0,4,-24.35],24,2.1);sign(data.summary.slice(0,54).toUpperCase(),[0,1.7,-24.35],25,1);hexcoreFloorLogo(0,18,4.4);for(let side of [-1,1]){tree(side*22,-18,1.2);box([side*20,.35,9],[15,.7,8],M.dark);trim([side*20,.72,13],[15,.07,.09],M.blue);panel([side*20,3.7,10.8],[11,5.8,.22],M.glass);panel([side*20,6.7,10.85],[11.2,.12,.3],side===1?M.blue:M.violet);sign('QUESTIONS',[side*20,8.45,10.98],6.8,.8);employee(side*20,2,side);employee(side*17,-3,side+2);employee(side*23,-8,side+4);employee(side*15,8,side+6);
  interact('Speak to '+data.title+' staff',[side*20,1.5,2],()=>openNpcDepartment(data.id),4.4);
  interact('Ask '+data.title+' staff',[side*17,1.5,-3],()=>openNpcDepartment(data.id),4.4)}floorPortalNexus();portal('DEPARTMENT CONSOLE',0,-18,()=>openService(data.id));if(data.id==='legal'){for(let i=0;i<4;i++)representative(-22+i*14,1,i);portal('POLICY Q & A',-21,-7,()=>openKnowledge());}if(data.id==='admin'){portal('CONTENT EDITOR',0,-7,()=>openAdmin())}}
 // Keep the interior air volume free of tower-facade geometry. The exterior

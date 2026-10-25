@@ -96,3 +96,10 @@ A separate floating orb has been added to the 3D headquarters, with a code-fragm
 After character selection, visitors begin on a small obsidian platform suspended above a luminous black-hole horizon. The navigation guide materializes and gives its welcome. Press JUMP or SPACE to enter the fall cinematic, network transit, and code reconstruction. The HQ starts preparing asynchronously upon entering the intro platform and will not finish arrival until the world reports ready. Existing public HQ, NPCs and rooms are unchanged. Audio remains off.
 
 This build has structural and syntax validation; full visual/browser testing and performance tuning should follow deployment. The black hole is a stylized game visual, not a physically simulated gravitational lens.
+
+
+## V6.0.39 — Stage 6A: commissioned glTF exhibit terminals
+
+Adds `models/hexcore_archive_console.glb`, a newly-authored continuous-surface sculpted terminal with curved metallic shell, integrated luminous inlay, curved glass, and shaped pedestal. This is a real imported glTF asset loaded via `src/engine/asset-pipeline.js` / `hexcoreRuntime.assets.model`, not a BoxGeometry/cylinder placeholder. Two interactive modeled consoles on each **public** department floor open News & Media and the traditional holographic website; the private admin room is deliberately unchanged. Existing 3D environments, navigation, guide, NPCs, external building and loading sequence are preserved.
+
+The glTF asset includes geometry and PBR material information; browser/WebGL visual QA is still required. Do not delete `models/`. GitHub Pages must serve it with the rest of the repository.
