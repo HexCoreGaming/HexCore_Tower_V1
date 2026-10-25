@@ -1,5 +1,5 @@
 {
-  "version": "6.0.36",
+  "version": "6.0.37",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "modular environment engine foundation only; approved V6.0.28 environments untouched",
   "scene": "Three.js single shared exterior/lobby world",

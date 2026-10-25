@@ -85,3 +85,7 @@ Open `admin/index.html` on GitHub Pages. See `docs/SHARED_CMS.md` for auth, publ
 - Single GitHub repository; these are two experiences **within the same site**, not an additional external traditional-site repository.
 - The GitHub PAT is entered into the browser for the current editing session; this is **not a password-protected backend**. Use a restricted fine-grained token and trusted device.
 - An actual 3D object/surface browser or secure account login is not yet included.
+
+
+## V6.0.37 — HexCore navigation guide
+A separate floating orb has been added to the 3D headquarters, with a code-fragment materialization effect and old-school clickable dialogue choices. The guide can transfer visitors to every public department through the existing `travel()` function, open the included holographic site, and explain controls. It introduces itself after first arrival and can be summoned from the HUD. Existing employee NPCs and their dialogue remain untouched. No text generation, typed prompts, microphones, paid APIs, or sound effects. The future black-hole entrance/loading sequence is not part of this release.

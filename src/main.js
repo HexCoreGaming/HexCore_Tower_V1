@@ -1581,7 +1581,7 @@ function travel(id,spawn='default'){
  if((id==='lobby'||id==='outside')&&(floor==='lobby'||floor==='outside')){crossDoor(id);return;}
  doorCache=null;
  const oldPos=pos.clone(),oldYaw=yaw,oldPitch=pitch;
- closePortalSelector();floor=id;resetWorld();
+ closePortalSelector();setGuideVisible(false);floor=id;resetWorld();
  if(id==='outside'){
   cosmicElapsedMs=0;exterior();
   if(spawn==='fromLobby'){pos.set(Math.max(-4.8,Math.min(4.8,oldPos.x)),EYE_HEIGHT,32.12);yaw=oldYaw;pitch=oldPitch;}
@@ -1602,6 +1602,75 @@ function travel(id,spawn='default'){
 function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html; if($('panelBody').querySelector('#guideClose'))$('panelBody').querySelector('#guideClose').onclick=()=>$('panel').classList.add('hidden');$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// V6.0.37: ORIGINAL HEXCORE GUIDE - scripted, click-only dialogue tree.
+// The orb is independent of employee NPC actors; no staff are deleted or modified.
+const guideRoot=new THREE.Group();scene.add(guideRoot);
+const guideShell=new THREE.MeshPhysicalMaterial({color:0x0c1527,metalness:.89,roughness:.20,clearcoat:1,clearcoatRoughness:.13});
+const guideInner=new THREE.MeshBasicMaterial({color:0x58eeff});
+const guideViolet=new THREE.MeshBasicMaterial({color:0x836aff,transparent:true,opacity:.92});
+const guideOrb=new THREE.Group();guideRoot.add(guideOrb);
+const guideBody=new THREE.Mesh(new THREE.SphereGeometry(.34,32,20),guideShell);guideOrb.add(guideBody);
+const guideEye=new THREE.Mesh(new THREE.SphereGeometry(.135,24,16),guideInner);guideEye.position.z=.302;guideOrb.add(guideEye);
+const guidePupil=new THREE.Mesh(new THREE.SphereGeometry(.058,16,12),guideShell);guidePupil.position.z=.405;guideOrb.add(guidePupil);
+for(let i=0;i<3;i++){
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(.42+i*.025,.016,8,76),i===1?guideViolet:guideInner);
+ ring.rotation.set(i*.51,i*.82, i*.9);guideOrb.add(ring);
+}
+const guideFragments=[];
+for(let i=0;i<46;i++){
+ const shard=new THREE.Mesh(new THREE.BoxGeometry(.022,.055,.019),i%3===0?guideViolet:guideInner);
+ guideRoot.add(shard);guideFragments.push(shard);
+}
+const guideGlow=new THREE.PointLight(0x6aafff,1.6,4);guideRoot.add(guideGlow);
+let guideVisible=false,guideAppearingAt=0,guideLastNode='intro',guideIntroShown=false;
+const guideNodes={
+ intro:{line:'Greetings, visitor. I am the HexCore Guide, your navigation companion. Select an option whenever you need assistance.',options:[['Where can you take me?','destinations'],['What is HexCore Gaming?','company'],['How do I use this world?','controls'],['Not right now','dismiss']]},
+ main:{line:'Navigation systems ready. How may I assist you?',options:[['Take me to a department','destinations'],['Tell me about HexCore Gaming','company'],['How do I navigate?','controls'],['Open the traditional website','website'],['Dismiss guide','dismiss']]},
+ destinations:{line:'Select a destination. I can transfer you directly to any public department.',options:[['Main Lobby','go:lobby'],['Company & News','go:company'],['Games & Development','go:games'],['Support & Feedback','go:support'],['Legal & Policies','go:legal'],['Community & Media','go:community'],['Careers & Business','go:business'],['Hardware & Merchandise','go:hardware'],['Back','main']]},
+ company:{line:'HexCore Gaming is building games and interactive digital experiences. Visit Company & News for approved public information.',options:[['Take me to Company & News','go:company'],['Back','main']]},
+ controls:{line:'Use WASD to walk, the mouse to look around, and E to interact. On touchscreens, use the on-screen controls. Summon me from the top menu whenever you need guidance.',options:[['Take me somewhere','destinations'],['Back','main']]},
+ website:{line:'I can open the traditional holographic website without ending your 3D visit.',options:[['Open the website','action:website'],['Back','main']]}
+};
+function setGuideVisible(show){
+ guideVisible=show;
+ if(show){guideAppearingAt=performance.now();guideRoot.visible=true;guideRoot.scale.setScalar(.001);}
+ else {guideRoot.visible=false;guideRoot.scale.setScalar(.001)}
+}
+setGuideVisible(false);
+function openGuide(node='main'){
+ $('nav').classList.add('hidden');
+ if(node==='dismiss'){hideAll();setGuideVisible(false);return;}
+ const state=guideNodes[node]||guideNodes.main;guideLastNode=node;
+ if(!guideVisible)setGuideVisible(true);
+ setPanel(`<div class="eyebrow">HEXCORE / NAVIGATION COMPANION</div><h2>HEXCORE GUIDE</h2><p id="guideOrbStatus">◈ GUIDE SYSTEM ACTIVE</p><p>${esc(state.line)}</p><div id="guideOptions" class="floor-buttons">${state.options.map(([title,route],i)=>`<button data-guide-index="${i}">${i+1}. ${esc(title)}</button>`).join('')}</div><p class="small">Select a response. No typing or microphone required.</p>`);
+ $('guideOptions').querySelectorAll('[data-guide-index]').forEach(button=>button.onclick=()=>{
+  const route=state.options[Number(button.dataset.guideIndex)][1];
+  if(route.startsWith('go:')){setGuideVisible(false);travel(route.slice(3));return;}
+  if(route==='action:website'){setGuideVisible(false);hideAll();openTraditionalTerminal3D();return;}
+  openGuide(route);
+ });
+}
+$('guideSummon').addEventListener('click',()=>openGuide('main'));
+function updateGuideOrb(now){
+ if(!guideVisible)return;
+ // Always materialize slightly ahead and to the right of the visitor, even in departments.
+ const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+ const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+ guideRoot.position.copy(pos).addScaledVector(forward,2.4).addScaledVector(right,.7);
+ guideRoot.position.y=pos.y-.30+Math.sin(now*.0023)*.13;
+ guideRoot.rotation.y=yaw;
+ const elapsed=Math.max(0,(now-guideAppearingAt)*.001),progress=Math.min(1,elapsed/1.35);
+ const eased=1-Math.pow(1-progress,3);
+ guideOrb.scale.setScalar(Math.max(.001,eased));guideOrb.rotation.y=Math.sin(now*.0007)*.26;
+ guideGlow.intensity=1.4+Math.sin(now*.003)*.35;
+ guideFragments.forEach((shard,i)=>{
+  const angle=i*2.39996,spread=1.6*(1-eased)+.36;
+  const radius=spread*(.4+((i*13)%17)/17);
+  shard.position.set(Math.cos(angle)*radius,Math.sin(angle*1.73)*radius,Math.sin(angle)*radius);
+  shard.rotation.set(now*.0008+i,now*.001+i*.4,angle);
+  shard.scale.setScalar(progress<1?Math.max(.001,1-progress):.001);
+ });
+}
 function openService(id){const c=content(id);const qaLink=id==='legal'?'<button id="seeQA">OPEN PRESERVED POLICY Q & A</button>':'';setPanel(`<div class="eyebrow">HEXCORE / ${esc(id.toUpperCase())}</div><h2>${esc(c.headline)}</h2><p>${esc(c.description)}</p><div class="directory-item"><h3>INFORMATION</h3><p>${esc(c.updates)}</p></div>${qaLink}<p class="small">This is an editable content location. Unpublished contact links, sales, and submissions are not represented as live services.</p>`);$('seeQA')?.addEventListener('click',()=>openKnowledge())}
 
 // PHASE 3: A consistent in-world conversation flow; approved legal Q&A remain untouched.
@@ -1791,7 +1860,7 @@ for(const evt of ['pointerup','pointercancel','lostpointercapture'])$('runTouch'
 window.addEventListener('blur',()=>{clearMovePad();clearLookPad();running=false});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){clearMovePad();clearLookPad();running=false}});
 window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)nearest?.cb();if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
-function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'||floor==='lobby'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-31,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);
+function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active)return;if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'||floor==='lobby'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-31,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);updateGuideOrb(now);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
 npcConversationPulse(now);if(floor==='outside'||floor==='lobby')cosmicElapsedMs+=dt*1000;updateLivingSpace(now);updatePeacefulSpace(now);
@@ -1878,6 +1947,7 @@ function finishArrival(){
  camera.position.copy(pos);camera.rotation.set(0,0,0);
  $('zone').textContent='HEXCORE // EXTERIOR PLAZA';
  scheduleDoorPrebuild();
+ if(!guideIntroShown){guideIntroShown=true;setTimeout(()=>{if(active)openGuide('intro')},1600);}
  $('arrivalBeam').classList.remove('hidden');
  setTimeout(()=>$('arrivalBeam').classList.add('hidden'),3000);
  if(!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{});
