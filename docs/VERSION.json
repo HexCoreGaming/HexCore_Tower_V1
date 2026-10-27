@@ -1,5 +1,5 @@
 {
-  "version": "6.0.39",
+  "version": "6.0.40",
   "source_base": "V6.0.10 Side Walkway Image Update",
   "scope": "modular environment engine foundation only; approved V6.0.28 environments untouched",
   "scene": "Three.js single shared exterior/lobby world",
@@ -11,5 +11,5 @@
   ],
   "npc_changes": "none",
   "mechanics_changes": "none",
-  "notes": "Stage 6A: modeled glTF public visitor terminals in each public department. Installed engine asset pipeline loads authored sculpted terminal meshes; links to shared CMS news/media and traditional holographic website. Existing worlds, NPCs and gameplay preserved."
+  "notes": "Traditional holographic interface animation, layered panel interactions, and scripted summonable floating AI guide. 3D scene code unchanged."
 }
