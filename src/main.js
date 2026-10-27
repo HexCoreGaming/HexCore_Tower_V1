@@ -1626,7 +1626,7 @@ function travel(id,spawn='default'){
  // Preload the other side asynchronously after the first playable frame, never on ENTER.
  if(id==='lobby'||id==='outside')scheduleDoorPrebuild();
 }
-function hideAll(){const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
+function hideAll(){$('panel').classList.remove('website-fullscreen');const hadOverlay=!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden');$('panel').classList.add('hidden');$('nav').classList.add('hidden');keys={};if(hadOverlay&&document.pointerLockElement===renderer.domElement)document.exitPointerLock()}
 function setPanel(html){$('panelBody').innerHTML=html; if($('panelBody').querySelector('#guideClose'))$('panelBody').querySelector('#guideClose').onclick=()=>$('panel').classList.add('hidden');$('panel').classList.remove('hidden');keys={};if(document.pointerLockElement)document.exitPointerLock()}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // V6.0.37: ORIGINAL HEXCORE GUIDE - scripted, click-only dialogue tree.
@@ -1649,7 +1649,7 @@ for(let i=0;i<46;i++){
  guideRoot.add(shard);guideFragments.push(shard);
 }
 const guideGlow=new THREE.PointLight(0x6aafff,1.6,4);guideRoot.add(guideGlow);
-let guideVisible=false,guideAppearingAt=0,guideLastNode='intro',guideIntroShown=false;
+let guideVisible=false,guideAppearingAt=0,guideLastNode='intro',guideIntroShown=false,guideFollowing=true;const guideTarget=new THREE.Vector3();
 const guideNodes={
  intro:{line:'Greetings, visitor. I am the HexCore Guide, your navigation companion. Select an option whenever you need assistance.',options:[['Where can you take me?','destinations'],['What is HexCore Gaming?','company'],['How do I use this world?','controls'],['Not right now','dismiss']]},
  main:{line:'Navigation systems ready. How may I assist you?',options:[['Take me to a department','destinations'],['Tell me about HexCore Gaming','company'],['How do I navigate?','controls'],['Open the traditional website','website'],['Dismiss guide','dismiss']]},
@@ -1660,31 +1660,33 @@ const guideNodes={
 };
 function setGuideVisible(show){
  guideVisible=show;
- if(show){guideAppearingAt=performance.now();guideRoot.visible=true;guideRoot.scale.setScalar(.001);}
+ if(show){guideAppearingAt=performance.now();guideRoot.visible=true;guideRoot.scale.setScalar(.001);const f=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));guideRoot.position.copy(pos).addScaledVector(f,2);}
  else {guideRoot.visible=false;guideRoot.scale.setScalar(.001)}
 }
 setGuideVisible(false);
 function openGuide(node='main'){
  $('nav').classList.add('hidden');
- if(node==='dismiss'){hideAll();setGuideVisible(false);return;}
+ if(node==='dismiss'){hideAll();return;}
  const state=guideNodes[node]||guideNodes.main;guideLastNode=node;
  if(!guideVisible)setGuideVisible(true);
  setPanel(`<div class="eyebrow">HEXCORE / NAVIGATION COMPANION</div><h2>HEXCORE GUIDE</h2><p id="guideOrbStatus">◈ GUIDE SYSTEM ACTIVE</p><p>${esc(state.line)}</p><div id="guideOptions" class="floor-buttons">${state.options.map(([title,route],i)=>`<button data-guide-index="${i}">${i+1}. ${esc(title)}</button>`).join('')}</div><p class="small">Select a response. No typing or microphone required.</p>`);
  $('guideOptions').querySelectorAll('[data-guide-index]').forEach(button=>button.onclick=()=>{
   const route=state.options[Number(button.dataset.guideIndex)][1];
-  if(route.startsWith('go:')){setGuideVisible(false);travel(route.slice(3));return;}
+  if(route.startsWith('go:')){travel(route.slice(3));setGuideVisible(true);return;}
   if(route==='action:website'){setGuideVisible(false);hideAll();openTraditionalTerminal3D();return;}
   openGuide(route);
  });
 }
-$('guideSummon').addEventListener('click',()=>openGuide('main'));
+$('guideSummon').addEventListener('click',()=>{setGuideVisible(true);guideFollowing=true;hideAll();});
+renderer.domElement.addEventListener('pointerdown',e=>{if(!active||!guideVisible||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden'))return;const rect=renderer.domElement.getBoundingClientRect();const pointer=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);const ray=new THREE.Raycaster();ray.setFromCamera(pointer,camera);if(ray.intersectObject(guideOrb,true).length)openGuide('main');});
 function updateGuideOrb(now){
  if(!guideVisible)return;
  // Always materialize slightly ahead and to the right of the visitor, even in departments.
  const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
  const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
- guideRoot.position.copy(pos).addScaledVector(forward,2.4).addScaledVector(right,.7);
- guideRoot.position.y=pos.y-.30+Math.sin(now*.0023)*.13;
+ guideTarget.copy(pos).addScaledVector(forward,guideFollowing?1.9:2.4).addScaledVector(right,guideFollowing?.85:0);
+ guideTarget.y=pos.y-.23+Math.sin(now*.0023)*.13;
+ guideRoot.position.lerp(guideTarget,Math.min(1,guideRoot.position.distanceTo(guideTarget)>9?1:.09));
  guideRoot.rotation.y=yaw;
  const elapsed=Math.max(0,(now-guideAppearingAt)*.001),progress=Math.min(1,elapsed/1.35);
  const eased=1-Math.pow(1-progress,3);
@@ -1842,12 +1844,12 @@ function openContentArchive3D(section='posts'){
 }
 function openTraditionalTerminal3D(){
  setPanel(`<div class="eyebrow">HEXCORE / PUBLIC INTERFACE</div><h2>TRADITIONAL WEBSITE</h2><p>Browse the full holographic website without leaving the headquarters session.</p><div id="websiteFrameHost"></div><button id="websiteClose">CLOSE TERMINAL</button>`);
- const frame=document.createElement('iframe');frame.src='./holographic.html';frame.title='HexCore traditional holographic website';frame.loading='lazy';frame.style.cssText='width:100%;height:min(68vh,700px);border:1px solid #60539b;border-radius:9px;background:#090b18';$('websiteFrameHost').append(frame);$('websiteClose').onclick=hideAll;
+ const frame=document.createElement('iframe');frame.src='./holographic.html';frame.title='HexCore traditional holographic website';frame.loading='lazy';frame.style.cssText='display:block;width:100%;height:calc(100dvh - 155px);min-height:330px;border:1px solid #60539b;border-radius:9px;background:#090b18';$('panel').classList.add('website-fullscreen');$('websiteFrameHost').append(frame);$('websiteClose').onclick=()=>{hideAll();$('panel').classList.remove('website-fullscreen');};
 }
 $('contentArchiveBtn').onclick=()=>{hideAll();openContentArchive3D()};
 $('websiteTerminalBtn').onclick=()=>{hideAll();openTraditionalTerminal3D()};
 
-$('closePanel').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('closeNav').onclick=()=>{$('nav').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('menuBtn').onclick=()=>{hideAll();$('nav').classList.remove('hidden')};$('settingsBtn').onclick=()=>{hideAll();setPanel(`<h2>GRAPHICS & CONTROLS</h2><p>Adaptive rendering supports mobile and desktop devices.</p><select id="liveQuality"><option value="low">LOW / MOBILE</option><option value="medium">BALANCED</option><option value="high">HIGH</option></select><button id="applyQuality">APPLY</button><p>Desktop: WASD, mouse, Shift, E. Mobile: left MOVE joystick, swipe screen to LOOK, bottom INTERACT and RUN.</p>`);$('liveQuality').value=quality;$('applyQuality').onclick=()=>{quality=$('liveQuality').value;resizeRenderer();$('panel').classList.add('hidden')}};$('returnLobby').onclick=()=>travel('lobby');$('floorButtons').innerHTML=floors.map(f=>`<div class="directory-item">${esc(f.label)}</div>`).join('')+'<div class="directory-item">OUTSIDE • EXIT THROUGH LOBBY</div>';
+$('closePanel').onclick=()=>{$('panel').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('closeNav').onclick=()=>{$('nav').classList.add('hidden');if(active&&!mobile)renderer.domElement.requestPointerLock?.().catch(()=>{})};$('menuBtn').onclick=()=>{hideAll();$('nav').classList.remove('hidden')};$('settingsBtn').onclick=()=>{hideAll();setPanel(`<h2>GRAPHICS & CONTROLS</h2><p>Adaptive rendering supports mobile and desktop devices.</p><select id="liveQuality"><option value="low">LOW / MOBILE</option><option value="medium">BALANCED</option><option value="high">HIGH</option></select><button id="applyQuality">APPLY</button><p>Desktop: WASD, mouse, Shift, E. Mobile: left MOVE joystick, swipe screen to LOOK, bottom INTERACT and RUN.</p>`);$('liveQuality').value=quality;$('applyQuality').onclick=()=>{quality=$('liveQuality').value;resizeRenderer();$('panel').classList.add('hidden')}};$('returnLobby').onclick=()=>travel('lobby');$('floorButtons').replaceChildren();$('quitMainMenu').onclick=()=>{hideAll();if(document.pointerLockElement)document.exitPointerLock();window.location.assign('./index.html');};
 function resizeRenderer(){let dpr=quality==='low'?Math.min(devicePixelRatio,1):quality==='medium'?Math.min(devicePixelRatio,1.35):Math.min(devicePixelRatio,1.4);renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}window.addEventListener('resize',resizeRenderer);
 let prev=performance.now(),movePad={x:0,y:0},lookPad={x:0,y:0},running=false,mobile=matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints>0 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function initPad(id,target){
@@ -1880,13 +1882,13 @@ renderer.domElement.addEventListener('pointermove',e=>{
  yaw-=dx*.004;pitch=Math.max(-1.32,Math.min(1.32,pitch-dy*.004));
 });
 for(const evt of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(evt,e=>{if(e.pointerId===lookTouchId)lookTouchId=null});
-$('interactTouch').addEventListener('pointerdown',e=>{e.preventDefault();if(portalSelection){const choice=portalSelection.choices[portalSelection.index];if(choice){closePortalSelector();travel(choice.id)}return;}
+$('interactTouch').addEventListener('pointerdown',e=>{e.preventDefault();if(guideVisible&&pos.distanceTo(guideRoot.position)<3.6&&!portalSelection){openGuide('main');return;}if(portalSelection){const choice=portalSelection.choices[portalSelection.index];if(choice){closePortalSelector();travel(choice.id)}return;}
  if(nearest && $('panel').classList.contains('hidden') && $('nav').classList.contains('hidden'))nearest.cb();});
 $('runTouch').addEventListener('pointerdown',e=>{e.preventDefault();running=true;$('runTouch').setPointerCapture(e.pointerId)});
 for(const evt of ['pointerup','pointercancel','lostpointercapture'])$('runTouch').addEventListener(evt,()=>running=false);
 window.addEventListener('blur',()=>{clearMovePad();clearLookPad();running=false});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){clearMovePad();clearLookPad();running=false}});
-window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat)nearest?.cb();if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
+window.addEventListener('keydown',e=>{if(portalSelection){if(portalInput(e.code))e.preventDefault();return}if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')){if(e.code==='Escape')hideAll();return}keys[e.code]=true;if(e.code==='KeyE'&&!e.repeat){if(guideVisible&&pos.distanceTo(guideRoot.position)<3.6)openGuide('main');else nearest?.cb();}if(e.code==='Escape')$('menuBtn').click()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};running=false});renderer.domElement.addEventListener('click',()=>{if(active&&!mobile&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden'))renderer.domElement.requestPointerLock?.()});window.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0023;pitch=Math.max(-1.32,Math.min(1.32,pitch-e.movementY*.0023))}});
 function tick(now){requestAnimationFrame(tick);let dt=Math.min((now-prev)/1000,.045);prev=now;if(!active){animateVoid(now);return;}if(!portalSelection&&$('panel').classList.contains('hidden')&&$('nav').classList.contains('hidden')){yaw-=lookPad.x*dt*2.5;pitch=Math.max(-1.3,Math.min(1.3,pitch-lookPad.y*dt*2));let forward=(Number(!!keys.KeyW)-Number(!!keys.KeyS))-movePad.y;let strafe=(Number(!!keys.KeyD)-Number(!!keys.KeyA))+movePad.x;let len=Math.hypot(forward,strafe);if(len>.05){const speed=(keys.ShiftLeft||keys.ShiftRight||running?11:6.5)*dt/Math.max(1,len);const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);let nx=pos.x+(forwardX*forward+rightX*strafe)*speed;let nz=pos.z+(forwardZ*forward+rightZ*strafe)*speed;if(floor==='outside'||floor==='lobby'){pos.x=Math.max(-101,Math.min(101,nx));pos.z=Math.max(-31,Math.min(184,nz));}else{pos.x=Math.max(-30,Math.min(30,nx));pos.z=Math.max(-31,Math.min(31,nz))}}}camera.position.copy(pos);camera.rotation.set(pitch,yaw,0);updateGuideOrb(now);
 if(floor==='lobby')$('zone').textContent='G • MAIN LOBBY';
 if(floor==='outside')$('zone').textContent='HEXCORE // EXTERIOR PLAZA';
@@ -1937,7 +1939,7 @@ if(transitionCooldown<=0&&Math.abs(pos.x)<5.5){
  if(floor==='lobby'&&pos.z>=32.02)crossDoor('outside');
  else if(floor==='outside'&&pos.z<=31.98)crossDoor('lobby');
 }
-nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;if(floor==='outside'||floor==='lobby')updateExteriorV6(now/1000);for(const fx of departmentPortalFX){fx.energy.uniforms.time.value=now*.001;fx.movingRim.rotation.z=now*.00024;}renderer.render(scene,camera);hexcoreRuntime.frame(dt)}requestAnimationFrame(tick);
+nearest=null;let d=1000;for(let ent of entities){let dist=pos.distanceTo(ent.pos);if(dist<ent.range&&dist<d){nearest=ent;d=dist}}$('prompt').classList.toggle('hidden',!nearest||!$('panel').classList.contains('hidden')||!$('nav').classList.contains('hidden')||!!portalSelection);if(nearest)$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  '+nearest.name;else if(guideVisible&&pos.distanceTo(guideRoot.position)<3.6){$('prompt').classList.remove('hidden');$('prompt').textContent=(mobile?'INTERACT':'[ E ]')+'  HEXCORE GUIDE';}if(floor==='outside'||floor==='lobby')updateExteriorV6(now/1000);for(const fx of departmentPortalFX){fx.energy.uniforms.time.value=now*.001;fx.movingRim.rotation.z=now*.00024;}renderer.render(scene,camera);hexcoreRuntime.frame(dt)}requestAnimationFrame(tick);
 // Stage 5: isolated cinematic entry scene. The full HQ is prepared in the
 // existing world scene, while this small scene remains responsive.
 const voidScene=new THREE.Scene();voidScene.background=new THREE.Color(0x000000);
@@ -1968,14 +1970,15 @@ function summonVoidEntry(quickSex){
  if(quickSex){selected={species:'human',body:quickSex,preset:'standard',outfit:'casual'};updateAppearanceButtons();}
  quality=$('quality').value==='auto'?(mobile?'low':'medium'):$('quality').value;resizeRenderer();
  $('entry').classList.add('hidden');$('loading').classList.add('hidden');$('voidIntro').classList.remove('hidden');
- voidState='platform';voidStart=performance.now();introCameraYaw=0;entryRequested=false;
+ voidState='platform';voidStart=performance.now();introCameraYaw=0;entryRequested=false;voidWalker.set(0,0);voidKeys.clear();
  voidCamera.position.set(0,2.8,7);voidCamera.lookAt(0,-10,-4);
  // Start asset/geometry preparation as soon as the void appears, not after jumping.
  setTimeout(()=>{if(!initialWorldReady&&!preparingWorld)warmInitialExterior();},350);
 }
 function startVoidJump(){if(voidState!=='platform'||performance.now()-voidStart<1800)return;voidState='fall';fallStart=performance.now();$('voidIntro').classList.add('hidden');$('reconstructHud').classList.remove('hidden');$('reconstructStatus').textContent='TRANSFERRING USER INSTANCE';}
-$('voidJump').addEventListener('click',startVoidJump);
-window.addEventListener('keydown',e=>{if(voidState==='platform'&&e.code==='Space'){e.preventDefault();startVoidJump();}},true);
+let voidWalker=new THREE.Vector2(0,0),voidKeys=new Set();
+for(const [id,key] of [['voidForward','KeyW'],['voidLeft','KeyA'],['voidRight','KeyD']]){const btn=$(id);btn.addEventListener('pointerdown',e=>{e.preventDefault();voidKeys.add(key);btn.setPointerCapture(e.pointerId)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])btn.addEventListener(ev,()=>voidKeys.delete(key));}$('voidLeap').addEventListener('click',()=>{if(voidWalker.length()>3.3)startVoidJump();});window.addEventListener('keydown',e=>{if(voidState==='platform')voidKeys.add(e.code)});window.addEventListener('keyup',e=>voidKeys.delete(e.code));window.addEventListener('blur',()=>voidKeys.clear());
+window.addEventListener('keydown',e=>{if(voidState==='platform'&&e.code==='Space'){e.preventDefault();if(voidWalker.length()>3.3)startVoidJump();}},true);
 function animateVoid(now){
  if(voidState==='idle'||voidState==='complete')return false;
  let t=(now-voidStart)*.001;
@@ -1984,7 +1987,7 @@ function animateVoid(now){
  horizon.rotation.z+=.00035;disk.material.uniforms.t.value=t;
  if(voidState==='platform'){
    $('voidGuideLine').textContent=t<2?'GUIDE MATERIALIZING…':t<5?'WELCOME TO HEXCORE. I AM YOUR NAVIGATION GUIDE.':'WHEN YOU ARE READY TO ENTER, PLEASE JUMP.';
-   voidCamera.position.set(Math.sin(introCameraYaw)*1.4,2.95,7);voidCamera.lookAt(0,-13,-4);
+   const vSpeed=.095;const mx=Number(voidKeys.has('KeyD'))-Number(voidKeys.has('KeyA'));const mz=Number(voidKeys.has('KeyS'))-Number(voidKeys.has('KeyW'));voidWalker.x+=mx*vSpeed;voidWalker.y+=mz*vSpeed;const dist=voidWalker.length();if(dist>4.35&&t>1.8){startVoidJump();}voidCamera.position.set(voidWalker.x,1.75,voidWalker.y);voidCamera.lookAt(voidWalker.x,-16,voidWalker.y-15);
    introAvatar.visible=false;
  } else if(voidState==='fall'){
    const f=(now-fallStart)*.001;
@@ -2050,6 +2053,8 @@ function finishArrival(){
  camera.position.copy(pos);camera.rotation.set(0,0,0);
  $('zone').textContent='HEXCORE // EXTERIOR PLAZA';
  scheduleDoorPrebuild();
+ // Companion enters the world, follows nearby, and speaks only after interaction.
+ guideFollowing=true;setGuideVisible(true);
  // The guide introduced itself in the entry void; do not repeat the welcome.
  $('arrivalBeam').classList.remove('hidden');
  setTimeout(()=>$('arrivalBeam').classList.add('hidden'),3000);

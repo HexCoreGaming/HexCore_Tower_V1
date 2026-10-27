@@ -1,15 +1,5 @@
 {
-  "version": "6.0.40",
-  "source_base": "V6.0.10 Side Walkway Image Update",
-  "scope": "modular environment engine foundation only; approved V6.0.28 environments untouched",
-  "scene": "Three.js single shared exterior/lobby world",
-  "visual_art_method": "owner-reference-textured relief surfaces + physical supporting geometry",
-  "mechanics": "movement/dialogue/transit/doors/scene thresholds retained",
-  "known_limits": [
-    "image-assisted relief, not a fully sculpted 360-degree model",
-    "rendered WebGL output has not been visually verified in a browser environment"
-  ],
-  "npc_changes": "none",
-  "mechanics_changes": "none",
-  "notes": "Traditional holographic interface animation, layered panel interactions, and scripted summonable floating AI guide. 3D scene code unchanged."
+  "build": "V6.0.41",
+  "publicVersion": "Alpha Version: 1.0",
+  "focus": "stabilization and interaction corrections"
 }
