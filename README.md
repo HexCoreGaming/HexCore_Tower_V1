@@ -103,3 +103,7 @@ This build has structural and syntax validation; full visual/browser testing and
 Adds `models/hexcore_archive_console.glb`, a newly-authored continuous-surface sculpted terminal with curved metallic shell, integrated luminous inlay, curved glass, and shaped pedestal. This is a real imported glTF asset loaded via `src/engine/asset-pipeline.js` / `hexcoreRuntime.assets.model`, not a BoxGeometry/cylinder placeholder. Two interactive modeled consoles on each **public** department floor open News & Media and the traditional holographic website; the private admin room is deliberately unchanged. Existing 3D environments, navigation, guide, NPCs, external building and loading sequence are preserved.
 
 The glTF asset includes geometry and PBR material information; browser/WebGL visual QA is still required. Do not delete `models/`. GitHub Pages must serve it with the rest of the repository.
+
+
+## V6.0.42 — Alpha 1.0.1
+Dashboard management expansion: site-specific department text, AI guide scripted dialogue text, media placement intent, content preview, GitHub publishing retained. See `docs/V6.0.42_DASHBOARD.md`.

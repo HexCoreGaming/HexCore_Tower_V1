@@ -28,7 +28,7 @@ managedReady.then(()=>{for(const g of groups){const override=managedContent.faq[
 
 
 let edits={};try{edits=JSON.parse(localStorage.getItem('hexcore_edits_v1')||'{}')}catch{};
-const content=id=>({...baseContent[id],...(managedContent.departments[id]||{}),...(edits[id]||{})});
+const content=id=>({...baseContent[id],...(managedContent.departments[id]||{}),...(managedContent.siteOverrides?.["3d"]?.[id]||{}),...(edits[id]||{})});
 let selected={species:'human',body:'male',preset:'standard',outfit:'casual'};
 function updateAppearanceButtons(){
  for(const [name,key] of [['species','species'],['body','body'],['presets','preset'],['outfits','outfit']]){
@@ -1667,9 +1667,9 @@ setGuideVisible(false);
 function openGuide(node='main'){
  $('nav').classList.add('hidden');
  if(node==='dismiss'){hideAll();return;}
- const state=guideNodes[node]||guideNodes.main;guideLastNode=node;
+ const state=guideNodes[node]||guideNodes.main;guideLastNode=node;const guideLine=managedContent.guideLines?.[node]||state.line;
  if(!guideVisible)setGuideVisible(true);
- setPanel(`<div class="eyebrow">HEXCORE / NAVIGATION COMPANION</div><h2>HEXCORE GUIDE</h2><p id="guideOrbStatus">◈ GUIDE SYSTEM ACTIVE</p><p>${esc(state.line)}</p><div id="guideOptions" class="floor-buttons">${state.options.map(([title,route],i)=>`<button data-guide-index="${i}">${i+1}. ${esc(title)}</button>`).join('')}</div><p class="small">Select a response. No typing or microphone required.</p>`);
+ setPanel(`<div class="eyebrow">HEXCORE / NAVIGATION COMPANION</div><h2>HEXCORE GUIDE</h2><p id="guideOrbStatus">◈ GUIDE SYSTEM ACTIVE</p><p>${esc(guideLine)}</p><div id="guideOptions" class="floor-buttons">${state.options.map(([title,route],i)=>`<button data-guide-index="${i}">${i+1}. ${esc(title)}</button>`).join('')}</div><p class="small">Select a response. No typing or microphone required.</p>`);
  $('guideOptions').querySelectorAll('[data-guide-index]').forEach(button=>button.onclick=()=>{
   const route=state.options[Number(button.dataset.guideIndex)][1];
   if(route.startsWith('go:')){travel(route.slice(3));setGuideVisible(true);return;}

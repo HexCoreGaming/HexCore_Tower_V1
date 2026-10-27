@@ -1,5 +1,5 @@
 {
-  "build": "V6.0.41",
-  "publicVersion": "Alpha Version: 1.0",
-  "focus": "stabilization and interaction corrections"
+  "build": "V6.0.42",
+  "publicVersion": "Alpha Version: 1.0.1",
+  "focus": "dashboard management: shared and site-specific content, AI guide copy, previews"
 }
